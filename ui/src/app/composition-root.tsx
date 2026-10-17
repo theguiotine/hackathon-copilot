@@ -6,6 +6,7 @@
 // y `presentation/` a propósito — es el `main` de la hexagonal, no una capa más (L37).
 
 import * as React from 'react';
+import { DEMO_MEMORY, DemoAppProviders } from './demo-mode';
 import { useArchieClient } from '@archie/react-sdk';
 import type { IGraphQLModule } from '@archie/js-sdk';
 import { useArchieAuth } from '../infrastructure/archie/auth.adapter';
@@ -61,7 +62,7 @@ export function createRepositories(gql: IGraphQLModule): Repositories {
 }
 
 /** El árbol de providers que toda ruta de la app cuelga por encima de sus containers. */
-export function AppProviders(props: {
+function ArchieAppProviders(props: {
   readonly children: React.ReactNode;
 }): React.ReactElement {
   const client = useArchieClient();
@@ -84,3 +85,6 @@ export function AppProviders(props: {
     }),
   });
 }
+
+/** Demo mode swaps the Archie-backed tree for the in-memory one (see demo-mode.tsx). */
+export const AppProviders = DEMO_MEMORY ? DemoAppProviders : ArchieAppProviders;

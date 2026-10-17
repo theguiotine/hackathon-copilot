@@ -5,4 +5,8 @@
 // orillas. `routes.config.tsx` la importa de AQUÍ y no del proveedor, así que el manifiesto de
 // rutas ya no nombra el SDK (L70). Con el backend de datos `archie` es una indirección pura — el
 // MISMO `AuthGuard` del SDK, misma conducta.
-export { AuthGuard } from '@archie/react-sdk';
+import { AuthGuard as SdkAuthGuard } from '@archie/react-sdk';
+import { DEMO_MEMORY, DemoAuthGuard } from './demo-mode';
+
+// Demo mode (VITE_DEMO_MEMORY=1) has no backend: the guard lets every route through.
+export const AuthGuard = (DEMO_MEMORY ? DemoAuthGuard : SdkAuthGuard) as typeof SdkAuthGuard;
