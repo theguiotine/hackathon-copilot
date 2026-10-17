@@ -91,6 +91,7 @@ def analyze(conv: Conversation) -> dict:
             "flags": [_dump(f) for f in flag_conversation(conv)], "score": score_conversation(conv)}
 
 
+MAX_BODY = 64 * 1024  # bytes; larger request bodies are refused with 413
 BLIND_RESULTS = FIXTURES / "blind_results.json"
 
 
@@ -153,6 +154,8 @@ class App:
 
 def make_handler(app: App):
     class H(BaseHTTPRequestHandler):
+        _head = False
+
         def _send(self, code, obj):
             body = json.dumps(obj, ensure_ascii=False).encode("utf-8")
             self.send_response(code)
@@ -164,7 +167,12 @@ def make_handler(app: App):
                 self.send_header("Access-Control-Allow-Headers", "content-type")
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
-            self.wfile.write(body)
+            if not self._head:
+                self.wfile.write(body)
+
+        def do_HEAD(self):
+            self._head = True
+            self.do_GET()
 
         def do_OPTIONS(self):
             self._send(204, {})
@@ -196,7 +204,8 @@ def make_handler(app: App):
                 self.send_header("Content-Type", ctype)
                 self.send_header("Content-Length", str(len(body)))
                 self.end_headers()
-                self.wfile.write(body)
+                if not self._head:
+                    self.wfile.write(body)
                 return
             self._send(404, {"error": "not found"})
 
@@ -209,8 +218,16 @@ def make_handler(app: App):
                     return self._send(409, {"error": "LLM module is off (LLM_APPROVED not set)"})
                 return self._send(501, {"error": "not implemented"})
             if path == "/api/analyze":
+                raw_len = self.headers.get("Content-Length")
                 try:
-                    n = int(self.headers.get("Content-Length", "0"))
+                    n = int(raw_len) if raw_len is not None else -1
+                except ValueError:
+                    n = -1
+                if n < 0:
+                    return self._send(400, {"error": "a valid Content-Length is required"})
+                if n > MAX_BODY:
+                    return self._send(413, {"error": f"request body too large (limit {MAX_BODY} bytes)"})
+                try:
                     conv = Conversation.from_dict(json.loads(self.rfile.read(n).decode("utf-8")))
                 except (SchemaError, ValueError) as e:
                     return self._send(400, {"error": str(e)})

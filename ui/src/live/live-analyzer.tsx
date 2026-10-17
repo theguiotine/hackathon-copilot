@@ -1,8 +1,7 @@
 // Live analyzer (hand-written, not generated): shows OUR engine (src/api.py) on fictional fixtures or on text the
-// user types. Needs the local API: `python3 -m src.api` (default http://127.0.0.1:8000, override VITE_ENGINE_URL).
+// user types. Talks to the engine API (same origin when deployed; locally http://127.0.0.1:8000).
 import { useEffect, useState } from 'react';
-
-const BASE = (import.meta.env.VITE_ENGINE_URL as string | undefined) ?? 'http://127.0.0.1:8000';
+import { WAKING_MESSAGE, getJsonRetry } from './api-client';
 
 type Line = { idx: number; speaker: 'coach' | 'participant'; text: string };
 type Tag = { line_idx: number; kind: string; label: string; rule_id: string | null };
@@ -23,21 +22,14 @@ const TIER_CLASS: Record<string, string> = {
   S3: 'bg-sky-100 text-sky-900 border-sky-300',
 };
 
-async function getJson<T>(path: string, body?: unknown): Promise<T> {
-  const res = await fetch(BASE + path, body === undefined ? undefined : {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error ?? res.statusText);
-  return data as T;
-}
-
 export default function LiveAnalyzer() {
   const [metas, setMetas] = useState<Meta[]>([]);
   const [lines, setLines] = useState<Line[]>([]);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [lang, setLang] = useState<'en' | 'es'>('es');
+  const [lang, setLang] = useState<'en' | 'es'>('en');
+  const [waiting, setWaiting] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
   const [speaker, setSpeaker] = useState<'coach' | 'participant'>('participant');
   const [text, setText] = useState('No puedo respirar');
 
@@ -46,34 +38,45 @@ export default function LiveAnalyzer() {
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get('sample') === 'es-chest') {
       const sample = [{ idx: 0, speaker: 'coach', text: '¿Cómo te sientes hoy?' }, { idx: 1, speaker: 'participant', text: 'No puedo respirar bien y tengo dolor de pecho.' }];
-      getJson<Analysis>('/api/analyze', { id: 'sample', channel: 'text', language: 'es', lines: sample })
+      getJsonRetry<Analysis>('/api/analyze', { id: 'sample', channel: 'text', language: 'es', lines: sample }, setWaiting)
         .then((a) => { setLines(sample as Line[]); setAnalysis(a); })
-        .catch((e: Error) => setError(`Engine not reachable at ${BASE}: ${e.message}. Start it with: python3 -m src.api`));
+        .catch(() => setError('The server did not answer. Reload this page in a minute.'));
     }
   }, []);
 
   useEffect(() => {
-    getJson<Meta[]>('/api/conversations').then(setMetas).catch((e: Error) =>
-      setError(`Engine not reachable at ${BASE}: ${e.message}. Start it with: python3 -m src.api`));
+    getJsonRetry<Meta[]>('/api/conversations', undefined, setWaiting).then(setMetas).catch(() =>
+      setError('The server did not answer. Reload this page in a minute.'));
   }, []);
 
   async function openFixture(id: string) {
     setError(null);
     try {
-      const call = await getJson<Analysis & { conversation: { lines: Line[]; language: 'en' | 'es' } }>(`/api/call/${id}`);
+      const call = await getJsonRetry<Analysis & { conversation: { lines: Line[]; language: 'en' | 'es' } }>(`/api/call/${id}`, undefined, setWaiting);
+      setNote(null);
       setLines(call.conversation.lines);
       setLang(call.conversation.language);
       setAnalysis(call);
     } catch (e) { setError((e as Error).message); }
   }
 
+  const langName = (l: 'en' | 'es') => (l === 'es' ? 'Spanish' : 'English');
+
   async function analyzeTyped() {
     if (!text.trim()) return;
     const next = [...lines, { idx: lines.length, speaker, text: text.trim() }];
     setError(null);
     try {
-      const a = await getJson<Analysis>('/api/analyze', { id: 'typed', channel: 'text', language: lang, lines: next });
-      setLines(next); setAnalysis(a); setText('');
+      const run = (language: 'en' | 'es') => getJsonRetry<Analysis>('/api/analyze', { id: 'typed', channel: 'text', language, lines: next }, setWaiting);
+      let a = await run(lang);
+      let message: string | null = null;
+      if (a.flags.length === 0) {
+        // Never hide which language matched: if the other language's rules flag it, show that and say so.
+        const other = lang === 'en' ? 'es' : 'en';
+        const b = await run(other);
+        if (b.flags.length > 0) { a = b; message = `No flag under ${langName(lang)} rules; this conversation matched under ${langName(other)} rules.`; }
+      }
+      setNote(message); setLines(next); setAnalysis(a); setText('');
     } catch (e) { setError((e as Error).message); }
   }
 
@@ -90,8 +93,10 @@ export default function LiveAnalyzer() {
           the sentence; it gives no medical advice.
         </p>
       </header>
-      <p className="type-body">Type a line (it starts with a Spanish example) and press <strong>Analyze</strong>, or pick a fictional call below.</p>
+      <p className="type-body">Type a line in English or Spanish (it starts with a Spanish example) and press <strong>Analyze</strong>, or pick a fictional call below.</p>
 
+      {waiting && <p role="status" className="rounded border border-border bg-muted p-3 text-sm">{WAKING_MESSAGE}</p>}
+      {note && <p role="status" className="rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900" data-testid="language-note">{note}</p>}
       {error && <p role="alert" className="rounded border border-red-300 bg-red-50 p-3 text-red-900">{error}</p>}
 
       <section className="flex flex-wrap items-center gap-2">
@@ -109,7 +114,7 @@ export default function LiveAnalyzer() {
       <section className="flex flex-col gap-2 rounded border border-border p-3">
         <div className="flex flex-wrap gap-2">
           <select aria-label="Language" value={lang} onChange={(e) => setLang(e.target.value as 'en' | 'es')} className="rounded border border-border p-1">
-            <option value="es">Español</option><option value="en">English</option>
+            <option value="en">English</option><option value="es">Español</option>
           </select>
           <select aria-label="Speaker" value={speaker} onChange={(e) => setSpeaker(e.target.value as 'coach' | 'participant')} className="rounded border border-border p-1">
             <option value="participant">Participant</option><option value="coach">Coach</option>

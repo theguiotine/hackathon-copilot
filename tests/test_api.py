@@ -130,6 +130,71 @@ class StaticServing(unittest.TestCase):
             self.assertIsNone(static_file("/"))
 
 
+class Robustness(unittest.TestCase):
+    req = Api.req
+
+    @classmethod
+    def setUpClass(cls):
+        Api.setUpClass.__func__(cls)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.srv.shutdown()
+
+    def conn(self):
+        import http.client
+        return http.client.HTTPConnection("127.0.0.1", int(self.base.rsplit(":", 1)[1]), timeout=10)
+
+    def test_oversized_body_is_413_and_not_read(self):
+        c = self.conn()
+        c.putrequest("POST", "/api/analyze")
+        c.putheader("Content-Type", "application/json")
+        c.putheader("Content-Length", str(64 * 1024 + 1))
+        c.endheaders()
+        r = c.getresponse()
+        self.assertEqual(r.status, 413)
+        c.close()
+
+    def test_missing_or_negative_content_length_is_400(self):
+        c = self.conn()
+        c.putrequest("POST", "/api/analyze")
+        c.endheaders()
+        self.assertEqual(c.getresponse().status, 400)
+        c.close()
+        c = self.conn()
+        c.putrequest("POST", "/api/analyze")
+        c.putheader("Content-Length", "-5")
+        c.endheaders()
+        self.assertEqual(c.getresponse().status, 400)
+        c.close()
+
+    def test_body_just_under_the_limit_is_accepted_for_parsing(self):
+        body = json.dumps({"id": "z", "channel": "text", "language": "en", "lines": [
+            {"idx": 0, "speaker": "participant", "text": "I walked. " + "x" * 5000}]}).encode()
+        c = self.conn()
+        c.request("POST", "/api/analyze", body, {"Content-Type": "application/json"})
+        self.assertEqual(c.getresponse().status, 200)
+        c.close()
+
+    def test_head_returns_200_without_a_body(self):
+        for path in ("/api/limits", "/api/queue"):
+            c = self.conn()
+            c.request("HEAD", path)
+            r = c.getresponse()
+            self.assertEqual(r.status, 200, path)
+            self.assertEqual(r.read(), b"")
+            c.close()
+
+    def test_wrong_language_returns_no_flags_but_the_other_language_does(self):
+        # The UI relies on this: it retries a silent result under the other language and labels which one matched.
+        def flags(lang):
+            body = {"id": "m", "channel": "text", "language": lang,
+                    "lines": [{"idx": 0, "speaker": "participant", "text": "I have had chest pain since last night."}]}
+            return self.req("/api/analyze", body)[1]["flags"]
+        self.assertEqual(flags("es"), [])
+        self.assertEqual([f["tier"] for f in flags("en")], ["S1"])
+
+
 if __name__ == "__main__":
     unittest.main()
 

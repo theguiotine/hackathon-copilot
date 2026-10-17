@@ -2,8 +2,8 @@
 // Nothing here is typed in: every number comes from the API.
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
+import { WAKING_MESSAGE, getJsonRetry } from './api-client';
 
-const BASE = (import.meta.env.VITE_ENGINE_URL as string | undefined) ?? 'http://127.0.0.1:8000';
 
 type Row = { id: string; language: string; text: string; tier: string | null; gold_tier: string | null; outcome: string };
 export type Blind = {
@@ -22,7 +22,7 @@ export type Safety = {
 export function useSafety(): Safety | null | undefined {
   const [data, setData] = useState<Safety | null | undefined>(undefined);
   useEffect(() => {
-    fetch(`${BASE}/api/safety`).then((r) => r.json()).then((d: Safety) => setData(d)).catch(() => setData(null));
+    getJsonRetry<Safety>('/api/safety').then((d) => setData(d)).catch(() => setData(null));
   }, []);
   return data;
 }
@@ -78,8 +78,8 @@ function BlindCompare({ s }: { s: Safety }) {
 /** The full section for the Accuracy page. */
 export function SafetyNet() {
   const s = useSafety();
-  if (s === undefined) return <p className="text-text-muted">Loading the safety-net check…</p>;
-  if (s === null) return <p role="status">The engine is not running, so the safety-net check cannot be shown.</p>;
+  if (s === undefined) return <p className="text-text-muted">{WAKING_MESSAGE}</p>;
+  if (s === null) return <p role="status">The server did not answer, so the safety-net check cannot be shown. Reload in a minute.</p>;
   const cells: [string, string | number][] = [
     ['Cases checked', s.calls], ['Flags raised', s.flags_raised], ['Correct catches', s.correct_catches], ['Misses', s.misses],
     ['False alarms', s.false_alarms], ['Recall, S1 to S3', pct(s.recall)], ['Recall, S1 only', s.s1_recall === null ? 'n/a' : pct(s.s1_recall)],
@@ -107,7 +107,7 @@ export function SafetyNet() {
 export function LimitsLine({ className = '' }: { className?: string }) {
   const [d, setD] = useState<{ tuned_cases: number; held_out_sessions: number | null; blind_cases: number | null } | null>(null);
   useEffect(() => {
-    fetch(`${BASE}/api/limits`).then((r) => r.json()).then(setD).catch(() => setD(null));
+    getJsonRetry<{ tuned_cases: number; held_out_sessions: number | null; blind_cases: number | null }>('/api/limits').then(setD).catch(() => setD(null));
   }, []);
   if (!d) return null;
   const blind = d.blind_cases === null ? '' : ` and ${d.blind_cases} blind phrasings written separately`;

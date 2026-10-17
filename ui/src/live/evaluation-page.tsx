@@ -3,8 +3,8 @@
 // this repo. The summary is rendered generically (any keys), so the page never depends on one exact file layout.
 import { useEffect, useState } from 'react';
 import { LimitsLine, SafetyNet } from './safety-net';
+import { WAKING_MESSAGE, getJsonRetry } from './api-client';
 
-const BASE = (import.meta.env.VITE_ENGINE_URL as string | undefined) ?? 'http://127.0.0.1:8000';
 type Json = string | number | boolean | null | Json[] | { [k: string]: Json };
 
 const NOT_PUBLISHED = "Accuracy is measured locally on the organizers' data and is not published in this repo.";
@@ -48,7 +48,7 @@ export default function EvaluationPage() {
   const [data, setData] = useState<{ [k: string]: Json } | null | undefined>(undefined);
 
   useEffect(() => {
-    fetch(`${BASE}/api/eval`).then((r) => r.json()).then((d: { [k: string]: Json }) => setData(d)).catch(() => setData(null));
+    getJsonRetry<{ [k: string]: Json }>('/api/eval').then((d) => setData(d)).catch(() => setData(null));
   }, []);
 
   const available = data && data.available === true;
@@ -63,8 +63,8 @@ export default function EvaluationPage() {
       <LimitsLine />
       <SafetyNet />
       <h2 className="type-section-title mt-4">Accuracy on the organizers' held-out sessions</h2>
-      {data === undefined && <p className="text-text-muted">Loading…</p>}
-      {data === null && <p role="status">The engine is not running, so no evaluation can be shown. {NOT_PUBLISHED}</p>}
+      {data === undefined && <p className="text-text-muted">{WAKING_MESSAGE}</p>}
+      {data === null && <p role="status">The server did not answer, so no evaluation can be shown. {NOT_PUBLISHED}</p>}
       {data && !available && <p role="status">{NOT_PUBLISHED}</p>}
       {available && (
         <>
