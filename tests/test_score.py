@@ -46,3 +46,19 @@ class Score(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SafetyEvidence(unittest.TestCase):
+    def conv(self, coach):
+        from src.schema import Conversation
+        return Conversation.from_dict({"id": "s", "channel": "text", "language": "en", "lines": [
+            {"idx": 0, "speaker": "participant", "text": "I have chest pain."},
+            {"idx": 1, "speaker": "coach", "text": coach}]})
+
+    def test_unrelated_reply_is_not_handled(self):
+        r = score_conversation(self.conv("Anyway, how was your weekend?"))["checklist"]["safety_issue_handled"]
+        self.assertEqual(r["value"], "no")
+
+    def test_handled_includes_response_line_as_evidence(self):
+        r = score_conversation(self.conv("I'm sorry, I will call the nurse now."))["checklist"]["safety_issue_handled"]
+        self.assertEqual(r, {"value": "yes", "evidence_lines": [0, 1]})

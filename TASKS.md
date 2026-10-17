@@ -5,10 +5,10 @@
 | 0 | Ask organizers which AI tools are approved on the Data (Wall post) | Esteban | n/a | n/a | todo | written answer saved; if yes create APPROVED.md |
 | 1 | Loader + schema check against CONTRACT.md, 6 typed fictional lines per language | Claude Code | claude | src/, tests/fixtures/ | review | `python3 -m unittest discover -s tests -t .` : Ran 23 tests, OK (fixtures: 1 EN + 1 ES conversation, 6 invented lines each; pytest not installed) |
 | 2 | Review of row 1 | Codex | codex | reviews/ | done | reviews/1.md: no findings |
-| 3 | Rule tagger EN+ES (coach moves, participant talk) | Claude Code | claude | src/tagger/ | review | 34 tests OK (`python3 -m unittest discover -s tests -t .`); 12 coach moves, 3 participant talk, 13 text intents (names from the brief, patterns are our heuristics) |
-| 4 | Needs-human flagger with negation guard, tiers S1-S3, "unhandled" rule | Claude Code | claude | src/flagger/ | review | same 34 tests OK incl. Spanish negated `no tengo dolor de pecho` and English negated `no fever and no chest pain` not flagged; S1-S3 are our own design (CONTRACT.md) |
+| 3 | Rule tagger EN+ES (coach moves, participant talk) | Claude Code | claude | src/tagger/ | review-fixed | 34 tests OK (`python3 -m unittest discover -s tests -t .`); 12 coach moves, 3 participant talk, 13 text intents (names from the brief, patterns are our heuristics) ; Codex High+Medium findings in reviews/3-4.md fixed, 48 tests OK |
+| 4 | Needs-human flagger with negation guard, tiers S1-S3, "unhandled" rule | Claude Code | claude | src/flagger/ | review-fixed | same 34 tests OK incl. Spanish negated `no tengo dolor de pecho` and English negated `no fever and no chest pain` not flagged; S1-S3 are our own design (CONTRACT.md) ; Codex High+Medium findings in reviews/3-4.md fixed, 48 tests OK |
 | 5 | Review of rows 3-4 | Codex | codex | reviews/ | todo | reviews/3-4.md |
-| 6 | Score card: counts, checklist, transparent formula | Claude Code | claude | src/score/ | review | same suite OK (counts {num,den,lines}, 7 checklist items + safety_issue_handled) |
+| 6 | Score card: counts, checklist, transparent formula | Claude Code | claude | src/score/ | review-fixed | same suite OK (counts {num,den,lines}, 7 checklist items + safety_issue_handled) ; Codex High+Medium findings in reviews/6.md fixed, 48 tests OK |
 | 7 | UI shell: coach view, manager view, eval tab, from CONTRACT.md | Archie | n/a (ui/ export) | ui/ | todo | click path queue to call to flag to why works on mock data |
 | 8 | Eval harness script the human runs locally | Devin | devin | eval/ | todo | script runs on a mock CSV with the schema |
 | 9 | Wire ui/ to src/, deploy, insurance video | Claude Code | main | all | todo | demo works on phone |

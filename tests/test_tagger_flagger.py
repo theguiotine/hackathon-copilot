@@ -80,10 +80,52 @@ class Flagger(unittest.TestCase):
     def test_unhandled_sorts_first_within_tier(self):
         c = Conversation.from_dict({"id": "x", "channel": "text", "language": "en", "lines": [
             {"idx": 0, "speaker": "participant", "text": "I have chest pain."},
-            {"idx": 1, "speaker": "coach", "text": "Thanks for telling me."},
+            {"idx": 1, "speaker": "coach", "text": "I am sorry, I will call the nurse now."},
             {"idx": 2, "speaker": "participant", "text": "Now I cannot breathe, shortness of breath."}]})
         self.assertEqual([x.line_idx for x in flag_conversation(c)], [2, 0])
 
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def conv_of(lines, lang="es"):
+    return Conversation.from_dict({"id": "r", "channel": "text", "language": lang, "lines": [
+        {"idx": i, "speaker": s, "text": t} for i, (s, t) in enumerate(lines)]})
+
+
+class ReviewFixes(unittest.TestCase):
+    def rules(self, lines, lang="es"):
+        return [f.rule_id for f in flag_conversation(conv_of(lines, lang))]
+
+    def test_no_puedo_respirar_positive(self):
+        self.assertEqual(self.rules([("participant", "No puedo respirar")]), ["F-CHEST"])
+        self.assertEqual(self.rules([("participant", "No, no puedo respirar bien")]), ["F-CHEST"])
+        self.assertEqual(self.rules([("participant", "No sé qué hacer, no puedo respirar")]), ["F-CHEST"])
+
+    def test_no_puedo_mas_positive(self):
+        self.assertEqual(self.rules([("participant", "Ya no puedo más")]), ["F-DISTRESS"])
+
+    def test_denied_then_current_symptom(self):
+        self.assertEqual(self.rules([("participant", "No chest pain yesterday; I have chest pain now")], "en"), ["F-CHEST"])
+        self.assertEqual(self.rules([("participant", "No tenía dolor de pecho ayer, pero hoy tengo dolor de pecho")]), ["F-CHEST"])
+
+    def test_later_clause_not_suppressed(self):
+        self.assertEqual(self.rules([("participant", "No fever, but I have chest pain")], "en"), ["F-CHEST"])
+        self.assertEqual(self.rules([("participant", "No tengo fiebre pero tengo dolor de pecho")]), ["F-CHEST"])
+
+    def test_negation_still_works_same_clause(self):
+        self.assertEqual(self.rules([("participant", "No tengo dolor de pecho ni fiebre")]), [])
+        self.assertEqual(self.rules([("participant", "I have no fever and no chest pain")], "en"), [])
+
+    def test_questions_without_punctuation(self):
+        self.assertIn(("coach_move", "open_question"), one("How have you been feeling"))
+        self.assertIn(("coach_move", "open_question"), one("Cómo te has sentido", lang="es"))
+        self.assertIn(("coach_move", "closed_question"), one("Did you walk on Monday"))
+        self.assertIn(("coach_move", "other"), one("Do not worry about it."))
+
+    def test_unrelated_coach_line_is_not_a_response(self):
+        f = flag_conversation(conv_of([("participant", "I have chest pain."), ("coach", "Anyway, how was your weekend?")], "en"))
+        self.assertFalse(f[0].coach_responded)
+        f = flag_conversation(conv_of([("participant", "I have chest pain."), ("coach", "I'm sorry, I will call the nurse team now.")], "en"))
+        self.assertTrue(f[0].coach_responded)

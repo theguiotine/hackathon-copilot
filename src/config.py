@@ -30,10 +30,10 @@ COACH_RULES = [
                             "es": r"\b(vamos a|juntos|juntas|qu[eé] opinas|qu[eé] te parece si)\b"}),
     ("ask_permission", {"en": r"\b(would you like|may i|is it ok if|can i share|do you mind if)\b",
                         "es": r"\b(te gustar[ií]a|puedo|est[aá] bien si|te molesta si)\b"}),
-    ("open_question", {"en": r"\b(what|how|tell me|help me understand)\b[^?]*\?|^\s*tell me\b",
-                       "es": r"¿\s*(qu[eé]|c[oó]mo|cu[aá]ndo|cu[aá]l|por qu[eé])\b|^\s*cu[eé]ntame\b"}),
-    ("closed_question", {"en": r"\b(did|do|does|are|is|were|was|have|has|will|can|could)\b[^?]*\?",
-                         "es": r"¿\s*(has|ha|est[aá]s?|fuiste|tienes|puedes|pudiste|hiciste|vas|quieres)\b"}),
+    ("open_question", {"en": r"(^|[.!?,]\s+)(what|how|why|when|which|tell me|help me understand)\b",
+                       "es": r"(^|[.!?,¿]\s*)(qu[eé]|c[oó]mo|cu[aá]ndo|cu[aá]l|por qu[eé]|cu[eé]ntame)\b"}),
+    ("closed_question", {"en": r"(^|[.!?]\s+)(did|do(?! not\b)|does|are|is|were|was|have|has|will|can|could)\b",
+                         "es": r"(^|[.!?¿]\s*)(has|ha|est[aá]s?|fuiste|tienes|puedes|pudiste|hiciste|vas|quieres|caminaste)\b"}),
     ("give_information", {"en": r"\b(it is recommended|studies show|one option is|the clinic|you can call|your next appointment)\b",
                           "es": r"\b(se recomienda|los estudios|una opci[oó]n es|la cl[ií]nica|puedes llamar|tu pr[oó]xima cita)\b"}),
 ]
@@ -76,3 +76,14 @@ NEGATIONS = {
 }
 NEGATION_WINDOW = 4
 COMPILED = re.compile  # alias so callers can precompile with flags
+
+# Negation scope ends at these boundaries (punctuation or contrast words).
+CLAUSE_BOUNDARY = {
+    "en": r"[,;:.!?]|\b(but|however|yet|although|though)\b",
+    "es": r"[,;:.!?¿¡]|\b(pero|aunque|sin embargo)\b",
+}
+# A coach line counts as responding to a flag only if it shows acknowledgement or action.
+RESPONSE_CUES = {
+    "en": r"\b(thank|sorry|i hear|i'?m glad you told|call|nurse|team|doctor|911|emergency|follow up|let me|i('ll| will)|right now)\b",
+    "es": r"\b(gracias|lamento|siento|te escucho|llam|enfermer|equipo|m[eé]dic|911|emergencia|seguimiento|d[eé]jame|voy a|ahora mismo)\b",
+}

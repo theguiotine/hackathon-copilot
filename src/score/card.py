@@ -6,12 +6,13 @@ Counts are {num, den, lines[]} so the UI can show the evidence. Formulas:
   complex_reflection_share = complex reflections / all reflections
   mi_consistent_share      = coach lines tagged MI-consistent / all coach lines
   mi_inconsistent          = persuade + confront lines / all coach lines
+Safety item: yes only if every flag has a responding coach line (flag line plus response line are the evidence).
 There is deliberately no single opaque overall number.
 """
 import re
 
 from ..config import CHECKLIST_ITEMS, SAFETY_ITEM
-from ..flagger.rules import flag_conversation
+from ..flagger.rules import find_response, flag_conversation
 from ..schema import Conversation
 from ..tagger.rules import tag_conversation
 
@@ -70,6 +71,7 @@ def score_conversation(conv: Conversation) -> dict:
     if not flags:
         checklist[SAFETY_ITEM] = {"value": "n/a", "evidence_lines": []}
     else:
-        handled = all(f.coach_responded for f in flags)
-        checklist[SAFETY_ITEM] = {"value": "yes" if handled else "no", "evidence_lines": sorted({f.line_idx for f in flags})}
+        resp = [find_response(conv, f.line_idx) for f in flags]
+        evidence = sorted({f.line_idx for f in flags} | {r for r in resp if r is not None})
+        checklist[SAFETY_ITEM] = {"value": "yes" if all(r is not None for r in resp) else "no", "evidence_lines": evidence}
     return {"conv_id": conv.id, "counts": counts, "checklist": checklist}
