@@ -35,6 +35,14 @@ export default function HomePage() {
           </li>
         ))}
       </ol>
+      <section aria-labelledby="real-run" className="rounded-lg border border-border p-4" data-testid="whats-next">
+        <h2 id="real-run" className="text-lg font-semibold">What it takes to run this for real</h2>
+        <ol className="mt-2 flex list-decimal flex-col gap-1 pl-5 text-sm">
+          <li><strong>Delivery:</strong> a flag reaches a person through the program's own consented, secure channel. Today it shows a queue and sends nothing.</li>
+          <li><strong>Validation:</strong> a clinician reviews the safety tiers and rules before any real use. Today they are our own design.</li>
+          <li><strong>Pilot:</strong> four weeks on real, consented calls to measure how many missed flags a human catches.</li>
+        </ol>
+      </section>
       <p className="type-meta text-text-muted">
         All people and calls shown are invented. Real accuracy is measured locally and is never published in the repo.
       </p>
