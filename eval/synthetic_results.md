@@ -2,7 +2,7 @@
 
 **These results come from invented, template-generated text. They are NOT clinical validation, and the generator's phrasings can be easier or harder than real speech. No real or challenge data was used and no generated sentence is stored here.**
 
-- seed 20261017, 300 conversations (3872 lines), run time 7.74s
+- seed 20261017, 300 conversations (3872 lines), run time 2.97s
 - COACH_CLASSIFIER_DIR set for this process: False (False means the rule tagger ran alone)
 - score card ran OK on 300/300 conversations, errors 0
 

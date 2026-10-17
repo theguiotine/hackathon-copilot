@@ -62,6 +62,20 @@ export default function EvaluationPage() {
       </header>
       <LimitsLine />
       <SafetyNet />
+      <section aria-labelledby="rules-today" className="rounded-lg border border-border p-4 text-sm" data-testid="rules-expanded-note">
+        <h2 id="rules-today" className="text-lg font-semibold">How the flags work, and what changed today</h2>
+        <ul className="mt-2 flex list-disc flex-col gap-1.5 pl-5">
+          <li>The "needs a person today" flags are written rules, not a model. Each flag shows the exact quote and the rule that fired, so a person can check it.</li>
+          <li>Today we widened the rules after a live test showed phrases like "I'm dying" and "chest pains" were missed: more wording for chest or breathing trouble, thoughts of ending one's life or self-harm, an overdose, swelling, strong pain, and deep sadness, in English and Spanish.</li>
+          <li>We kept the negation guard: "no chest pain", "I'm not dying", "sin dolor" and talk about someone else or long ago do not flag.</li>
+          <li>On invented, script-generated calls, recall rose from 49% to 71% and false alarms did not change (2.0%). This measures coverage of generated paraphrase, not clinical accuracy, and the generator's wording can be easier or harder than real speech.</li>
+          <li>Still weak: symptom wording and distress wording are caught only about half the time on generated calls.</li>
+          <li>Still weak: a past-tense line ("I used to feel hopeless") can wrongly flag as current, and in Spanish a double negative like "no me siento sin esperanza" can wrongly flag.</li>
+          <li>"Took all my pills" alone does not flag, because in an adherence coach it is the normal "I took my pills" statement; it flags with cues like "at once", "tonight" or "on purpose".</li>
+          <li>A flag means "a person should look at this today", never a diagnosis. A written list will always miss some wordings, so a model second reader that can only add flags is the next step; it is not built.</li>
+          <li>The earlier 42% blind figure was measured before this expansion and is not comparable to the generated-call numbers.</li>
+        </ul>
+      </section>
       <h2 className="type-section-title mt-4">Accuracy on the organizers' held-out sessions</h2>
       {data === undefined && <p className="text-text-muted">{WAKING_MESSAGE}</p>}
       {data === null && <p role="status">The server did not answer, so no evaluation can be shown. {NOT_PUBLISHED}</p>}

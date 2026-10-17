@@ -2,7 +2,7 @@
  "seed": 20261017,
  "n_conversations": 300,
  "n_lines": 3872,
- "seconds": 7.74,
+ "seconds": 2.97,
  "classifier_dir_env_set": false,
  "score_ok": 300,
  "score_errors": 0,

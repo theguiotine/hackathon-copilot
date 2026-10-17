@@ -46,6 +46,15 @@ No challenge data, labels, weights or keys are committed; `.gitignore` excludes 
 ## Modes: rules-only (public repo) and local classifier
 The public repo runs in **rules-only mode with no data and no weights**. Weights are produced locally from the organizers' data (`src/train_annomi.py`) and are deleted after Oct 19; they are never committed. To use them, set `COACH_CLASSIFIER_DIR` to the folder that holds them and the tagger will use the classifier for coach moves and client talk (safety flags always stay rule-based). Accuracy was measured on held-out sessions that the classifier never trained on; the numbers are reported on the slide, not stored in this repo.
 
+## What changed in the flagger on submission day
+- The "needs a person today" flags are written rules, not a model. Each flag shows the exact quote and the rule that fired, so a person can check it.
+- Today we widened the rules after a live test showed phrases like "I'm dying" and "chest pains" were missed: more wording for chest or breathing trouble, thoughts of ending one's life or self-harm, an overdose, swelling, strong pain, and deep sadness, in English and Spanish.
+- We kept the negation guard: "no chest pain", "I'm not dying", "sin dolor" and talk about someone else or long ago do not flag.
+- On invented, script-generated calls (`eval/gen_synthetic.py`, results in `eval/synthetic_results.md`), recall rose from 49% to 71% and false alarms did not change (2.0%). This measures coverage of generated paraphrase, not clinical accuracy, and the generator's wording can be easier or harder than real speech.
+- Still weak: symptom wording and distress wording are caught only about half the time on generated calls; a past-tense line ("I used to feel hopeless") can wrongly flag as current, and in Spanish a double negative like "no me siento sin esperanza" can wrongly flag.
+- "Took all my pills" alone does not flag, because in an adherence coach it is the normal statement; it flags with cues like "at once", "tonight" or "on purpose".
+- A flag means "a person should look at this today", never a diagnosis. A model second reader that can only add flags is the next step; it is not built. The earlier 42% blind figure was measured before this expansion and is not comparable to the generated-call numbers.
+
 ## Honest limits
 The blind-set figures (42% caught on 36 invented phrasings) were measured before the flagger patterns were expanded; they describe the earlier rules. The expanded patterns are tested separately and the blind set was not re-run or edited.
 
