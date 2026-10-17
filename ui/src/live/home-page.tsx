@@ -6,8 +6,8 @@ const STEPS = [
     text: 'Watch the tool read a Spanish line, tag what the coach does, and flag the sentence a person must see.' },
   { href: '/call-queue', title: 'See the safety queue',
     text: 'Calls that need a human today, highest severity first, with the quoted sentence and why it was flagged.' },
-  { href: '/evaluation', title: 'See how accurate it is',
-    text: 'Measured on held-out sessions the tool never trained on, shown honestly with its limits.' },
+  { href: '/evaluation', title: 'See what it catches and misses',
+    text: 'A caught-versus-missed check on invented cases, with the misses shown and the limits stated.' },
 ];
 
 export default function HomePage() {
