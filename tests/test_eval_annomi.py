@@ -18,7 +18,11 @@ class Mapping(unittest.TestCase):
         g = ea.gold_coach_label
         self.assertEqual(g({"counsellor_move": "question", "question_type": "open"}), "question_open")
         self.assertEqual(g({"counsellor_move": "reflection", "reflection_type": "complex"}), "reflection_complex")
-        self.assertEqual(g({"counsellor_move": "information-or-advice"}), "information_advice")
+        for spelling in ("information-or-advice", "information/advice", "Information or advice", "information", "advice",
+                         "INFORMATION_ADVICE", "information-or-advice "):
+            self.assertEqual(g({"counsellor_move": spelling}), "information_advice", spelling)
+        self.assertEqual(g({"counsellor_move": "Question", "question_type": "Closed"}), "question_closed")
+        self.assertEqual(g({"counsellor_move": "reflection", "reflection_type": "Complex "}), "reflection_complex")
         self.assertEqual(g({"counsellor_move": "other"}), "other")
         self.assertIsNone(g({"counsellor_move": ""}))
         self.assertEqual(ea.gold_talk_label({"client_talk": "Change"}), "change")
@@ -75,6 +79,11 @@ class Pipeline(unittest.TestCase):
         miss.write_text("session_id,text\nx,y\n")
         with self.assertRaises(ea.AdapterError):
             ea.read_sessions(miss)
+
+    def test_report_lists_category_strings_but_no_text(self):
+        text = ea.report(ea.read_sessions(self.csv), Path(self.tmp.name) / "o2")
+        self.assertIn("Category strings seen", text)
+        self.assertIn("information-or-advice", text)
 
     def test_selftest_flag_runs_and_prints_no_text(self):
         buf = io.StringIO()

@@ -46,19 +46,26 @@ class AdapterError(Exception):
     """A problem described without echoing any cell content."""
 
 
+def _norm(value):
+    return (value or "").strip().lower().replace("_", "-").replace("/", "-").replace(" ", "-")
+
+
 def gold_coach_label(row):
-    move = (row.get("counsellor_move") or "").strip().lower()
-    if move == "question":
-        return "question_" + ((row.get("question_type") or "").strip().lower() or "open")
-    if move == "reflection":
-        return "reflection_" + ((row.get("reflection_type") or "").strip().lower() or "simple")
-    if move in ("information-or-advice", "information_or_advice", "information", "advice"):
+    """Coarse AnnoMI label for a counsellor row, tolerant of spelling (information, information/advice, ...)."""
+    move = _norm(row.get("counsellor_move"))
+    if not move:
+        return None
+    if "question" in move:
+        return "question_" + (_norm(row.get("question_type")) or "open")
+    if "reflection" in move:
+        return "reflection_" + (_norm(row.get("reflection_type")) or "simple")
+    if "info" in move or "advice" in move:
         return "information_advice"
-    return "other" if move else None
+    return "other"
 
 
 def gold_talk_label(row):
-    talk = (row.get("client_talk") or "").strip().lower()
+    talk = _norm(row.get("client_talk"))
     return talk if talk in ("change", "sustain", "neutral") else None
 
 
@@ -94,6 +101,18 @@ def to_conversation(session_id, rows, language="en"):
         speaker = "coach" if (r["speaker"] or "").strip().lower().startswith("counsel") else "participant"
         lines.append({"idx": i, "speaker": speaker, "text": (r["text"] or "").strip() or "(blank)"})
     return Conversation.from_dict({"id": session_id, "channel": "call", "language": language, "lines": lines})
+
+
+def category_counts(sessions):
+    """Counts of the documented category strings per column (label names only, never text)."""
+    out = {c: Counter() for c in ("counsellor_move", "question_type", "reflection_type", "client_talk")}
+    for rows in sessions.values():
+        for r in rows:
+            for c in out:
+                v = (r.get(c) or "").strip()
+                if v and len(v) <= 40:
+                    out[c][v] += 1
+    return {c: dict(v) for c, v in out.items()}
 
 
 def analyze(sessions):
@@ -150,7 +169,8 @@ def _mean_agreement(pairs):
 def report(sessions, out_dir):
     out = _safe_out(out_dir)
     coach, talk, fstats = analyze(sessions)
-    lines = [f"Lines analyzed: {fstats['lines']}; flagged lines: {fstats['flagged_lines']}; flags by tier: {fstats['tiers'] or 'none'}",
+    lines = [f"Category strings seen (label names only): {category_counts(sessions)}",
+             f"Lines analyzed: {fstats['lines']}; flagged lines: {fstats['flagged_lines']}; flags by tier: {fstats['tiers'] or 'none'}",
              "(AnnoMI has no needs-a-human labels, so the flagger is counted, not scored.)", ""]
     for title, name, pairs in (("COACH MOVES (coarse AnnoMI set)", "coach", coach), ("CLIENT TALK", "talk", talk)):
         if not pairs:
