@@ -3,6 +3,7 @@
 Run locally by the owner (never in an AI tool):
     python3 -m src.train_annomi             # needs COACH_ANNOMI_CSV (or --csv) and COACH_OUT_DIR
     python3 -m src.train_annomi --selftest  # fictional data only
+    python3 -m src.train_annomi --cv        # 5-fold cross-validation: mean and range, no weights saved
 
 Session-level split (see classifier.split_sessions): no line of a test session is used for training.
 Reports the rules baseline and the classifier on the SAME held-out sessions. Weights go to the output folder
@@ -10,6 +11,7 @@ OUTSIDE the repo (COACH_OUT_DIR, required); the repo is refused.
 """
 import argparse
 import csv
+import hashlib
 import os
 import random
 import sys
@@ -18,6 +20,9 @@ from pathlib import Path
 
 from . import eval_annomi as ea
 from .classifier import NaiveBayes, split_sessions
+import metrics  # noqa: E402  (eval/metrics.py; eval_annomi put eval/ on sys.path)
+
+FOLDS = 5
 
 
 def neighbours(sessions):
@@ -79,6 +84,51 @@ def evaluate(sessions, out_dir, use_context=False):
     return "\n".join(lines)
 
 
+def fold_of(session_id, folds=FOLDS):
+    """Fold number 0..folds-1 from sha1(session_id) mod folds: whole sessions stay together, deterministic."""
+    return int(hashlib.sha1(str(session_id).encode("utf-8")).hexdigest(), 16) % folds
+
+
+def _spread(values):
+    return f"mean {sum(values) / len(values):.3f} (min {min(values):.3f}, max {max(values):.3f})"
+
+
+def cross_validate(sessions, use_context=False, folds=FOLDS):
+    """5-fold cross-validation for coach moves and client talk. For each fold: train on the other folds' sessions,
+    test on the held-out fold's sessions (no session in both). Prints mean and range per metric, aggregates only.
+    Weights are NOT saved here (no output folder is needed)."""
+    lines = [f"{folds}-fold cross-validation, folds = sha1(session_id) mod {folds}; features: words and bigrams"
+             f"{' + neighbouring-line words (--context)' if use_context else ''}",
+             f"Sessions: {len(sessions)}", ""]
+    for name, title in (("coach", "COACH MOVES (coarse AnnoMI set)"), ("talk", "CLIENT TALK")):
+        rows = datasets(sessions)[name]
+        acc, f1, kap, base_acc, sizes = [], [], [], [], []
+        for k in range(folds):
+            train = [r for r in rows if fold_of(r[0], folds) != k]
+            test = [r for r in rows if fold_of(r[0], folds) == k]
+            assert not ({r[0] for r in train} & {r[0] for r in test})
+            if not train or not test:
+                continue
+            model = NaiveBayes().fit([r[2] for r in train], [r[3] for r in train],
+                                     [r[6] for r in train] if use_context else None)
+            gold = [r[3] for r in test]
+            pred = [model.predict(r[2], r[6]) for r in test]
+            acc.append(sum(1 for g, p in zip(gold, pred) if g == p) / len(test))
+            f1.append(metrics.macro_f1(gold, pred))
+            kap.append(metrics.cohen_kappa(gold, pred))
+            base_acc.append(sum(1 for r in test if r[3] == r[4]) / len(test))
+            sizes.append(len(test))
+        if not acc:
+            lines += [f"== {title}: not enough labeled lines for cross-validation ==", ""]
+            continue
+        lines += [f"######## {title}: {len(acc)} of {folds} folds had data (test lines per fold: {min(sizes)} to {max(sizes)}) ########",
+                  f"CLASSIFIER accuracy  {_spread(acc)}",
+                  f"CLASSIFIER macro F1  {_spread(f1)}",
+                  f"CLASSIFIER kappa     {_spread(kap)}",
+                  f"RULES baseline accuracy on the same folds  {_spread(base_acc)}", ""]
+    return "\n".join(lines)
+
+
 def build_selftest_csv(path, n_sessions=40, seed=3):
     """Invented, tiny AnnoMI-shaped CSV with enough sessions for a split (fictional lines only)."""
     rng = random.Random(seed)
@@ -115,13 +165,20 @@ def main(argv=None):
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--csv")
     ap.add_argument("--context", action="store_true", help="add previous/next line words as features")
+    ap.add_argument("--cv", action="store_true", help="5-fold cross-validation (mean and range); needs no output folder")
     args = ap.parse_args(argv)
     try:
         if args.selftest:
             with tempfile.TemporaryDirectory() as tmp:
                 p = Path(tmp) / "selftest.csv"
                 build_selftest_csv(p)
-                print(evaluate(ea.read_sessions(p), Path(tmp) / "out", args.context))
+                if args.cv:
+                    print(cross_validate(ea.read_sessions(p), args.context))
+                else:
+                    print(evaluate(ea.read_sessions(p), Path(tmp) / "out", args.context))
+            return 0
+        if args.cv:
+            print(cross_validate(ea.read_sessions(ea.resolve_csv(args.csv)), args.context))
             return 0
         print(evaluate(ea.read_sessions(ea.resolve_csv(args.csv)), ea.resolve_out(), args.context))
         return 0
