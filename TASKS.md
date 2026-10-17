@@ -10,7 +10,7 @@
 | 5 | Review of rows 3-4 | Codex | codex | reviews/ | todo | reviews/3-4.md |
 | 6 | Score card: counts, checklist, transparent formula | Claude Code | claude | src/score/ | review-fixed | same suite OK (counts {num,den,lines}, 7 checklist items + safety_issue_handled) ; Codex High+Medium findings in reviews/6.md fixed, 48 tests OK |
 | 7 | UI shell: coach view, manager view, eval tab, from CONTRACT.md | Archie | n/a (ui/ export) | ui/ | todo | click path queue to call to flag to why works on mock data |
-| 8 | Eval harness script the human runs locally | Devin | devin | eval/ | todo | script runs on a mock CSV with the schema |
+| 8 | Eval harness script the human runs locally | Devin | devin | eval/ | review | PR #1 reviewed by Claude Code: only eval/ touched, no data, no network, 18 eval tests OK; merge to main pending your go |
 | 9 | Wire ui/ to src/, deploy, insurance video | Claude Code | main | all | todo | demo works on phone |
 | 10 | README, limits slide, credits, AI_TOOLS.md, deck | Claude Code | main | README.md, AI_TOOLS.md | todo | repo opens logged out, no data inside |
 

@@ -1,1 +1,2 @@
 - Claude Code (Anthropic, desktop session, Sonnet 5.5): wrote code and tests in src/ and tests/ (row 1 onward).
+- Devin (Cognition): wrote eval/ (offline eval harness, row 8, PR #1; synthetic data only).
