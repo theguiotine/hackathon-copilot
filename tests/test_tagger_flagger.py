@@ -37,6 +37,11 @@ class Tagger(unittest.TestCase):
         self.assertIn(("coach_move", "persuade"), one("Deberías caminar todos los días.", lang="es"))
         self.assertIn(("coach_move", "ask_permission"), one("¿Te gustaría planear otra caminata?", lang="es"))
 
+    def test_feeling_question_is_a_question_not_a_reflection(self):
+        self.assertIn(("coach_move", "open_question"), one("¿Cómo te sientes hoy?", lang="es"))
+        self.assertIn(("coach_move", "open_question"), one("How are you feeling today?"))
+        self.assertIn(("coach_move", "simple_reflection"), one("Te sientes cansada. ¿Qué ayudaría?", lang="es"))
+
     def test_participant_talk(self):
         self.assertIn(("participant_talk", "change"), one("I want to walk on Sunday.", "participant"))
         self.assertIn(("participant_talk", "sustain"), one("I'm too tired, I can't.", "participant"))

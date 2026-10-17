@@ -37,6 +37,11 @@ class Api(unittest.TestCase):
         self.assertEqual([i["conv_id"] for i in q], ["fx-en-flag", "fx-es-flag"])
         self.assertTrue(q[0]["unhandled"] and not q[1]["unhandled"])
 
+    def test_conversations_list(self):
+        code, cs = self.req("/api/conversations")
+        self.assertEqual(code, 200)
+        self.assertIn("fx-es-flag", [c["id"] for c in cs])
+
     def test_call_and_why(self):
         code, c = self.req("/api/call/fx-es-flag")
         self.assertEqual(code, 200)

@@ -13,9 +13,20 @@ def _compile(rules):
 _COACH, _PART, _INTENT = _compile(COACH_RULES), _compile(PARTICIPANT_RULES), _compile(TEXT_INTENT_RULES)
 
 
+_REFLECTIONS = ("simple_reflection", "complex_reflection")
+_SENTENCE_END = re.compile(r"[.!?]")
+
+
+def _in_question(text: str, end: int) -> bool:
+    """True if the sentence containing text[:end] ends with a question mark."""
+    m = _SENTENCE_END.search(text, end)
+    return m is not None and m.group(0) == "?"
+
+
 def _first(rules, text, lang):
     for label, pats in rules:
-        if pats[lang].search(text):
+        m = pats[lang].search(text)
+        if m and not (label in _REFLECTIONS and _in_question(text, m.end())):
             return label
     return None
 

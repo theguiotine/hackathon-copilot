@@ -78,6 +78,9 @@ def make_handler(app: App):
 
         def do_GET(self):
             path = self.path.split("?")[0]
+            if path == "/api/conversations":
+                return self._send(200, [{"id": c.id, "language": c.language, "channel": c.channel, "lines": len(c.lines)}
+                                        for c in app.convs.values()])
             if path == "/api/queue":
                 return self._send(200, app.queue())
             m = re.fullmatch(r"/api/(call|why)/(.+)", path)

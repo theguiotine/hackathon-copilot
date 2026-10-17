@@ -37,6 +37,17 @@ function RootRedirect() {
   return <RoleLandingRedirect />;
 }
 
+const LazyScreen_live_analyzer = lazy(() => import('./live/live-analyzer'));
+function Guarded_live_analyzer() {
+  return (
+    <AuthGuard loadingComponent={<LoadingFallback />} fallback={<Navigate to="/login" replace />}>
+      <Suspense fallback={<LoadingFallback />}>
+        <LazyScreen_live_analyzer />
+      </Suspense>
+    </AuthGuard>
+  );
+}
+
 const LazyScreen_scorecards = lazy(() => import('./presentation/containers/scorecards.container'));
 function Guarded_scorecards() {
   return (
@@ -339,6 +350,18 @@ export const routes: AppRoute[] = [
     order: null,
     visibility: null,
     Component: Guarded_task_detail,
+    ErrorBoundary: ErrorBoundary,
+  },
+  {
+    slug: "live-analyzer",
+    path: "/live-analyzer",
+    handle: { surface: "review-workspace", frame: "desktop" },
+    layoutType: "dashboard",
+    name: "Live analyzer",
+    icon: null,
+    order: null,
+    visibility: null,
+    Component: Guarded_live_analyzer,
     ErrorBoundary: ErrorBoundary,
   },
   {
