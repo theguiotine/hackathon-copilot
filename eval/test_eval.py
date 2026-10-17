@@ -66,11 +66,17 @@ class TestByLanguage(unittest.TestCase):
         self.assertEqual(res["en"]["n"], 3)
         self.assertAlmostEqual(res["en"]["by_label"]["A"]["f1"], 0.8)
         self.assertAlmostEqual(res["en"]["by_label"]["B"]["p"], 0.0)
-        # es: true B B C, pred B C C -> B: p1 r.5 ; C: p.5 r1
+        # es: true B B C, pred B C C -> B: p1 r.5 ; C: p.5 r1 ; A absent here but in the shared set (f1 0)
         self.assertAlmostEqual(res["es"]["by_label"]["B"]["p"], 1.0)
         self.assertAlmostEqual(res["es"]["by_label"]["B"]["r"], 0.5)
         self.assertAlmostEqual(res["es"]["by_label"]["C"]["r"], 1.0)
-        self.assertAlmostEqual(res["es"]["macro_f1"], (2 / 3 + 2 / 3) / 2)
+        self.assertAlmostEqual(res["es"]["macro_f1"], (0 + 2 / 3 + 2 / 3) / 3)
+
+    def test_default_labels_shared_across_languages(self):
+        # Each language sees only one class; the shared label set makes macro-F1 0.5, not 1.0.
+        res = metrics.by_language(["A", "B"], ["A", "B"], ["en", "es"])
+        self.assertAlmostEqual(res["en"]["macro_f1"], 0.5)
+        self.assertAlmostEqual(res["es"]["macro_f1"], 0.5)
 
 
 class TestKappa(unittest.TestCase):
@@ -154,6 +160,38 @@ class TestMockAndCli(unittest.TestCase):
                 f.write("call_id,label\nx,affirm\n")
             with redirect_stdout(io.StringIO()), self.assertRaises(ValueError):
                 run_eval.format_report(p, p)
+
+
+    def _write(self, d, name, text):
+        path = os.path.join(d, name)
+        with open(path, "w") as f:
+            f.write(text)
+        return path
+
+    def test_cli_kind_allows_two_tags_on_one_line(self):
+        header = "call_id,line_number,language,kind,label\n"
+        with tempfile.TemporaryDirectory() as d:
+            lp = self._write(d, "l.csv", header + "c1,4,en,move,open question\nc1,4,en,talk,other\n")
+            pp = self._write(d, "p.csv", header + "c1,4,en,move,open question\nc1,4,en,talk,affirm\n")
+            out = run_eval.format_report(pp, lp)
+        self.assertIn("Matched rows: 2", out)
+
+    def test_cli_duplicate_without_kind_rejected(self):
+        header = "call_id,line_number,language,label\n"
+        with tempfile.TemporaryDirectory() as d:
+            p = self._write(d, "p.csv", header + "c1,4,en,affirm\nc1,4,en,other\n")
+            with self.assertRaises(ValueError):
+                run_eval.format_report(p, p)
+
+    def test_cli_missing_needs_human_value_rejected(self):
+        header = "call_id,line_number,language,label,needs_human\n"
+        with tempfile.TemporaryDirectory() as d:
+            short = self._write(d, "short.csv", header + "c1,1,en,affirm\n")
+            blank = self._write(d, "blank.csv", header + "c1,1,en,affirm,\n")
+            ok = self._write(d, "ok.csv", header + "c1,1,en,affirm,no\n")
+            for bad in (short, blank):
+                with self.assertRaises(ValueError):
+                    run_eval.format_report(ok, bad)
 
 
 if __name__ == "__main__":

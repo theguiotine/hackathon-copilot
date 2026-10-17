@@ -1,7 +1,8 @@
 """Usage: python3 eval/run_eval.py PREDICTIONS.csv LABELS.csv
 
-CSV columns: call_id, line_number, language, label [, needs_human]. Rows are joined on
-(call_id, line_number); language is taken from the labels file. Prints plain-text tables.
+CSV columns: call_id, line_number, language, label [, kind] [, needs_human]. Rows are joined on
+(call_id, line_number), plus kind when both files have it (one label per kind per line);
+language is taken from the labels file. Prints plain-text tables.
 Runs fully offline.
 """
 import argparse
@@ -14,10 +15,15 @@ import metrics  # noqa: E402
 
 REQUIRED = ("call_id", "line_number", "language", "label")
 YES = {"yes", "y", "true", "1"}
-NO = {"no", "n", "false", "0", ""}
+NO = {"no", "n", "false", "0"}
 
 
-def read_rows(path):
+def read_header(path):
+    with open(path, newline="", encoding="utf-8") as f:
+        return next(csv.reader(f), [])
+
+
+def read_rows(path, use_kind=False):
     with open(path, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         missing = [c for c in REQUIRED if c not in (reader.fieldnames or [])]
@@ -26,14 +32,18 @@ def read_rows(path):
         rows = {}
         for row in reader:
             key = (row["call_id"].strip(), row["line_number"].strip())
+            if use_kind:
+                key += ((row["kind"] or "").strip(),)
             if key in rows:
-                raise ValueError("%s has duplicate row for %s line %s" % (path, *key))
+                raise ValueError("%s has duplicate row for %s" % (path, " / ".join(key)))
             rows[key] = row
         return rows, "needs_human" in reader.fieldnames
 
 
 def parse_yes_no(value):
-    v = (value or "").strip().lower()
+    if value is None:
+        raise ValueError("needs_human value is missing (short row)")
+    v = value.strip().lower()
     if v in YES:
         return True
     if v in NO:
@@ -47,8 +57,9 @@ def join(preds, labels):
 
 
 def format_report(pred_path, label_path):
-    preds, pred_nh = read_rows(pred_path)
-    labels, label_nh = read_rows(label_path)
+    use_kind = "kind" in read_header(pred_path) and "kind" in read_header(label_path)
+    preds, pred_nh = read_rows(pred_path, use_kind)
+    labels, label_nh = read_rows(label_path, use_kind)
     keys, only_labels, only_preds = join(preds, labels)
     if not keys:
         raise ValueError("no rows match on (call_id, line_number)")
