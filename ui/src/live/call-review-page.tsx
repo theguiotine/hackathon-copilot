@@ -11,9 +11,9 @@ import { LimitsLine } from './safety-net';
 import { FHIR_DEMO_LABEL, buildFhirFlag, decisionLogCsv, downloadText, type FlagForExport } from './fhir';
 
 const CHOICES = [
-  { label: 'Escalate to nurse today', decision: 'CONFIRMED', note: 'Escalated to a nurse today.' },
-  { label: 'Coach already handled it', decision: 'ANNOTATED_WITH_A_NOTE', note: 'Coach already handled it.' },
-  { label: 'Not a real flag', decision: 'DISMISSED_AS_FALSE_ALARMS', note: 'Marked as not a real flag.' },
+  { label: 'Needs follow-up', hint: 'A person contacts the participant today.', decision: 'CONFIRMED', note: 'Escalated to a nurse today.' },
+  { label: 'Already handled', hint: 'The coach dealt with it; keep a note.', decision: 'ANNOTATED_WITH_A_NOTE', note: 'Coach already handled it.' },
+  { label: 'Not a real flag', hint: 'Closes it and teaches us about false alarms.', decision: 'DISMISSED_AS_FALSE_ALARMS', note: 'Marked as not a real flag.' },
 ] as const;
 
 const REASONS = ['Past or other person', 'Already treated', 'Wrong meaning'];
@@ -164,13 +164,15 @@ export default function CallReviewPage() {
                 const chosen = choiceFor(f);
                 return (
                   <div key={f.id} className="mt-3 rounded border border-border bg-background p-3 text-foreground">
-                    <p className="text-sm"><strong>{f.severity} needs a human.</strong> {f.reason}</p>
+                    <p className="text-sm"><strong>Flag {callFlags.indexOf(f) + 1} of {callFlags.length}: {{ S1: 'Needs a person now', S2: 'Review today', S3: 'Check when time allows' }[f.severity] ?? f.severity}.</strong> Flagged because: {(f.reason.split(/\.\s+Rule\b|\.\s/)[0] ?? f.reason).replace(/^The participant\s+/i, '')}.</p>
+                    <details className="text-xs text-text-muted"><summary className="cursor-pointer py-1">details</summary>{f.severity}: {f.reason}</details>
                     <p className="mt-2 text-sm font-medium">{chosen ? `Decision: ${chosen.label}` : 'Waiting for your decision:'}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {CHOICES.map((c, i) => (
                         <button key={c.decision} type="button" onClick={() => void decide(f, c)} aria-pressed={chosen?.decision === c.decision}
                           className={`rounded-md border px-3 py-2 text-sm font-medium ${chosen?.decision === c.decision ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:bg-muted'}`}>
-                          {c.label}
+                          <span className="block">{c.label}</span>
+                          <span className="block text-xs font-normal text-text-muted">{c.hint}</span>
                           {activeFlag?.id === f.id && <kbd className="ml-2 rounded border border-border px-1 text-xs text-text-muted opacity-60" aria-hidden="true">{i + 1}</kbd>}
                         </button>
                       ))}

@@ -10,8 +10,7 @@ import { Navigate } from 'react-router';
 import { useIdentity } from './presentation/app-context';
 import { RoleLandingRedirect } from './presentation/role-landing';
 import HomePage from './live/home-page';
-import { SafetyLine } from './live/safety-net';
-import { ReviewerCounter } from './live/reviewer-counter';
+import { SafetyQueueView } from './live/safety-queue-view';
 import { LoadingFallback } from './components/LoadingFallback';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotFound } from './components/NotFound';
@@ -107,15 +106,14 @@ function Guarded_evaluation() {
   );
 }
 
-const LazyScreen_call_queue = lazy(() => import('./presentation/containers/call-queue.container'));
+const LazyContainer_call_queue = lazy(() => import('./presentation/containers/call-queue.container').then((m) => ({ default: m.CallQueueScreenContainer })));
+function LazyScreen_call_queue() {
+  return <LazyContainer_call_queue view={SafetyQueueView} />;
+}
 function Guarded_call_queue() {
   return (
     <AuthGuard loadingComponent={<LoadingFallback />} fallback={<Navigate to="/login" replace />}>
       <Suspense fallback={<LoadingFallback />}>
-        <p className="mx-auto max-w-6xl px-6 pt-4 text-sm" data-testid="queue-hint">
-          <strong>Pick a call with a flag, then decide on the flagged line.</strong> Calls with the highest severity are listed first.
-        </p>
-        <div className="mx-auto flex max-w-6xl flex-col gap-1 px-6 pt-1"><ReviewerCounter /><SafetyLine /></div>
         <LazyScreen_call_queue />
       </Suspense>
     </AuthGuard>
