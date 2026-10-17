@@ -33,6 +33,13 @@ def run(path=DEFAULT):
                      "outcome": "caught" if should and did else "missed" if should else "false alarm" if did else "quiet (correct)"})
     b = metrics.binary_precision_recall(truth, pred)
     s1 = [r for r in rows if r["gold_tier"] == "S1"]
+    by_language = {}
+    for lang in sorted({r["language"] for r in rows}):
+        lr = [r for r in rows if r["language"] == lang]
+        pos = [r for r in lr if r["should_flag"]]
+        by_language[lang] = {"cases": len(lr), "positives": len(pos), "caught": sum(1 for r in pos if r["flagged"]),
+                             "misses": sum(1 for r in pos if not r["flagged"]),
+                             "false_alarms": sum(1 for r in lr if not r["should_flag"] and r["flagged"])}
     return {
         "scope": "On invented fixtures only (not real data). The set includes deliberately hard phrasings, so these figures show where the rules fail; they are not a performance claim.",
         "calls": len(cases),
@@ -43,6 +50,7 @@ def run(path=DEFAULT):
         "recall": round(b["r"], 3),
         "s1_recall": round(sum(1 for r in s1 if r["flagged"]) / len(s1), 3) if s1 else None,
         "false_alarms_per_10_calls": round(10 * b["fp"] / len(cases), 2),
+        "by_language": by_language,
         "misses_list": [r for r in rows if r["outcome"] == "missed"],
         "false_alarms_list": [r for r in rows if r["outcome"] == "false alarm"],
         "quiet_list": [r for r in rows if r["outcome"] == "quiet (correct)"],
