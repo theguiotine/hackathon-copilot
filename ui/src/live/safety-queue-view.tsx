@@ -44,19 +44,22 @@ type Filter = 'all' | 'S1' | 'S2' | 'none';
 
 function CardView({ c, href }: { c: Card; href: string }) {
   const t = c.tier;
+  // Tinted cards are always light, so their text is fixed dark (4.5:1 or better) in both themes.
+  const muted = t ? 'text-slate-700' : 'text-text-muted';
+  const neutral = t ? 'border-border bg-white text-slate-900' : 'border-border bg-background text-foreground';
   return (
-    <li className={`relative rounded-card border border-border border-l-4 p-3 ${t ? BAR[t] : 'border-l-border bg-card'}`}>
-      <p className="type-row-title text-foreground">
+    <li className={`relative rounded-card border border-border border-l-4 p-3 ${t ? `${BAR[t]} text-slate-900` : 'border-l-border bg-card'}`}>
+      <p className={`type-row-title ${t ? 'text-slate-900' : 'text-foreground'}`}>
         <Link to={href} className="after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring focus-visible:after:rounded-card">
           {c.participant}
         </Link>
-        <span className="font-normal text-text-muted"> · coach {c.coach}</span>
+        <span className={`font-normal ${muted}`}> · coach {c.coach}</span>
       </p>
       {t && c.quote ? (
-        <p className="mt-1 line-clamp-2 text-base italic text-foreground" title={c.quote}>“{c.quote}”</p>
+        <p className="mt-1 line-clamp-2 text-base italic text-slate-900" title={c.quote}>“{c.quote}”</p>
       ) : null}
       {t ? (
-        <p className="mt-1 text-sm text-text-muted">
+        <p className="mt-1 text-sm text-slate-700">
           Flagged because: {c.why}.{' '}
           <details className="relative z-10 inline">
             <summary className="inline cursor-pointer underline">details</summary>
@@ -68,15 +71,15 @@ function CardView({ c, href }: { c: Card; href: string }) {
         <span className={`rounded border px-2 py-0.5 font-semibold ${t ? CHIP[t] : 'border-border bg-background text-text-muted'}`} title={t ? DETAIL[t] : undefined}>
           {t ? WORD[t] : 'No action'}
         </span>
-        {t ? <span className="rounded border border-border bg-background px-2 py-0.5">{plural(c.flags, 'flag')}</span> : null}
+        {t ? <span className={`rounded border px-2 py-0.5 ${neutral}`}>{plural(c.flags, 'flag')}</span> : null}
         {t ? (
           c.replied
             ? <span className="rounded border border-green-300 bg-green-100 px-2 py-0.5 text-green-900">Coach replied</span>
             : <span className="rounded border border-red-300 bg-red-100 px-2 py-0.5 font-semibold text-red-900">No coach reply yet</span>
         ) : null}
-        {t && !c.replied && c.waitDays > 0 ? <span className="rounded border border-border bg-background px-2 py-0.5">Waiting {plural(c.waitDays, 'day')}</span> : null}
-        <span className="rounded border border-border bg-background px-2 py-0.5">{c.status}</span>
-        <span className="text-text-muted">{fmtDate(c.completedAt)}</span>
+        {t && !c.replied && c.waitDays > 0 ? <span className={`rounded border px-2 py-0.5 ${neutral}`}>Waiting {plural(c.waitDays, 'day')}</span> : null}
+        <span className={`rounded border px-2 py-0.5 ${neutral}`}>{c.status}</span>
+        <span className={muted}>{fmtDate(c.completedAt)}</span>
       </div>
     </li>
   );
