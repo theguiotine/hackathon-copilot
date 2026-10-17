@@ -61,7 +61,7 @@ function Guarded_scorecards() {
   );
 }
 
-const LazyScreen_call_review = lazy(() => import('./presentation/containers/call-review.container'));
+const LazyScreen_call_review = lazy(() => import('./live/call-review-page'));
 function Guarded_call_review() {
   return (
     <AuthGuard loadingComponent={<LoadingFallback />} fallback={<Navigate to="/login" replace />}>
