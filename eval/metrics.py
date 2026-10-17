@@ -55,6 +55,8 @@ def by_language(y_true, y_pred, languages, labels=None):
     """Return {language: {"by_label": per_label(...), "macro_f1": float, "n": int}}."""
     if not (len(y_true) == len(y_pred) == len(languages)):
         raise ValueError("inputs must have the same length")
+    if labels is None:
+        labels = sorted(set(y_true) | set(y_pred))
     out = {}
     for lang in sorted(set(languages)):
         idx = [i for i, l in enumerate(languages) if l == lang]
