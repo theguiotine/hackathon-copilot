@@ -3,7 +3,7 @@
 | # | Task | Owner | Branch | Files | Status | Done when (evidence) |
 |---|---|---|---|---|---|---|
 | 0 | Ask organizers which AI tools are approved on the Data (Wall post) | Esteban | n/a | n/a | todo | written answer saved; if yes create APPROVED.md |
-| 1 | Loader + schema check against CONTRACT.md, 6 typed fictional lines per language | Claude Code | claude | src/, tests/fixtures/ | todo | tests pass on fixtures |
+| 1 | Loader + schema check against CONTRACT.md, 6 typed fictional lines per language | Claude Code | claude | src/, tests/fixtures/ | review | `python3 -m unittest discover -s tests -t .` : Ran 23 tests, OK (fixtures: 1 EN + 1 ES conversation, 6 invented lines each; pytest not installed) |
 | 2 | Review of row 1 | Codex | codex | reviews/ | todo | reviews/1.md lists real bugs or says none |
 | 3 | Rule tagger EN+ES (coach moves, participant talk) | Claude Code | claude | src/tagger/ | todo | fixture tests pass |
 | 4 | Needs-human flagger with negation guard, tiers S1-S3, "unhandled" rule | Claude Code | claude | src/flagger/ | todo | fixture tests pass incl. a negated-symptom negative case in Spanish |
