@@ -4,7 +4,7 @@
 |---|---|---|---|---|---|---|
 | 0 | Ask organizers which AI tools are approved on the Data (Wall post) | Esteban | n/a | n/a | todo | written answer saved; if yes create APPROVED.md |
 | 1 | Loader + schema check against CONTRACT.md, 6 typed fictional lines per language | Claude Code | claude | src/, tests/fixtures/ | review | `python3 -m unittest discover -s tests -t .` : Ran 23 tests, OK (fixtures: 1 EN + 1 ES conversation, 6 invented lines each; pytest not installed) |
-| 2 | Review of row 1 | Codex | codex | reviews/ | todo | reviews/1.md lists real bugs or says none |
+| 2 | Review of row 1 | Codex | codex | reviews/ | done | reviews/1.md: no findings |
 | 3 | Rule tagger EN+ES (coach moves, participant talk) | Claude Code | claude | src/tagger/ | review | 34 tests OK (`python3 -m unittest discover -s tests -t .`); 12 coach moves, 3 participant talk, 13 text intents (names from the brief, patterns are our heuristics) |
 | 4 | Needs-human flagger with negation guard, tiers S1-S3, "unhandled" rule | Claude Code | claude | src/flagger/ | review | same 34 tests OK incl. Spanish negated `no tengo dolor de pecho` and English negated `no fever and no chest pain` not flagged; S1-S3 are our own design (CONTRACT.md) |
 | 5 | Review of rows 3-4 | Codex | codex | reviews/ | todo | reviews/3-4.md |
