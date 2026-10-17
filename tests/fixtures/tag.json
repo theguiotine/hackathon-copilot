@@ -1,0 +1,8 @@
+{
+  "conv_id": "fx-en-1",
+  "line_idx": 1,
+  "kind": "participant_talk",
+  "label": "change_talk",
+  "method": "rule",
+  "rule_id": "R-FX"
+}

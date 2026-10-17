@@ -1,0 +1,9 @@
+{
+  "conv_id": "fx-es-1",
+  "line_idx": 1,
+  "tier": "S3",
+  "rule_id": "F-FX",
+  "quote": "estaba cansada",
+  "negation_checked": true,
+  "coach_responded": true
+}
