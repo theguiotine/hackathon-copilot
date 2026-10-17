@@ -54,10 +54,10 @@ class Api(unittest.TestCase):
         self.assertEqual(r["flag_rules"], 4)
         self.assertIsNone(r["held_out_sessions"])
         with tempfile.TemporaryDirectory() as d:
-            Path(d, "eval_summary.json").write_text(json.dumps({"held_out_sessions": 21}))
+            Path(d, "eval_summary.json").write_text(json.dumps({"held_out_sessions": 7}))
             os.environ["COACH_CLASSIFIER_DIR"] = d
             try:
-                self.assertEqual(self.req("/api/limits")[1]["held_out_sessions"], 21)
+                self.assertEqual(self.req("/api/limits")[1]["held_out_sessions"], 7)
             finally:
                 del os.environ["COACH_CLASSIFIER_DIR"]
 
@@ -102,13 +102,13 @@ class Api(unittest.TestCase):
 
     def test_eval_available_with_summary(self):
         with tempfile.TemporaryDirectory() as d:
-            Path(d, "eval_summary.json").write_text(json.dumps({"held_out_sessions": 21, "caveat": "test only"}))
+            Path(d, "eval_summary.json").write_text(json.dumps({"held_out_sessions": 7, "caveat": "test only"}))
             os.environ["COACH_CLASSIFIER_DIR"] = d
             try:
                 code, body = self.req("/api/eval")
             finally:
                 del os.environ["COACH_CLASSIFIER_DIR"]
-        self.assertEqual((code, body["available"], body["held_out_sessions"]), (200, True, 21))
+        self.assertEqual((code, body["available"], body["held_out_sessions"]), (200, True, 7))
 
     def test_explain_409_unless_approved(self):
         os.environ.pop("LLM_APPROVED", None)
