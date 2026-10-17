@@ -5,6 +5,7 @@ Defaults to the fictional fixtures. It never reads COACH_DATA_DIR on its own.
 """
 import argparse
 import json
+import mimetypes
 import os
 import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -33,7 +34,29 @@ def host_ok(host):
     deployment setting, comma-separated host names without ports)."""
     name = (host or "").rsplit(":", 1)[0].strip("[]")
     extra = {h.strip() for h in os.environ.get("COACH_ALLOWED_HOSTS", "").split(",") if h.strip()}
+    if os.environ.get("RENDER_EXTERNAL_HOSTNAME"):  # the web host's own name, set by the platform
+        extra.add(os.environ["RENDER_EXTERNAL_HOSTNAME"])
     return name in ("127.0.0.1", "localhost", "::1") or name in extra
+
+
+def static_file(url_path):
+    """For a single-service deployment: serve the built UI from $COACH_STATIC_DIR (never anything outside it).
+    Unknown non-asset paths fall back to index.html so in-app routes work on reload. None if not configured."""
+    root = os.environ.get("COACH_STATIC_DIR")
+    if not root:
+        return None
+    base = Path(root).resolve()
+    rel = url_path.lstrip("/") or "index.html"
+    target = (base / rel).resolve()
+    if base not in target.parents and target != base:
+        return None
+    if not target.is_file():
+        if "." in rel.rsplit("/", 1)[-1]:
+            return None  # a missing asset is a 404, not index.html
+        target = base / "index.html"
+        if not target.is_file():
+            return None
+    return target, mimetypes.guess_type(str(target))[0] or "application/octet-stream"
 
 
 TIER_ORDER = {"S1": 0, "S2": 1, "S3": 2}
@@ -145,6 +168,16 @@ def make_handler(app: App):
                 return self._send(200, res) if res else self._send(404, {"error": "unknown conversation"})
             if path == "/api/eval":
                 return self._send(200, eval_summary())
+            hit = static_file(path)
+            if hit is not None and not path.startswith("/api/"):
+                target, ctype = hit
+                body = target.read_bytes()
+                self.send_response(200)
+                self.send_header("Content-Type", ctype)
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                return
             self._send(404, {"error": "not found"})
 
         def do_POST(self):

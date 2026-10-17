@@ -108,6 +108,26 @@ class Api(unittest.TestCase):
         self.assertEqual(self.req("/api/explain", {})[0], 409)
 
 
+class StaticServing(unittest.TestCase):
+    def test_static_file_is_contained_and_spa_falls_back(self):
+        from src.api import static_file
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as outside:
+            Path(d, "index.html").write_text("<html>app</html>")
+            Path(d, "assets").mkdir()
+            Path(d, "assets", "a.js").write_text("x")
+            Path(outside, "secret.txt").write_text("nope")
+            os.environ["COACH_STATIC_DIR"] = d
+            try:
+                self.assertEqual(static_file("/")[0].name, "index.html")
+                self.assertIn("javascript", static_file("/assets/a.js")[1])
+                self.assertEqual(static_file("/call-queue")[0].name, "index.html")
+                self.assertIsNone(static_file("/assets/missing.js"))
+                self.assertIsNone(static_file("/../" + Path(outside).name + "/secret.txt"))
+            finally:
+                del os.environ["COACH_STATIC_DIR"]
+            self.assertIsNone(static_file("/"))
+
+
 if __name__ == "__main__":
     unittest.main()
 

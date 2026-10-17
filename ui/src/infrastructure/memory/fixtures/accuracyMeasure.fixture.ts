@@ -7,52 +7,5 @@
 import type { AccuracyMeasure } from '../../../domain/entities/accuracyMeasure';
 
 export const ACCURACY_MEASURE_FIXTURE: readonly AccuracyMeasure[] = [
-  {
-    id: "am-001",
-    label: "Tagger accuracy — placeholder 91%",
-    component: "TAGGER",
-    accuracy: 91,
-    note: "Placeholder value. Measured on a held-out set of tagged coaching lines; full evaluation pending.",
-    isPlaceholder: true,
-  },
-  {
-    id: "am-002",
-    label: "Flagger accuracy — placeholder 87%",
-    component: "FLAGGER",
-    accuracy: 87,
-    note: "Placeholder value. Agreement with coach decisions on S1–S3 flags; full evaluation pending.",
-    isPlaceholder: true,
-  },
-  {
-    id: "am-003",
-    label: "Tagger precision — open questions",
-    component: "TAGGER",
-    accuracy: 89,
-    note: "Placeholder value. Share of lines tagged as open questions that coaches confirmed.",
-    isPlaceholder: true,
-  },
-  {
-    id: "am-004",
-    label: "Tagger recall — reflections",
-    component: "TAGGER",
-    accuracy: 93,
-    note: "Placeholder value. Share of coach reflections the tagger located in the transcript.",
-    isPlaceholder: true,
-  },
-  {
-    id: "am-005",
-    label: "Flagger precision — S1 flags",
-    component: "FLAGGER",
-    accuracy: 90,
-    note: "Placeholder value. Share of S1 flags that coaches kept after review.",
-    isPlaceholder: true,
-  },
-  {
-    id: "am-006",
-    label: "Flagger recall — S3 flags",
-    component: "FLAGGER",
-    accuracy: 84,
-    note: "Placeholder value. Share of coach-identified high-risk lines the flagger caught at S3.",
-    isPlaceholder: true,
-  }
+  // Intentionally empty: no invented accuracy figures ship in this repo or its build.
 ];

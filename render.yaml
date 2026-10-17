@@ -1,0 +1,7 @@
+# Render blueprint: one free web service built from the Dockerfile. Nothing secret is configured here.
+services:
+  - type: web
+    name: coachs-copilot
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/limits
