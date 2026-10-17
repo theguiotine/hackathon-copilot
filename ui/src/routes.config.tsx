@@ -92,7 +92,7 @@ function Guarded_task_detail() {
   );
 }
 
-const LazyScreen_evaluation = lazy(() => import('./presentation/views/evaluation.view'));
+const LazyScreen_evaluation = lazy(() => import('./live/evaluation-page'));
 function Guarded_evaluation() {
   return (
     <AuthGuard loadingComponent={<LoadingFallback />} fallback={<Navigate to="/login" replace />}>

@@ -1,10 +1,13 @@
 import json
 import os
+import tempfile
 import threading
 import unittest
 import urllib.error
 import urllib.request
 from http.server import ThreadingHTTPServer
+
+from pathlib import Path
 
 from src.api import DEFAULT_FILES, App, make_handler
 from src.loader import load_conversations
@@ -57,6 +60,28 @@ class Api(unittest.TestCase):
         code, a = self.req("/api/analyze", body)
         self.assertEqual((code, a["flags"][0]["tier"]), (200, "S1"))
         self.assertEqual(self.req("/api/analyze", {"id": "z"})[0], 400)
+
+    def test_eval_not_available_without_summary(self):
+        os.environ.pop("COACH_CLASSIFIER_DIR", None)
+        self.assertEqual(self.req("/api/eval"), (200, {"available": False}))
+        with tempfile.TemporaryDirectory() as d:
+            os.environ["COACH_CLASSIFIER_DIR"] = d
+            try:
+                self.assertEqual(self.req("/api/eval")[1], {"available": False})
+                Path(d, "eval_summary.json").write_text("{bad")
+                self.assertFalse(self.req("/api/eval")[1]["available"])
+            finally:
+                del os.environ["COACH_CLASSIFIER_DIR"]
+
+    def test_eval_available_with_summary(self):
+        with tempfile.TemporaryDirectory() as d:
+            Path(d, "eval_summary.json").write_text(json.dumps({"held_out_sessions": 21, "caveat": "test only"}))
+            os.environ["COACH_CLASSIFIER_DIR"] = d
+            try:
+                code, body = self.req("/api/eval")
+            finally:
+                del os.environ["COACH_CLASSIFIER_DIR"]
+        self.assertEqual((code, body["available"], body["held_out_sessions"]), (200, True, 21))
 
     def test_explain_409_unless_approved(self):
         os.environ.pop("LLM_APPROVED", None)

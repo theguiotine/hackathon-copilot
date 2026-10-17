@@ -21,6 +21,21 @@ DEFAULT_FILES = [FIXTURES / "conversations.json", FIXTURES / "flag_cases.json"]
 TIER_ORDER = {"S1": 0, "S2": 1, "S3": 2}
 
 
+def eval_summary():
+    """Aggregates the owner computed locally, from $COACH_CLASSIFIER_DIR/eval_summary.json; never stored in the repo."""
+    directory = os.environ.get("COACH_CLASSIFIER_DIR")
+    if directory:
+        path = Path(directory).expanduser() / "eval_summary.json"
+        if path.is_file():
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except ValueError:
+                return {"available": False, "error": "eval_summary.json is not valid JSON"}
+            if isinstance(data, dict):
+                return {"available": True, **data}
+    return {"available": False}
+
+
 def _dump(o):
     return o.__dict__ if hasattr(o, "__dict__") else o
 
@@ -88,7 +103,7 @@ def make_handler(app: App):
                 res = getattr(app, m.group(1))(m.group(2))
                 return self._send(200, res) if res else self._send(404, {"error": "unknown conversation"})
             if path == "/api/eval":
-                return self._send(200, {"note": "Eval is computed locally by the human with eval/run_eval.py; nothing is served here."})
+                return self._send(200, eval_summary())
             self._send(404, {"error": "not found"})
 
         def do_POST(self):
