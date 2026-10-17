@@ -1,0 +1,158 @@
+# Synthetic robustness run (aggregates only)
+
+**These results come from invented, template-generated text. They are NOT clinical validation, and the generator's phrasings can be easier or harder than real speech. No real or challenge data was used and no generated sentence is stored here.**
+
+- seed 20261017, 300 conversations (3872 lines), run time 8.52s
+- COACH_CLASSIFIER_DIR set for this process: False (False means the rule tagger ran alone)
+- score card ran OK on 300/300 conversations, errors 0
+
+## Flag recall (truth flag lines the engine flagged with the right rule)
+
+| group | detail |
+|---|---|
+| CHEST|all | {"hit": 29, "total": 48, "recall": 0.6042} |
+| CHEST|en | {"hit": 16, "total": 20, "recall": 0.8} |
+| CHEST|es | {"hit": 13, "total": 28, "recall": 0.4643} |
+| CRISIS|all | {"hit": 32, "total": 60, "recall": 0.5333} |
+| CRISIS|en | {"hit": 12, "total": 34, "recall": 0.3529} |
+| CRISIS|es | {"hit": 20, "total": 26, "recall": 0.7692} |
+| DISTRESS|all | {"hit": 27, "total": 54, "recall": 0.5} |
+| DISTRESS|en | {"hit": 10, "total": 23, "recall": 0.4348} |
+| DISTRESS|es | {"hit": 17, "total": 31, "recall": 0.5484} |
+| SYMPTOM|all | {"hit": 14, "total": 46, "recall": 0.3043} |
+| SYMPTOM|en | {"hit": 5, "total": 19, "recall": 0.2632} |
+| SYMPTOM|es | {"hit": 9, "total": 27, "recall": 0.3333} |
+| all|all | {"hit": 102, "total": 208, "recall": 0.4904} |
+| all|en | {"hit": 43, "total": 96, "recall": 0.4479} |
+| all|es | {"hit": 59, "total": 112, "recall": 0.5268} |
+| base_variant:base|all | {"hit": 56, "total": 112, "recall": 0.5} |
+| base_variant:base|CHEST|all | {"hit": 8, "total": 11, "recall": 0.7273} |
+| base_variant:base|CRISIS|all | {"hit": 24, "total": 42, "recall": 0.5714} |
+| base_variant:base|DISTRESS|all | {"hit": 10, "total": 37, "recall": 0.2703} |
+| base_variant:base|SYMPTOM|all | {"hit": 14, "total": 22, "recall": 0.6364} |
+| base_variant:order|all | {"hit": 17, "total": 49, "recall": 0.3469} |
+| base_variant:order|CHEST|all | {"hit": 17, "total": 23, "recall": 0.7391} |
+| base_variant:order|CRISIS|all | {"hit": 0, "total": 10, "recall": 0.0} |
+| base_variant:order|SYMPTOM|all | {"hit": 0, "total": 16, "recall": 0.0} |
+| base_variant:plural|all | {"hit": 0, "total": 18, "recall": 0.0} |
+| base_variant:plural|CHEST|all | {"hit": 0, "total": 10, "recall": 0.0} |
+| base_variant:plural|SYMPTOM|all | {"hit": 0, "total": 8, "recall": 0.0} |
+| base_variant:selfneg|all | {"hit": 29, "total": 29, "recall": 1.0} |
+| base_variant:selfneg|CHEST|all | {"hit": 4, "total": 4, "recall": 1.0} |
+| base_variant:selfneg|CRISIS|all | {"hit": 8, "total": 8, "recall": 1.0} |
+| base_variant:selfneg|DISTRESS|all | {"hit": 17, "total": 17, "recall": 1.0} |
+| variant:base|all | {"hit": 19, "total": 33, "recall": 0.5758} |
+| variant:noisy|all | {"hit": 68, "total": 143, "recall": 0.4755} |
+| variant:order|all | {"hit": 8, "total": 16, "recall": 0.5} |
+| variant:plural|all | {"hit": 0, "total": 9, "recall": 0.0} |
+| variant:selfneg|all | {"hit": 7, "total": 7, "recall": 1.0} |
+
+## Flag precision by rule
+
+| group | detail |
+|---|---|
+| F-CHEST|all | {"tp": 29, "predicted": 29, "precision": 1.0} |
+| F-CHEST|en | {"tp": 16, "predicted": 16, "precision": 1.0} |
+| F-CHEST|es | {"tp": 13, "predicted": 13, "precision": 1.0} |
+| F-CRISIS|all | {"tp": 32, "predicted": 32, "precision": 1.0} |
+| F-CRISIS|en | {"tp": 12, "predicted": 12, "precision": 1.0} |
+| F-CRISIS|es | {"tp": 20, "predicted": 20, "precision": 1.0} |
+| F-DISTRESS|all | {"tp": 27, "predicted": 62, "precision": 0.4355} |
+| F-DISTRESS|en | {"tp": 10, "predicted": 20, "precision": 0.5} |
+| F-DISTRESS|es | {"tp": 17, "predicted": 42, "precision": 0.4048} |
+| F-SYMPTOM|all | {"tp": 14, "predicted": 19, "precision": 0.7368} |
+| F-SYMPTOM|en | {"tp": 5, "predicted": 5, "precision": 1.0} |
+| F-SYMPTOM|es | {"tp": 9, "predicted": 14, "precision": 0.6429} |
+
+## False-alarm rate (decoy and neutral lines wrongly flagged)
+
+| group | detail |
+|---|---|
+| BENIGN|all | {"flagged": 0, "total": 90, "rate": 0.0} |
+| BENIGN|en | {"flagged": 0, "total": 49, "rate": 0.0} |
+| BENIGN|es | {"flagged": 0, "total": 41, "rate": 0.0} |
+| NEG|all | {"flagged": 14, "total": 177, "rate": 0.0791} |
+| NEG|en | {"flagged": 0, "total": 90, "rate": 0.0} |
+| NEG|es | {"flagged": 14, "total": 87, "rate": 0.1609} |
+| NEUTRAL|all | {"flagged": 0, "total": 1289, "rate": 0.0} |
+| NEUTRAL|en | {"flagged": 0, "total": 633, "rate": 0.0} |
+| NEUTRAL|es | {"flagged": 0, "total": 656, "rate": 0.0} |
+| OTHER|all | {"flagged": 0, "total": 93, "rate": 0.0} |
+| OTHER|en | {"flagged": 0, "total": 46, "rate": 0.0} |
+| OTHER|es | {"flagged": 0, "total": 47, "rate": 0.0} |
+| PAST|all | {"flagged": 21, "total": 79, "rate": 0.2658} |
+| PAST|en | {"flagged": 10, "total": 40, "rate": 0.25} |
+| PAST|es | {"flagged": 11, "total": 39, "rate": 0.2821} |
+| all|all | {"flagged": 35, "total": 1728, "rate": 0.0203} |
+| all|en | {"flagged": 10, "total": 858, "rate": 0.0117} |
+| all|es | {"flagged": 25, "total": 870, "rate": 0.0287} |
+
+## Coach-move tag recall
+
+| group | detail |
+|---|---|
+| affirm|all | {"hit": 180, "total": 228, "recall": 0.7895} |
+| affirm|en | {"hit": 64, "total": 112, "recall": 0.5714} |
+| affirm|es | {"hit": 116, "total": 116, "recall": 1.0} |
+| all|all | {"hit": 744, "total": 1936, "recall": 0.3843} |
+| all|en | {"hit": 372, "total": 954, "recall": 0.3899} |
+| all|es | {"hit": 372, "total": 982, "recall": 0.3788} |
+| ask_permission|all | {"hit": 132, "total": 269, "recall": 0.4907} |
+| ask_permission|en | {"hit": 62, "total": 137, "recall": 0.4526} |
+| ask_permission|es | {"hit": 70, "total": 132, "recall": 0.5303} |
+| closed_question|all | {"hit": 56, "total": 219, "recall": 0.2557} |
+| closed_question|en | {"hit": 56, "total": 96, "recall": 0.5833} |
+| closed_question|es | {"hit": 0, "total": 123, "recall": 0.0} |
+| complex_reflection|all | {"hit": 0, "total": 244, "recall": 0.0} |
+| complex_reflection|en | {"hit": 0, "total": 131, "recall": 0.0} |
+| complex_reflection|es | {"hit": 0, "total": 113, "recall": 0.0} |
+| give_information|all | {"hit": 0, "total": 261, "recall": 0.0} |
+| give_information|en | {"hit": 0, "total": 109, "recall": 0.0} |
+| give_information|es | {"hit": 0, "total": 152, "recall": 0.0} |
+| open_question|all | {"hit": 134, "total": 241, "recall": 0.556} |
+| open_question|en | {"hit": 65, "total": 129, "recall": 0.5039} |
+| open_question|es | {"hit": 69, "total": 112, "recall": 0.6161} |
+| seek_collaboration|all | {"hit": 229, "total": 229, "recall": 1.0} |
+| seek_collaboration|en | {"hit": 112, "total": 112, "recall": 1.0} |
+| seek_collaboration|es | {"hit": 117, "total": 117, "recall": 1.0} |
+| simple_reflection|all | {"hit": 13, "total": 245, "recall": 0.0531} |
+| simple_reflection|en | {"hit": 13, "total": 128, "recall": 0.1016} |
+| simple_reflection|es | {"hit": 0, "total": 117, "recall": 0.0} |
+
+## Missed template IDs (id|language, count; FALSE-ALARM: ids are decoys that wrongly flagged)
+
+- FALSE-ALARM:NEG-04|es: 14
+- FALSE-ALARM:PAST-02|es: 11
+- FALSE-ALARM:PAST-02|en: 10
+- CRISIS-02|en: 10
+- CRISIS-01|en: 8
+- DISTRESS-04|es: 8
+- DISTRESS-03|en: 8
+- CRISIS-05|es: 6
+- DISTRESS-03|es: 6
+- SYMPTOM-06|es: 6
+- SYMPTOM-08|en: 6
+- DISTRESS-04|en: 5
+- CHEST-04|es: 5
+- CHEST-02|es: 4
+- SYMPTOM-04|es: 4
+- SYMPTOM-02|en: 4
+- SYMPTOM-02|es: 4
+- CRISIS-05|en: 4
+- CHEST-07|es: 3
+- CHEST-02|en: 3
+- SYMPTOM-07|en: 2
+- SYMPTOM-04|en: 2
+- CHEST-09|es: 2
+- SYMPTOM-07|es: 2
+- SYMPTOM-08|es: 2
+- CHEST-09|en: 1
+- CHEST-05|es: 1
+
+## Plural / word-order variant misses by flag rule
+
+- F-CHEST|order: 6
+- F-CHEST|plural: 10
+- F-CRISIS|order: 10
+- F-SYMPTOM|order: 16
+- F-SYMPTOM|plural: 8

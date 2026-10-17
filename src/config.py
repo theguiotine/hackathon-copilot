@@ -80,19 +80,80 @@ FLAG_RULES = [
         "es": r"\b(sin esperanza|abrumad[oa]|no puedo m[aá]s|muy sol[oa]|no aguanto m[aá]s|ya no aguanto|me quiero rendir|nada tiene sentido|sin ganas de vivir|me siento perdid[oa])\b"}),
 ]
 
+# Expanded natural variants of the EXISTING flag ideas (added Sat Oct 17 2026 17:2x, after a live test found
+# "I'm dying" and "chest pains" unflagged). Same rule ids and tiers; wording is "a person should see this
+# today", never a diagnosis. The negation guard, other-person and long-ago filters in flagger/rules.py still apply.
+_AP = "['’]?"
+_EXTRA_FLAG_PATTERNS = {
+    "F-CRISIS": {
+        "en": (
+            r"\bi(?:" + _AP + r"m| am| feel like i" + _AP + r"m| feel like i am| think i" + _AP + r"m| think i am) (?:dying|going to die|gonna die)\b"
+            r"|\b(?:wanna|want to|going to|gonna) die\b"
+            r"|\b(?:ending|end|ended) (?:it all|my life|everything)\b"
+            r"|\b(?:take|taking|took) my own life\b"
+            r"|\b(?:(?:everyone|everybody|they|you|people|my family)(?:" + _AP + r"d| would| will)(?: all)? be )?better off without me\b|\b(?:hurting|harming) myself\b"
+            r"|\bwant to (?:disappear|vanish)\b"
+            r"|\bwish i (?:could )?(?:disappear|wasn" + _AP + r"t here|was dead|were dead)\b"
+            r"|\boverdos(?:e|ed|ing)\b"
+            r"|\b(?:took|taken|swallowed|downed) (?:too many|too much|a bunch of|a handful of|a whole bottle of|the whole bottle of|a lot of) (?:my |the )?(?:pills?|tablets?|meds|medications?|medicine)\b"
+            r"|\b(?:took|swallowed|downed) (?:all|every one) (?:of )?(?:my|the) (?:pills?|tablets?|meds|medication)(?: at once| all at once| on purpose| tonight| just now| on purpose)\b"
+        ),
+        "es": (
+            r"\bme estoy muriendo\b|\bme voy a morir\b|\bquiero morir(?:me)?\b"
+            r"|\b(?:acabar|terminar) con (?:mi vida|todo)\b"
+            r"|\bestar(?:ía|ia|ían|ian) mejor sin m[ií]\b"
+            r"|\bquiero (?:desaparecer|no estar aqu[ií])\b"
+            r"|\bsobredosis\b|\bme sobredos(?:i|í)\b"
+            r"|\b(?:tom[eé]|me tom[eé]|trague|me tragu[eé]) (?:demasiadas|muchas|un mont[oó]n de|un puñado de|toda la caja de|el frasco entero de) pastillas\b"
+            r"|\b(?:tom[eé]|me tom[eé]|me tragu[eé]) (?:todas|todas mis|todas las) pastillas (?:de una vez|de golpe|a prop[oó]sito|esta noche|ahora mismo)\b"
+        ),
+    },
+    "F-SYMPTOM": {
+        "en": (
+            r"\b(?:leg|legs|ankles?|feet|foot|knee|arm|hand)\b(?:(?!\b(?:not|no|never|without|isn't|aren't|wasn't|weren't)\b)[^.!?;]){0,25}\b(?:swollen|swelling)\b|\b(?:swollen|swelling) (?:in )?(?:my )?(?:leg|legs|ankles?|feet|foot|knee|arm)\b"
+            r"|\b(?:a lot of|so much|lots of|terrible|horrible|awful|unbearable|really bad) pain\b|\bin (?:a lot of|so much|terrible|severe|unbearable) pain\b"
+        ),
+        "es": (
+            r"\b(?:pierna|piernas|tobillos?|pies|pie|rodilla|brazo)\b(?:(?!\b(?:no|nunca|sin|ni|tampoco)\b)[^.!?;]){0,25}\b(?:hinchad[oa]s?|inflamad[oa]s?)\b|\b(?:mucho|demasiado|terrible|insoportable) dolor\b"
+        ),
+    },
+    "F-DISTRESS": {
+        "en": r"\b(?:i )?(?:feel|am|i'm|im) (?:very|so|really|extremely) (?:sad|down|depressed|low)\b|\bfeeling (?:very|so|really) (?:sad|depressed)\b",
+        "es": r"\bno puedo dormir y me siento (?:muy |tan |bien )?(?:triste|deprimid[oa]|mal)\b|\bme siento (?:muy|tan|bien|demasiado) (?:triste|deprimid[oa]|mal)\b|\bestoy (?:muy|tan) (?:triste|deprimid[oa])\b",
+    },
+    "F-CHEST": {
+        "en": (
+            r"\b(?:tightness|pressure|heaviness) in (?:my |the )?chest\b|\bchest pains?\b|\bpains (?:in|on) (?:my |the )?chest\b|\btight chest\b|\b(?:my )?chest (?:is |feels |has been )?(?:so |really |very )?(?:tight|heavy|squeezed)\b"
+            r"|\bheart (?:is |was )?(?:racing|pounding)\b[^.!?;]{0,30}\b(?:hurts?|aches?|pain|tight)\b|\bmy heart (?:hurts|aches)\b"
+            r"|\b(?:hard|tough|difficult) (?:time )?(?:to )?(?:catch(?:ing)? my breath|breath(?:e|ing))\b"
+            r"|\bbreathing (?:is|has been|feels) (?:really |very |so )?(?:hard|difficult|tough|labou?red)\b"
+            r"|\bhard to take a breath\b"
+        ),
+        "es": (
+            r"\bdolores (?:de|en el|en mi) pecho\b|\bpresi[oó]n (?:en|sobre) (?:el |mi )?pecho\b"
+            r"|\bme duele(?:n)? el pecho\b|\bpecho me duele\b|\bme falta el aire\b|\brespiro con dificultad\b|\brespirar (?:es|está) (?:muy )?(?:difícil|duro)\b"
+        ),
+    },
+}
+FLAG_RULES = [
+    (rid, tier, {l: (p if rid not in _EXTRA_FLAG_PATTERNS else "(?:%s)|(?:%s)" % (p, _EXTRA_FLAG_PATTERNS[rid][l])) for l, p in pats.items()})
+    for rid, tier, pats in FLAG_RULES
+]
+
+
 # A match is NOT about the participant right now when its sentence is about another person or about long ago.
 OTHER_PERSON = {
     "en": r"\b(my (dad|father|mom|mother|sister|brother|friend|wife|husband|son|daughter|neighbou?r|grand(ma|mother|pa|father)|aunt|uncle|cousin|coworker|boss)|he|she|they|someone|somebody)\b",
     "es": r"\b(mi (mam[aá]|pap[aá]|madre|padre|hermano|hermana|amig[oa]|espos[oa]|marido|mujer|hij[oa]|vecin[oa]|abuel[oa]|t[ií][oa]|prim[oa]|jefe)|él|ella|ellos|ellas|alguien)\b",
 }
 LONG_AGO = {
-    "en": r"\b(last year|years? ago|months? ago|when I was (a kid|little|young)|as a (kid|child)|a long time ago)\b",
-    "es": r"\b(el a[ñn]o pasado|hace (\w+ )?(a[ñn]os|meses)|cuando era (ni[ñn][oa]|chic[oa]|joven|peque[ñn][oa])|a[ñn]os atr[aá]s)\b",
+    "en": r"\b(last year|years? ago|months? ago|when I was (a kid|little|young|younger)|as a (kid|child)|a long time ago|back in (college|school|high school|the day)|in (college|high school))\b",
+    "es": r"\b(el a[ñn]o pasado|hace (\w+ )?(a[ñn]os|meses)|cuando era (ni[ñn][oa]|chic[oa]|joven|peque[ñn][oa])|a[ñn]os atr[aá]s|en la universidad|en la secundaria|en la preparatoria)\b",
 }
 
 # Negation cues that, within NEGATION_WINDOW tokens before a match, cancel it.
 NEGATIONS = {
-    "en": r"\b(no|not|never|without|don't|doesn't|didn't|haven't|hasn't|denies|denied)\b",
+    "en": r"\b(no|not|never|without|don't|doesn't|didn't|haven't|hasn't|isn't|aren't|wasn't|weren't|hadn't|denies|denied)\b",
     "es": r"\b(no|nunca|ni|sin|jam[aá]s|tampoco)\b",
 }
 NEGATION_WINDOW = 4
