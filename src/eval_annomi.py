@@ -122,7 +122,7 @@ def analyze(sessions):
     for sid, rows in sessions.items():
         conv = to_conversation(sid, rows)
         total += len(rows)
-        tags = {(t.line_idx, t.kind): t.label for t in tag_conversation(conv)}
+        tags = {(t.line_idx, t.kind): t.label for t in tag_conversation(conv, models=None)}  # rules-only baseline
         for i, r in enumerate(rows):
             g = gold_coach_label(r)
             if g is not None and (i, "coach_move") in tags:

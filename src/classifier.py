@@ -1,7 +1,7 @@
 """Pure-Python text classifier (multinomial naive Bayes on TF-IDF-weighted unigrams and bigrams).
 
 No dependencies (scikit-learn is not installed here). It is NOT wired into the tagging pipeline; the owner
-approves that step. Trained weights belong OUTSIDE the repo (see classifier_train.py).
+approves that step. Trained weights belong OUTSIDE the repo (see train_annomi.py).
 """
 import hashlib
 import json
@@ -10,7 +10,11 @@ import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
+from .config import COACH_RULES, PARTICIPANT_RULES
+
 _TOKEN = re.compile(r"[\w']+", re.UNICODE)
+_CUES = [(label, re.compile(p, re.IGNORECASE)) for rules in (COACH_RULES, PARTICIPANT_RULES)
+         for label, pats in rules for p in pats.values()]
 
 
 def features(text: str) -> Counter:
@@ -20,6 +24,17 @@ def features(text: str) -> Counter:
     feats.update(a + " " + b for a, b in zip(toks, toks[1:]))
     if "?" in text or "¿" in text:
         feats["__question__"] += 1
+    if toks:
+        feats["__first_" + toks[0] + "__"] += 1
+    for mark, name in ((",", "comma"), ("!", "bang"), ("...", "ellipsis")):
+        if mark in text:
+            feats["__punct_" + name + "__"] += 1
+    stripped = text.strip()
+    if stripped and stripped[-1] in ".!?":
+        feats["__end_" + ("q" if stripped[-1] == "?" else "stop") + "__"] += 1
+    for label, rx in _CUES:  # lexical cues from the rule tagger as extra features
+        if rx.search(text):
+            feats["__cue_" + label + "__"] += 1
     feats["__len_%d__" % min(len(toks) // 5, 6)] += 1
     return feats
 

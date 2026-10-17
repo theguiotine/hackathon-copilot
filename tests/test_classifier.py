@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src import classifier_train as ct
+from src import train_annomi as ct
 from src import eval_annomi as ea
 from src.classifier import NaiveBayes, split_sessions
 
@@ -70,3 +70,54 @@ class Train(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TaggerIntegration(unittest.TestCase):
+    def setUp(self):
+        from src.schema import Conversation
+        self.conv = Conversation.from_dict({"id": "c", "channel": "call", "language": "en", "lines": [
+            {"idx": 0, "speaker": "coach", "text": "Did you walk on Monday?"},
+            {"idx": 1, "speaker": "participant", "text": "Okay."},
+            {"idx": 2, "speaker": "coach", "text": "You should walk every day."},
+            {"idx": 3, "speaker": "participant", "text": "I have chest pain."}]})
+        coach = NaiveBayes().fit(["did you walk", "are you free", "how do you feel", "what helped"] * 3,
+                                 ["question_closed", "question_closed", "question_open", "question_open"] * 3)
+        talk = NaiveBayes().fit(["i want to", "i will try", "i can't", "no time"] * 3,
+                                ["change", "change", "sustain", "sustain"] * 3)
+        self.models = {"coach": coach, "talk": talk}
+
+    def kinds(self, tags):
+        return {(t.line_idx, t.kind): (t.label, t.method) for t in tags}
+
+    def test_no_weights_means_pure_rules(self):
+        from src.tagger.rules import tag_conversation
+        tags = tag_conversation(self.conv, models=None)
+        self.assertTrue(all(t.method == "rule" for t in tags))
+
+    def test_classifier_used_when_present_but_rules_keep_specific_moves(self):
+        from src.tagger.rules import tag_conversation
+        k = self.kinds(tag_conversation(self.conv, models=self.models))
+        self.assertEqual(k[(0, "coach_move")][1], "classifier")
+        self.assertEqual(k[(2, "coach_move")], ("persuade", "rule"))
+        self.assertEqual(k[(1, "participant_talk")][1], "classifier")
+
+    def test_env_opt_in_and_absent_files_fall_back(self):
+        import os
+        from src.tagger import rules
+        with tempfile.TemporaryDirectory() as d:
+            self.assertIsNone(rules.load_models(d))
+            self.models["coach"].save(Path(d) / "classifier_coach.json")
+            os.environ[rules.CLASSIFIER_DIR_ENV] = d
+            try:
+                loaded = rules.load_models()
+                self.assertEqual(set(loaded), {"coach"})
+                tags = rules.tag_conversation(self.conv)
+                self.assertEqual(self.kinds(tags)[(0, "coach_move")][1], "classifier")
+                self.assertEqual(self.kinds(tags)[(1, "participant_talk")][1], "rule")
+            finally:
+                del os.environ[rules.CLASSIFIER_DIR_ENV]
+
+    def test_flagger_ignores_classifier(self):
+        from src.flagger.rules import flag_conversation
+        flags = flag_conversation(self.conv)
+        self.assertEqual([f.rule_id for f in flags], ["F-CHEST"])

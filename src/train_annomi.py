@@ -1,8 +1,8 @@
 """Train and evaluate the local classifier on the AnnoMI CSV; prints ONLY aggregates.
 
 Run locally by the owner (never in an AI tool):
-    python3 -m src.classifier_train             # needs $COACH_DATA_DIR/coaching_sessions_annomi.csv
-    python3 -m src.classifier_train --selftest  # fictional data only
+    python3 -m src.train_annomi             # needs $COACH_DATA_DIR/coaching_sessions_annomi.csv
+    python3 -m src.train_annomi --selftest  # fictional data only
 
 Session-level split (see classifier.split_sessions): no line of a test session is used for training.
 Reports the rules baseline and the classifier on the SAME held-out sessions. Weights go to the output folder
@@ -45,9 +45,21 @@ def evaluate(sessions, out_dir):
         model.save(out / f"classifier_{name}.json")
         clf_pairs = [(r[0], r[1], model.predict(r[2]), r[3], r[5]) for r in test]
         rules_pairs = [(r[0], r[1], r[4], r[3], r[5]) for r in test]
-        for label, pairs in (("RULES baseline", rules_pairs), ("CLASSIFIER", clf_pairs)):
-            lines += [f"######## {title}: {label} on {len(pairs)} held-out lines ########",
-                      ea.run_eval.format_report(*ea._write_pair(out, f"{name}_test_{label.split()[0].lower()}", pairs)), ""]
+        full = [(a, b) for a, b in zip(rules_pairs, clf_pairs)
+                if str(a[4].get("expert_raters", "")).strip().split(".")[0] == ea.EXPERT_FULL]
+        views = [("all held-out", rules_pairs, clf_pairs)]
+        if full:
+            views.append((f"expert_raters == {ea.EXPERT_FULL}", [a for a, _ in full], [b for _, b in full]))
+        for scope, rp, cp in views:
+            for label, pairs in (("RULES baseline", rp), ("CLASSIFIER", cp)):
+                acc = sum(1 for q in pairs if q[2] == q[3]) / len(pairs)
+                lines += [f"######## {title}: {label}, {scope} ({len(pairs)} lines): accuracy {acc:.3f} ########",
+                          ea.run_eval.format_report(*ea._write_pair(
+                              out, f"{name}_test_{label.split()[0].lower()}_{scope.split()[0]}", pairs)), ""]
+            if scope != "all held-out":
+                ceil = ea._mean_agreement(cp)
+                lines += [f"Expert agreement ceiling on these lines (mean expert_agreement_pct): "
+                          f"{'n/a' if ceil is None else format(ceil, '.1f')}", ""]
     lines.append(f"Weights saved to {out} (outside the repo; never commit them). Not wired into the pipeline.")
     return "\n".join(lines)
 
