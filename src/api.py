@@ -13,6 +13,7 @@ from pathlib import Path
 from .flagger.rules import flag_conversation
 from .loader import load_conversations
 from .schema import Conversation, SchemaError
+from . import safety_eval
 from .score.card import score_conversation
 from .tagger.rules import tag_conversation
 
@@ -120,6 +121,8 @@ def make_handler(app: App):
             if path == "/api/conversations":
                 return self._send(200, [{"id": c.id, "language": c.language, "channel": c.channel, "lines": len(c.lines)}
                                         for c in app.convs.values()])
+            if path == "/api/safety":
+                return self._send(200, safety_eval.run())
             if path == "/api/queue":
                 return self._send(200, app.queue())
             m = re.fullmatch(r"/api/(call|why)/(.+)", path)

@@ -40,6 +40,12 @@ class Api(unittest.TestCase):
         self.assertEqual([i["conv_id"] for i in q], ["fx-en-flag", "fx-es-flag"])
         self.assertTrue(q[0]["unhandled"] and not q[1]["unhandled"])
 
+    def test_safety_route(self):
+        code, r = self.req("/api/safety")
+        self.assertEqual(code, 200)
+        self.assertIn("invented fixtures", r["scope"])
+        self.assertGreater(r["misses"], 0)
+
     def test_conversations_list(self):
         code, cs = self.req("/api/conversations")
         self.assertEqual(code, 200)

@@ -1,0 +1,201 @@
+{
+ "note": "Invented lines only. gold_tier is what a human reviewer should flag (null = should stay quiet).",
+ "cases": [
+  {
+   "id": "flag-en-1",
+   "language": "en",
+   "kind": "flag",
+   "text": "I have had chest pain since last night.",
+   "gold_tier": "S1"
+  },
+  {
+   "id": "flag-en-2",
+   "language": "en",
+   "kind": "flag",
+   "text": "I can't breathe properly.",
+   "gold_tier": "S1"
+  },
+  {
+   "id": "flag-en-3",
+   "language": "en",
+   "kind": "flag",
+   "text": "I have shortness of breath.",
+   "gold_tier": "S1"
+  },
+  {
+   "id": "flag-en-4",
+   "language": "en",
+   "kind": "flag",
+   "text": "I have a fever and some bleeding.",
+   "gold_tier": "S2"
+  },
+  {
+   "id": "flag-en-5",
+   "language": "en",
+   "kind": "flag",
+   "text": "I keep vomiting after meals.",
+   "gold_tier": "S2"
+  },
+  {
+   "id": "flag-en-6",
+   "language": "en",
+   "kind": "flag",
+   "text": "I found a new lump.",
+   "gold_tier": "S2"
+  },
+  {
+   "id": "flag-en-7",
+   "language": "en",
+   "kind": "flag",
+   "text": "I feel hopeless and overwhelmed.",
+   "gold_tier": "S3"
+  },
+  {
+   "id": "flag-en-8",
+   "language": "en",
+   "kind": "flag",
+   "text": "I want to hurt myself.",
+   "gold_tier": "S1"
+  },
+  {
+   "id": "flag-es-9",
+   "language": "es",
+   "kind": "flag",
+   "text": "Tengo dolor de pecho desde anoche.",
+   "gold_tier": "S1"
+  },
+  {
+   "id": "flag-es-10",
+   "language": "es",
+   "kind": "flag",
+   "text": "No puedo respirar.",
+   "gold_tier": "S1"
+  },
+  {
+   "id": "flag-es-11",
+   "language": "es",
+   "kind": "flag",
+   "text": "Tengo fiebre y sangrado.",
+   "gold_tier": "S2"
+  },
+  {
+   "id": "flag-es-12",
+   "language": "es",
+   "kind": "flag",
+   "text": "Estoy abrumada y muy sola.",
+   "gold_tier": "S3"
+  },
+  {
+   "id": "flag-es-13",
+   "language": "es",
+   "kind": "flag",
+   "text": "Quiero quitarme la vida.",
+   "gold_tier": "S1"
+  },
+  {
+   "id": "flag-es-14",
+   "language": "es",
+   "kind": "flag",
+   "text": "Tengo vómitos desde ayer.",
+   "gold_tier": "S2"
+  },
+  {
+   "id": "quiet-en-1",
+   "language": "en",
+   "kind": "quiet",
+   "text": "No fever and no chest pain, just tired.",
+   "gold_tier": null
+  },
+  {
+   "id": "quiet-en-2",
+   "language": "en",
+   "kind": "quiet",
+   "text": "I don't have any bleeding.",
+   "gold_tier": null
+  },
+  {
+   "id": "quiet-en-3",
+   "language": "en",
+   "kind": "quiet",
+   "text": "I walked three times this week.",
+   "gold_tier": null
+  },
+  {
+   "id": "quiet-es-4",
+   "language": "es",
+   "kind": "quiet",
+   "text": "No tengo dolor de pecho ni fiebre.",
+   "gold_tier": null
+  },
+  {
+   "id": "quiet-es-5",
+   "language": "es",
+   "kind": "quiet",
+   "text": "Sin vómitos ni sangrado.",
+   "gold_tier": null
+  },
+  {
+   "id": "quiet-es-6",
+   "language": "es",
+   "kind": "quiet",
+   "text": "Caminé tres veces esta semana.",
+   "gold_tier": null
+  },
+  {
+   "id": "quiet-es-7",
+   "language": "es",
+   "kind": "quiet",
+   "text": "Nunca he tenido fiebre.",
+   "gold_tier": null
+  },
+  {
+   "id": "phrasing-test-en-1",
+   "language": "en",
+   "kind": "phrasing-test",
+   "text": "My chest feels really tight.",
+   "gold_tier": "S1"
+  },
+  {
+   "id": "phrasing-test-en-2",
+   "language": "en",
+   "kind": "phrasing-test",
+   "text": "I can't catch my breath.",
+   "gold_tier": "S1"
+  },
+  {
+   "id": "phrasing-test-en-3",
+   "language": "en",
+   "kind": "phrasing-test",
+   "text": "I think I am going to pass out.",
+   "gold_tier": "S2"
+  },
+  {
+   "id": "phrasing-test-es-4",
+   "language": "es",
+   "kind": "phrasing-test",
+   "text": "Me falta el aire.",
+   "gold_tier": "S1"
+  },
+  {
+   "id": "phrasing-test-es-5",
+   "language": "es",
+   "kind": "phrasing-test",
+   "text": "Siento el corazón muy apretado.",
+   "gold_tier": "S1"
+  },
+  {
+   "id": "other-person-en-1",
+   "language": "en",
+   "kind": "other-person",
+   "text": "My dad had chest pain last year.",
+   "gold_tier": null
+  },
+  {
+   "id": "other-person-es-2",
+   "language": "es",
+   "kind": "other-person",
+   "text": "Mi mamá tuvo fiebre ayer, ya está bien.",
+   "gold_tier": null
+  }
+ ]
+}
