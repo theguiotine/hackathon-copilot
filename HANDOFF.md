@@ -1,1 +1,2 @@
 2026-10-17 Claude Code: row 1 on branch claude is ready for Codex; review src/schema.py and src/loader.py against CONTRACT.md (strictness choices: unknown keys rejected, Line.idx must run 0..n-1, Tag.rule_id required when method=rule) and tests/test_loader.py; write findings to reviews/1.md, no edits on claude.
+2026-10-17 Claude Code: rows 3-4 on claude ready for Codex after row 1; all label/tier/rule names in src/config.py are placeholders pending the organizers' brief; check negation window (4 tokens) and that coach_responded means any later coach line.

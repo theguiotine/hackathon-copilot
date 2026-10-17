@@ -1,0 +1,90 @@
+[
+  {
+    "id": "fx-en-flag",
+    "channel": "text",
+    "language": "en",
+    "lines": [
+      {
+        "idx": 0,
+        "speaker": "coach",
+        "text": "How are you feeling today?"
+      },
+      {
+        "idx": 1,
+        "speaker": "participant",
+        "text": "I have had chest pain since last night."
+      },
+      {
+        "idx": 2,
+        "speaker": "participant",
+        "text": "I do not know what to do."
+      }
+    ]
+  },
+  {
+    "id": "fx-en-neg",
+    "channel": "call",
+    "language": "en",
+    "lines": [
+      {
+        "idx": 0,
+        "speaker": "coach",
+        "text": "Any new symptoms this week?"
+      },
+      {
+        "idx": 1,
+        "speaker": "participant",
+        "text": "No fever and no chest pain, just tired."
+      },
+      {
+        "idx": 2,
+        "speaker": "coach",
+        "text": "Good to hear. It sounds like rest is helping."
+      }
+    ]
+  },
+  {
+    "id": "fx-es-flag",
+    "channel": "text",
+    "language": "es",
+    "lines": [
+      {
+        "idx": 0,
+        "speaker": "coach",
+        "text": "¿Cómo te sientes hoy?"
+      },
+      {
+        "idx": 1,
+        "speaker": "participant",
+        "text": "Tengo dolor de pecho desde anoche."
+      },
+      {
+        "idx": 2,
+        "speaker": "coach",
+        "text": "Gracias por decírmelo. Voy a avisar a tu equipo hoy."
+      }
+    ]
+  },
+  {
+    "id": "fx-es-neg",
+    "channel": "call",
+    "language": "es",
+    "lines": [
+      {
+        "idx": 0,
+        "speaker": "coach",
+        "text": "¿Algún síntoma nuevo esta semana?"
+      },
+      {
+        "idx": 1,
+        "speaker": "participant",
+        "text": "No tengo dolor de pecho ni fiebre, solo cansancio."
+      },
+      {
+        "idx": 2,
+        "speaker": "coach",
+        "text": "Me alegra. Parece que el descanso ayuda."
+      }
+    ]
+  }
+]
