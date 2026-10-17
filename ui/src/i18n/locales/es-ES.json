@@ -1,0 +1,301 @@
+{
+  "_app": {
+    "deny-state": {
+      "desc": "No tienes permiso para ver esta pantalla.",
+      "title": "Acceso restringido"
+    },
+    "invite": {
+      "confirm": "Confirma la contraseña",
+      "desc": "Elige una contraseña para terminar de configurar tu cuenta.",
+      "invalid": "Este enlace de invitación ya no es válido. Pide a tu administrador uno nuevo.",
+      "mismatch": "Las dos contraseñas no coinciden.",
+      "no-token": "Este enlace está incompleto. Vuelve a abrir el enlace de invitación de tu correo o pide uno nuevo a tu administrador.",
+      "password": {
+        "missing-digit": "Incluye al menos un número.",
+        "missing-lowercase": "Incluye al menos una letra minúscula.",
+        "missing-special": "Incluye al menos un carácter especial.",
+        "missing-uppercase": "Incluye al menos una letra mayúscula.",
+        "policy": "Tu contraseña no cumple los requisitos.",
+        "too-long": "Usa una contraseña más corta.",
+        "too-short": "Usa una contraseña más larga."
+      },
+      "password-label": "Contraseña",
+      "rate-limited": "Demasiados intentos. Inténtalo de nuevo en unos minutos.",
+      "sign-in": "Iniciar sesión",
+      "submit": "Guardar contraseña",
+      "success": "Tu contraseña quedó guardada. Ya puedes iniciar sesión.",
+      "title": "Define tu contraseña",
+      "unavailable": "Algo salió mal. Inténtalo de nuevo."
+    },
+    "load-state": {
+      "desc": "Hubo un problema al contactar el servidor. Revisa tu conexión e inténtalo de nuevo.",
+      "retry": "Reintentar",
+      "title": "No se pudo cargar esta pantalla"
+    },
+    "login": {
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "submit": "Iniciar sesión",
+      "submitting": "Iniciando sesión…",
+      "title": "Iniciar sesión"
+    },
+    "no-data-state": {
+      "desc": "Se diseñó antes de que su información existiera en el backend, así que todavía no hay nada que mostrar.",
+      "title": "Esta pantalla todavía no tiene datos detrás"
+    },
+    "not-found": {
+      "desc": "Puede que se haya eliminado o que el enlace que te trajo esté incompleto.",
+      "title": "Este registro no está disponible"
+    },
+    "pending": {
+      "auth-unsupported": {
+        "note": "Las invitaciones y la verificación en dos pasos aún no están disponibles",
+        "sub": "El backend de la app todavía no ofrece aceptar invitaciones ni verificación en dos pasos; el resto de pantallas funciona con normalidad."
+      },
+      "error": {
+        "note": "Esta pantalla no se pudo convertir.",
+        "sub": "La conversión de esta pantalla falló, así que se reemplazó por un marcador de posición; las demás se convirtieron con normalidad."
+      },
+      "skeleton": {
+        "note": "Preparando esta pantalla…",
+        "sub": "El prototipo todavía no ha generado esta pantalla."
+      }
+    },
+    "placeholder": {
+      "desc": "Esta pantalla no pudo prepararse; las demás se convirtieron con normalidad."
+    },
+    "sessions": {
+      "cancel": "Cancelar",
+      "caption": "Dispositivos con sesión iniciada en tu cuenta",
+      "col-actions": "Acciones",
+      "col-created": "Inicio de sesión",
+      "col-device": "Dispositivo",
+      "col-last-active": "Última actividad",
+      "desc": "Dispositivos en los que has iniciado sesión en esta app.",
+      "empty": "No hay dispositivos que mostrar.",
+      "error": "No pudimos cargar tus dispositivos.",
+      "error-sign-in": "Tu sesión ha caducado. Inicia sesión de nuevo para ver tus dispositivos.",
+      "loading": "Cargando tus dispositivos…",
+      "memory": "Esta app funciona con datos de ejemplo; las sesiones solo existen cuando está conectada a su backend.",
+      "retry": "Reintentar",
+      "revoke": "Cerrar sesión",
+      "revoke-aria": "Cerrar sesión en {{device}}",
+      "revoke-confirm": "Cerrar sesión en el dispositivo",
+      "revoke-confirm-body": "Se le pedirá a {{device}} que inicie sesión de nuevo la próxima vez que se compruebe su sesión.",
+      "revoke-confirm-title": "¿Cerrar sesión en este dispositivo?",
+      "sign-out-all": "Cerrar sesión en todas partes",
+      "sign-out-all-confirm": "Cerrar sesión en todas partes",
+      "sign-out-all-confirm-body": "Se cerrará tu sesión aquí ahora, también en este dispositivo. A los demás dispositivos y pestañas abiertas se les pedirá iniciar sesión de nuevo la próxima vez que se compruebe su sesión.",
+      "sign-out-all-confirm-title": "¿Cerrar sesión en todas partes?",
+      "this-device": "Este dispositivo",
+      "title": "Tus dispositivos",
+      "toast-revoke-failed": "No pudimos cerrar la sesión de ese dispositivo. Inténtalo de nuevo.",
+      "toast-sign-out-all-failed": "No pudimos confirmar que se cerró la sesión en tus otros dispositivos. Compruébalo e inténtalo de nuevo.",
+      "unavailable": "La lista de dispositivos todavía no está disponible. Aun así puedes cerrar sesión en todas partes.",
+      "unknown-device": "Dispositivo desconocido"
+    },
+    "sign-in-required": {
+      "desc": "Esta información todavía no está disponible sin iniciar sesión.",
+      "title": "Inicia sesión para ver esto"
+    },
+    "toast": {
+      "neutral": "Esta acción todavía no está conectada"
+    },
+    "truncated": "Esta lista está truncada: se muestran las primeras {{limit}} filas.",
+    "unscoped": "No se pueden mostrar algunos datos: no están disponibles para tu cuenta.",
+    "write-error": {
+      "denied": "No tienes permiso para hacer este cambio.",
+      "failed": "No pudimos guardar los cambios. Inténtalo de nuevo."
+    }
+  },
+  "_reason": {
+    "escritura-campos-faltantes": "Esta acción necesita datos que esta pantalla todavía no recoge.",
+    "escritura-no-disponible": "Esta acción no está disponible por ahora.",
+    "sesion-no-identificada": "No pudimos identificar tu sesión, por lo que esta acción no está disponible.",
+    "valor-sin-equivalente": "Este valor no tiene equivalente en tus datos, por lo que no se puede guardar."
+  },
+  "auth": {
+    "4e52bec3": "Copiloto del coach",
+    "c887f134": "Ir al contenido principal"
+  },
+  "call-queue": {
+    "1ff57a29": "Siguiente",
+    "22b0b363": "Necesita revisión humana",
+    "28391d3b": {
+      "p": "de",
+      "span": "de"
+    },
+    "2934fb49": "marcas",
+    "47e8d6fa": "tiene",
+    "4d8fa801": "más alta",
+    "4fc52a3c": "Duración",
+    "50aa828f": "Sin marcas",
+    "554f4235": "Participante",
+    "5ab03960": "Fecha de la llamada",
+    "60bf1060": "Cola de llamadas",
+    "6ef49cac": "tiene",
+    "7179ea00": {
+      "button": "Borrar filtros",
+      "data-label": "Borrar filtros"
+    },
+    "807d0fbc": "marca",
+    "8087b690": {
+      "input-attr-aria-label": "Buscar participante, llamada o coach",
+      "input-attr-placeholder": "Buscar participante, llamada o coach"
+    },
+    "8c174247": "llamada pendiente",
+    "8ee57323": "Todos los estados",
+    "8fc693b8": "llamadas pendientes",
+    "9046da16": "Páginas",
+    "920e413c": {
+      "selecttrigger-attr-aria-label": "Estado",
+      "selectvalue-attr-placeholder": "Estado",
+      "table-column": "Estado"
+    },
+    "9e1b07c4": "Los coaches revisan primero las llamadas",
+    "a57b08a4": "Anterior",
+    "c559b798": "tu revisión;",
+    "d1845af7": "líneas que necesitan revisión humana.",
+    "d604310a": "Mostrando",
+    "d60dbba0": "Prioridad",
+    "e61d621d": "Llamadas de coaching completadas",
+    "e6b7456c": {
+      "selecttrigger-attr-aria-label": "Coach",
+      "selectvalue-attr-placeholder": "Coach",
+      "table-column": "Coach"
+    },
+    "e89b47c3": "Después, los gerentes",
+    "f05fd3e5": "Con marcas",
+    "f37f5859": "No hay llamadas que coincidan con estos filtros.",
+    "f436a255": "Todos los coaches",
+    "f46f5990": "llamadas",
+    "f95071a8": "Quita un filtro para ver más llamadas."
+  },
+  "call-review": {
+    "23308585": "Descartar como falsa alarma",
+    "054f263d": "¿Confirmar esta marca para revisión humana? Línea",
+    "0a2c6338": "· Coach:",
+    "12c82225": "Transcripción de la llamada",
+    "19766ed6": "Cancelar",
+    "22b0b363": "Necesita revisión humana",
+    "24cac860": "Por qué esta línea necesita revisión humana",
+    "28391d3b": "de",
+    "293186d1": "¿Descartar esta marca como falsa alarma? Línea",
+    "3762fc97": "Cola de llamadas",
+    "4ba12fc8": "Explica qué decidiste y por qué.",
+    "4caeb857": "Revisar línea marcada",
+    "554f4235": "Participante",
+    "5b845712": "No hay marcas en esta llamada.",
+    "6070c56f": "Confirmar revisión humana",
+    "640ae4ba": "Decisión",
+    "643323fa": "Registrado en esta revisión",
+    "6b111c81": "No hay marcas que necesiten revisión humana",
+    "7dfb0b72": "Pendiente de decisión",
+    "94bb7f74": "Participante:",
+    "a7ed06ec": "Nota de decisión para la línea",
+    "b36875a0": "Guardar nota de decisión",
+    "cd59520b": "En contexto",
+    "d308edce": "Añadir nota de decisión",
+    "d3f7ed99": "marcas decididas",
+    "d64141af": "Marca seleccionada",
+    "d7852cd0": "Línea",
+    "e6b7456c": "Coach"
+  },
+  "call-transcript": {
+    "23308585": "Descartar como falsa alarma",
+    "19766ed6": "Cancelar",
+    "24cac860": "Por qué esta línea necesita revisión humana",
+    "258efb23": "Todavía no hay líneas de transcripción para esta llamada.",
+    "305f5e54": "Consejo",
+    "554f4235": "Participante",
+    "6070c56f": "Confirmar revisión humana",
+    "6117cea0": "Tu decisión de revisión no se guardó. Inténtalo de nuevo.",
+    "6856b590": "Afirmación",
+    "7382462d": "Sí, registrar",
+    "7538c213": "Reflexión",
+    "7dfb0b72": "Pendiente de decisión",
+    "a7ed06ec": "Nota de decisión para la línea",
+    "aa8dd7b0": "Explica tu decisión para esta línea.",
+    "c2d4c598": "Nota de revisión",
+    "d308edce": "Añadir nota de decisión",
+    "d7852cd0": "Línea",
+    "daae360e": "Pregunta abierta",
+    "e6b7456c": "Coach",
+    "f89b089a": ". Muestra por qué esta línea necesita revisión humana"
+  },
+  "coaching-call-card": {
+    "0a2c6338": "· Coach:",
+    "655585cf": "necesita revisión humana",
+    "94bb7f74": "Participante:"
+  },
+  "human-review-flag-card": {
+    "4caeb857": "Revisar línea marcada",
+    "5e9f9812": "Gravedad",
+    "7dfb0b72": "Pendiente de decisión"
+  },
+  "review-workspace": {
+    "0fc7d71e": "Todos los destinos",
+    "49c266ba": "Buscar",
+    "4e52bec3": "Copiloto del coach",
+    "7b145a5d": "Ayuda y atajos",
+    "8e5ea509": "Pestañas",
+    "92c29da0": {
+      "input-attr-aria-label": "Buscar llamadas y pantallas",
+      "input-attr-placeholder": "Buscar llamadas y pantallas"
+    },
+    "ac576a66": "Ir al contenido",
+    "d47d7cb0": "Más",
+    "eb814be3": "Principal",
+    "efe10c80": "Principal"
+  },
+  "scorecard-card": {
+    "079794b4": "Puntuada",
+    "38e5a46c": "Puntuación",
+    "4e2d225a": "Coach:",
+    "bbbbed7f": "Proporción de reflexión",
+    "e5ab9cca": "Mostrar fórmula"
+  },
+  "scorecards": {
+    "00c0c04a": "No hay fichas de evaluación para este coach.",
+    "0e570ca6": "Fuente",
+    "1915447b": "). Puntuación registrada:",
+    "253662a6": "Llamada abierta",
+    "256d7ad0": "Peso en la puntuación",
+    "28391d3b": "de",
+    "3224e60b": "Lista de verificación ponderada",
+    "334d82ea": "Vuelve a consultar cuando se hayan revisado llamadas.",
+    "35b3889a": "; son muy pocas para una línea de tendencia, así que cada llamada es un único punto",
+    "38e5a46c": "Puntuación",
+    "44da3cc3": "No hay elementos de verificación para esta llamada.",
+    "463816d0": "Lectura",
+    "52e1ec49": "Peso observado de la lista de verificación:",
+    "56acfe5f": "Todavía no hay fichas de evaluación.",
+    "59f21630": "puntuadas",
+    "64fa8a14": "Observado",
+    "6be36ca4": "Ausente",
+    "7470bd3b": "Cómo",
+    "755766f0": "Puntuación total",
+    "7edb360f": "llamada",
+    "81d27ef6": "Peso",
+    "81d69ef0": "Fichas de evaluación",
+    "941ba6dc": "Conductas observadas",
+    "968c1b99": "Elige otro coach.",
+    "9bae7b46": "esta llamada",
+    "a98af640": ". La llamada seleccionada es el punto más relevante.",
+    "adec4ff7": " — ficha de evaluación de",
+    "b4845e1b": " — la puntuación a lo largo de las llamadas revisadas",
+    "b50505c1": "Evaluado",
+    "bbbbed7f": "Proporción de reflexión",
+    "c8842089": ", puntuada",
+    "d00bd4ec": "Fórmula",
+    "d6e645b7": "Llamada",
+    "d9a847a1": "0 %",
+    "dcf8c929": "La puntuación se calcula con esta fórmula y esta lista de verificación",
+    "e6b7456c": "Coach",
+    "edf8d3f1": "Conducta",
+    "f0b609f7": "/ 100. La lista de verificación y la fórmula son dos partes de una misma puntuación; es una sugerencia que una persona puede cuestionar, no un resultado definitivo.",
+    "f2f410e7": "Cifras",
+    "f46f5990": "llamadas",
+    "f89dd8a2": "Elige otra llamada para ver sus conductas."
+  }
+}

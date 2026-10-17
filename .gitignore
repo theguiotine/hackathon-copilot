@@ -8,3 +8,8 @@ __pycache__/
 data/
 hackathon-data/
 node_modules/
+ui/.env
+ui/.env.*
+!ui/.env.example
+ui/node_modules/
+ui/dist/

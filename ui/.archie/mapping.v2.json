@@ -1,0 +1,361 @@
+{
+  "meta": {
+    "version": 2,
+    "projectId": "a42eb956-42c5-4857-8d8d-aecd71828e01",
+    "schemaHash": "8488a97ad0f727fe30f31bef8f37a34d964b0366da28fbcff236a020828162c2",
+    "protoHash": "sha256:cdfbec88c73a466d141d9e8da60a679cd59d10484445e3e863caa5d08a66d955",
+    "model": "C6",
+    "generatedAt": "2026-10-17T15:21:47.405Z",
+    "llmResolved": 8,
+    "unmapped": 0
+  },
+  "entities": [
+    {
+      "proto": "AccuracyMeasure",
+      "target": "AccuracyMeasure",
+      "confidence": 0.98,
+      "fields": [
+        {
+          "proto": "accuracy",
+          "target": "accuracy",
+          "confidence": 0.98
+        },
+        {
+          "proto": "component",
+          "target": "component",
+          "confidence": 0.97
+        },
+        {
+          "proto": "isPlaceholder",
+          "target": "isPlaceholder",
+          "confidence": 0.98
+        },
+        {
+          "proto": "label",
+          "target": "label",
+          "confidence": 0.98
+        },
+        {
+          "proto": "note",
+          "target": "note",
+          "confidence": 0.98
+        }
+      ],
+      "requiredRelations": []
+    },
+    {
+      "proto": "CallLine",
+      "target": "CallLine",
+      "confidence": 0.98,
+      "fields": [
+        {
+          "proto": "callId",
+          "target": "coachingCallId",
+          "confidence": 0.9
+        },
+        {
+          "proto": "coachMove",
+          "target": "coachMove",
+          "confidence": 0.97
+        },
+        {
+          "proto": "lineNumber",
+          "target": "lineNumber",
+          "confidence": 0.98
+        },
+        {
+          "proto": "speaker",
+          "target": "speaker",
+          "confidence": 0.97
+        },
+        {
+          "proto": "text",
+          "target": "text",
+          "confidence": 0.98
+        }
+      ],
+      "requiredRelations": []
+    },
+    {
+      "proto": "ChecklistItem",
+      "target": "ChecklistItem",
+      "confidence": 0.98,
+      "fields": [
+        {
+          "proto": "behavior",
+          "target": "behavior",
+          "confidence": 0.98
+        },
+        {
+          "proto": "observed",
+          "target": "observed",
+          "confidence": 0.98
+        },
+        {
+          "proto": "scorecardId",
+          "target": "scorecardId",
+          "confidence": 0.97
+        },
+        {
+          "proto": "weight",
+          "target": "weight",
+          "confidence": 0.98
+        }
+      ],
+      "requiredRelations": []
+    },
+    {
+      "proto": "Coach",
+      "target": "Coach",
+      "confidence": 0.98,
+      "fields": [
+        {
+          "proto": "callsReviewed",
+          "target": "callsReviewed",
+          "confidence": 0.98
+        },
+        {
+          "proto": "email",
+          "target": "email",
+          "confidence": 0.98
+        },
+        {
+          "proto": "name",
+          "target": "name",
+          "confidence": 0.98
+        },
+        {
+          "proto": "preferredLanguage",
+          "target": "preferredLanguage",
+          "confidence": 0.98
+        }
+      ],
+      "requiredRelations": []
+    },
+    {
+      "proto": "CoachingCall",
+      "target": "CoachingCall",
+      "confidence": 0.98,
+      "fields": [
+        {
+          "proto": "coachId",
+          "target": "coachId",
+          "confidence": 0.97
+        },
+        {
+          "proto": "coachReviewedAt",
+          "target": "coachReviewedAt",
+          "confidence": 0.98
+        },
+        {
+          "proto": "completedAt",
+          "target": "completedAt",
+          "confidence": 0.98
+        },
+        {
+          "proto": "createdAt",
+          "target": "createdAt",
+          "confidence": 0.98
+        },
+        {
+          "proto": "duration",
+          "target": "duration",
+          "confidence": 0.98
+        },
+        {
+          "proto": "flagCount",
+          "target": "flagCount",
+          "confidence": 0.98
+        },
+        {
+          "proto": "language",
+          "target": "language",
+          "confidence": 0.98
+        },
+        {
+          "proto": "managerReviewedAt",
+          "target": "managerReviewedAt",
+          "confidence": 0.98
+        },
+        {
+          "proto": "participantId",
+          "target": "participantId",
+          "confidence": 0.97
+        },
+        {
+          "proto": "status",
+          "target": "status",
+          "confidence": 0.93
+        },
+        {
+          "proto": "title",
+          "target": "title",
+          "confidence": 0.98
+        }
+      ],
+      "requiredRelations": []
+    },
+    {
+      "proto": "HumanReviewFlag",
+      "target": "HumanReviewFlag",
+      "confidence": 0.98,
+      "fields": [
+        {
+          "proto": "createdAt",
+          "target": "createdAt",
+          "confidence": 0.98
+        },
+        {
+          "proto": "decidedAt",
+          "target": "decidedAt",
+          "confidence": 0.98
+        },
+        {
+          "proto": "decision",
+          "target": "decision",
+          "confidence": 0.97
+        },
+        {
+          "proto": "decisionNote",
+          "target": "decisionNote",
+          "confidence": 0.98
+        },
+        {
+          "proto": "lineId",
+          "target": "callLineId",
+          "confidence": 0.9
+        },
+        {
+          "proto": "reason",
+          "target": "reason",
+          "confidence": 0.98
+        },
+        {
+          "proto": "severity",
+          "target": "severity",
+          "confidence": 0.98
+        },
+        {
+          "proto": "status",
+          "target": "status",
+          "confidence": 0.9
+        }
+      ],
+      "requiredRelations": []
+    },
+    {
+      "proto": "Participant",
+      "target": "Participant",
+      "confidence": 0.98,
+      "fields": [
+        {
+          "proto": "createdAt",
+          "target": "createdAt",
+          "confidence": 0.98
+        },
+        {
+          "proto": "goal",
+          "target": "goal",
+          "confidence": 0.98
+        },
+        {
+          "proto": "name",
+          "target": "name",
+          "confidence": 0.98
+        },
+        {
+          "proto": "preferredLanguage",
+          "target": "preferredLanguage",
+          "confidence": 0.98
+        }
+      ],
+      "requiredRelations": []
+    },
+    {
+      "proto": "Scorecard",
+      "target": "Scorecard",
+      "confidence": 0.98,
+      "fields": [
+        {
+          "proto": "callId",
+          "target": "coachingCallId",
+          "confidence": 0.9
+        },
+        {
+          "proto": "coachId",
+          "target": "coachId",
+          "confidence": 0.97
+        },
+        {
+          "proto": "createdAt",
+          "target": "createdAt",
+          "confidence": 0.98
+        },
+        {
+          "proto": "formula",
+          "target": "formula",
+          "confidence": 0.98
+        },
+        {
+          "proto": "reflectionRatio",
+          "target": "reflectionRatio",
+          "confidence": 0.98
+        },
+        {
+          "proto": "score",
+          "target": "score",
+          "confidence": 0.98
+        }
+      ],
+      "requiredRelations": []
+    }
+  ],
+  "enumValueMap": {
+    "AccuracyMeasure.component": {
+      "flagger": "FLAGGER",
+      "tagger": "TAGGER"
+    },
+    "CallLine.coachMove": {
+      "advice": "ADVICE",
+      "affirmation": "AFFIRMATION",
+      "open_question": "OPEN_QUESTION",
+      "reflection": "REFLECTION"
+    },
+    "CallLine.speaker": {
+      "coach": "COACH",
+      "participant": "PARTICIPANT"
+    },
+    "Coach.preferredLanguage": {
+      "en": "EN",
+      "es": "ES"
+    },
+    "CoachingCall.language": {
+      "en": "EN",
+      "es": "ES"
+    },
+    "CoachingCall.status": {
+      "Coaches review calls first": "COACHES_REVIEW_CALLS_FIRST",
+      "completed coaching calls": "COMPLETED_COACHING_CALLS",
+      "then managers": "THEN_MANAGERS"
+    },
+    "HumanReviewFlag.decision": {
+      "annotated with a note": "ANNOTATED_WITH_A_NOTE",
+      "confirmed": "CONFIRMED",
+      "dismissed as false alarms": "DISMISSED_AS_FALSE_ALARMS"
+    },
+    "HumanReviewFlag.severity": {
+      "S1": "S1",
+      "S2": "S2",
+      "S3": "S3"
+    },
+    "HumanReviewFlag.status": {
+      "annotated with a note": "ANNOTATED_WITH_A_NOTE",
+      "confirmed": "CONFIRMED",
+      "dismissed as false alarms": "DISMISSED_AS_FALSE_ALARMS"
+    },
+    "Participant.preferredLanguage": {
+      "en": "EN",
+      "es": "ES"
+    }
+  }
+}

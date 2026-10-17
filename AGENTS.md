@@ -25,3 +25,4 @@ Handoff means: update your row's Status and Evidence in TASKS.md, append one dat
 
 ## Style
 Small commits, tests with every module, no dependencies you cannot explain. Say "not run" when you did not run something.
+- ui/AGENTS.md is Archie's; root rules win; never put keys in ui/ (env var names only).
