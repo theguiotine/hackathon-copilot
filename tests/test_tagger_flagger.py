@@ -188,6 +188,21 @@ class WidenedRules(unittest.TestCase):
         self.assertIn("F-CHEST", self.flags("Siento el pecho oprimido.", "es"))
 
 
+class SpanishNegationPins(unittest.TestCase):
+    """Pins current behavior so a later rule change cannot silently break Spanish negation (no rule changed here)."""
+
+    def flags(self, text):
+        return [(f.tier, f.rule_id) for f in flag_conversation(conv_of([("participant", text)], "es"))]
+
+    def test_denials_stay_quiet(self):
+        for t in ("ya no me duele el pecho", "no tengo dolor de pecho", "ya no tengo fiebre"):
+            self.assertEqual(self.flags(t), [], t)
+
+    def test_cannot_breathe_still_flags(self):
+        self.assertEqual(self.flags("no puedo respirar"), [("S1", "F-CHEST")])
+        self.assertEqual(self.flags("no puedo respirar bien y tengo dolor de pecho"), [("S1", "F-CHEST")])
+
+
 class PostBlindPatch(unittest.TestCase):
     """post-blind patch (found by stress test): added AFTER the blind set was measured at rules 1df793c.
     These tests are separate on purpose; the blind figures were not re-run or re-tuned."""
