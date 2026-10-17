@@ -1,12 +1,12 @@
 """AnnoMI eval adapter: run our tagger and flagger on the organizers' AnnoMI CSV and print ONLY aggregates.
 
 Run it locally (never inside an AI tool):
-    python3 -m src.eval_annomi            # reads $COACH_DATA_DIR/coaching_sessions_annomi.csv
+    python3 -m src.eval_annomi            # reads the file named by COACH_ANNOMI_CSV (or --csv)
     python3 -m src.eval_annomi --selftest # fictional fixtures only, no real data
 
 Privacy rules this file enforces: it prints label names and numbers only, never a line of text or a row;
 errors name the problem without echoing cell contents; predictions and derived labels are written to an
-output folder OUTSIDE the repo (default ~/hackathon-data/out, override with COACH_OUT_DIR) and the writer
+output folder OUTSIDE the repo (set COACH_OUT_DIR) and the writer
 refuses any folder inside the repo.
 """
 import argparse
@@ -25,9 +25,22 @@ from .flagger.rules import flag_conversation  # noqa: E402
 from .schema import Conversation, SchemaError  # noqa: E402
 from .tagger.rules import tag_conversation  # noqa: E402
 
-DEFAULT_DIR = Path.home() / "hackathon-data" / "challenge5" / "Challenge5_Coaches_Copilot"
-CSV_NAME = "coaching_sessions_annomi.csv"
-DEFAULT_OUT = Path.home() / "hackathon-data" / "out"
+ENV_CSV, ENV_OUT = "COACH_ANNOMI_CSV", "COACH_OUT_DIR"
+
+
+def resolve_csv(arg=None):
+    """The AnnoMI file to read: --csv, else $COACH_ANNOMI_CSV. No default path is baked into the repo."""
+    value = arg or os.environ.get(ENV_CSV)
+    if not value:
+        raise AdapterError(f"set {ENV_CSV} (or pass --csv) to the local AnnoMI CSV")
+    return Path(value).expanduser()
+
+
+def resolve_out():
+    value = os.environ.get(ENV_OUT)
+    if not value:
+        raise AdapterError(f"set {ENV_OUT} to a folder OUTSIDE the repo for predictions and weights")
+    return value
 REQUIRED = ("session_id", "line_number", "speaker", "text", "counsellor_move", "question_type",
             "reflection_type", "client_talk", "expert_raters", "expert_agreement_pct")
 EXPERT_FULL = "10"
@@ -208,7 +221,7 @@ def build_selftest_csv(path):
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Run our engine on the AnnoMI CSV and print aggregates only.")
     ap.add_argument("--selftest", action="store_true", help="use fictional fixtures; touches no real data")
-    ap.add_argument("--csv", help=f"path to the AnnoMI CSV (default: $COACH_DATA_DIR/{CSV_NAME})")
+    ap.add_argument("--csv", help=f"path to the AnnoMI CSV (default: ${ENV_CSV})")
     args = ap.parse_args(argv)
     try:
         if args.selftest:
@@ -217,9 +230,7 @@ def main(argv=None):
                 build_selftest_csv(csv_path)
                 print(report(read_sessions(csv_path), Path(tmp) / "out"))
             return 0
-        base = Path(os.environ.get("COACH_DATA_DIR", str(DEFAULT_DIR))).expanduser()
-        csv_path = Path(args.csv).expanduser() if args.csv else base / CSV_NAME
-        print(report(read_sessions(csv_path), os.environ.get("COACH_OUT_DIR", str(DEFAULT_OUT))))
+        print(report(read_sessions(resolve_csv(args.csv)), resolve_out()))
         return 0
     except (AdapterError, SchemaError, ValueError, OSError) as e:
         print(f"error: {e.__class__.__name__}: {e if isinstance(e, AdapterError) else 'see message above; no row content shown'}",

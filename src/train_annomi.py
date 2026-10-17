@@ -1,12 +1,12 @@
 """Train and evaluate the local classifier on the AnnoMI CSV; prints ONLY aggregates.
 
 Run locally by the owner (never in an AI tool):
-    python3 -m src.train_annomi             # needs $COACH_DATA_DIR/coaching_sessions_annomi.csv
+    python3 -m src.train_annomi             # needs COACH_ANNOMI_CSV (or --csv) and COACH_OUT_DIR
     python3 -m src.train_annomi --selftest  # fictional data only
 
 Session-level split (see classifier.split_sessions): no line of a test session is used for training.
 Reports the rules baseline and the classifier on the SAME held-out sessions. Weights go to the output folder
-OUTSIDE the repo (default ~/hackathon-data/out, COACH_OUT_DIR overrides); the repo is refused.
+OUTSIDE the repo (COACH_OUT_DIR, required); the repo is refused.
 """
 import argparse
 import csv
@@ -123,9 +123,7 @@ def main(argv=None):
                 build_selftest_csv(p)
                 print(evaluate(ea.read_sessions(p), Path(tmp) / "out", args.context))
             return 0
-        base = Path(os.environ.get("COACH_DATA_DIR", str(ea.DEFAULT_DIR))).expanduser()
-        path = Path(args.csv).expanduser() if args.csv else base / ea.CSV_NAME
-        print(evaluate(ea.read_sessions(path), os.environ.get("COACH_OUT_DIR", str(ea.DEFAULT_OUT)), args.context))
+        print(evaluate(ea.read_sessions(ea.resolve_csv(args.csv)), ea.resolve_out(), args.context))
         return 0
     except (ea.AdapterError, ea.SchemaError, ValueError, OSError) as e:
         print(f"error: {e.__class__.__name__}: {e if isinstance(e, ea.AdapterError) else 'no row content shown'}", file=sys.stderr)

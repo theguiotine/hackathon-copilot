@@ -2,13 +2,14 @@
 import os
 from pathlib import Path
 
-DEFAULT = Path.home() / "hackathon-data" / "challenge5" / "Challenge5_Coaches_Copilot"
-
 
 def data_dir() -> Path:
-    path = Path(os.environ.get("COACH_DATA_DIR", str(DEFAULT))).expanduser()
+    value = os.environ.get("COACH_DATA_DIR")
+    if not value:
+        raise FileNotFoundError("Set COACH_DATA_DIR to the local data folder")
+    path = Path(value).expanduser()
     if not path.is_dir():
-        raise FileNotFoundError(f"Set COACH_DATA_DIR to the data folder; not found: {path}")
+        raise FileNotFoundError(f"COACH_DATA_DIR is not a folder: {path}")
     return path
 
 

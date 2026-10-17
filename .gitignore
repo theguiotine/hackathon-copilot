@@ -6,7 +6,8 @@
 .env
 __pycache__/
 data/
-hackathon-data/
+coach-data/
+coach-out/
 node_modules/
 ui/.env
 ui/.env.*
