@@ -62,7 +62,7 @@ function CardView({ c, href }: { c: Card; href: string }) {
         <p className="mt-1 text-sm text-slate-700">
           Flagged because: {c.why}.{' '}
           <details className="relative z-10 inline">
-            <summary className="inline cursor-pointer underline">details</summary>
+            <summary className="inline-block min-h-8 cursor-pointer px-1 py-1.5 underline">details</summary>
             <span className="block text-xs">Rule {c.rule || 'n/a'} · {DETAIL[t]}</span>
           </details>
         </p>

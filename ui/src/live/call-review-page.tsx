@@ -159,7 +159,7 @@ export default function CallReviewPage() {
         <div className="flex flex-wrap items-center gap-2 text-sm" data-testid="flag-jump">
           <span className="text-text-muted">Flagged lines:</span>
           {callFlags.map((f) => (
-            <button key={f.id} type="button" onClick={() => jumpTo(f.lineId)} className={`rounded border px-2 py-1 ${TIER_CLASS[f.severity]}`}>
+            <button key={f.id} type="button" onClick={() => jumpTo(f.lineId)} className={`min-h-11 rounded border px-3 py-1 ${TIER_CLASS[f.severity]}`}>
               Line {lineById.get(f.lineId)?.lineNumber} · {TIER_WORD[f.severity]}
             </button>
           ))}
@@ -177,16 +177,16 @@ export default function CallReviewPage() {
               className={`relative rounded border p-3 transition-shadow ${lineFlags.length ? `border-l-4 ${TIER_BORDER[lineFlags[0].severity]} ${TIER_CLASS[lineFlags[0].severity]}` : 'border-border'} ${highlight === l.id ? 'ring-4 ring-primary' : ''}`}>
               {lineFlags.length > 0 && (
                 <button type="button" onClick={() => jumpTo(l.id)} aria-label={`${TIER_WORD[lineFlags[0].severity]} severity flag on this line`}
-                  className="absolute right-2 top-2 rounded border border-current px-2 py-0.5 text-xs font-semibold">{TIER_WORD[lineFlags[0].severity]}</button>
+                  className="absolute right-2 top-2 min-h-8 rounded border border-current px-2 py-1 text-xs font-semibold">{TIER_WORD[lineFlags[0].severity]}</button>
               )}
               <p className="type-meta"><strong>{l.lineNumber}. {l.speaker === 'COACH' ? 'Coach' : 'Participant'}</strong></p>
-              <p className="mt-1">{l.text}</p>
+              <p className={lineFlags.length ? 'mt-7 sm:mt-1' : 'mt-1'}>{l.text}</p>
               {lineFlags.map((f) => {
                 const chosen = choiceFor(f);
                 return (
                   <div key={f.id} className="mt-3 rounded border border-border bg-background p-3 text-foreground">
                     <p className="text-sm"><strong>Flag {callFlags.indexOf(f) + 1} of {callFlags.length}: {{ S1: 'Needs a person now', S2: 'Review today', S3: 'Check when time allows' }[f.severity] ?? f.severity}.</strong> Flagged because: {(f.reason.split(/\.\s+Rule\b|\.\s/)[0] ?? f.reason).replace(/^The participant\s+/i, '')}.</p>
-                    <details className="text-xs text-text-muted"><summary className="cursor-pointer py-1">details</summary>{f.severity}: {f.reason}</details>
+                    <details className="text-xs text-text-muted"><summary className="inline-block min-h-8 cursor-pointer py-1.5">details</summary>{f.severity}: {f.reason}</details>
                     <p className="mt-2 text-sm font-medium">{chosen ? `Decision: ${chosen.label}` : 'Waiting for your decision:'}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {CHOICES.map((c, i) => (
