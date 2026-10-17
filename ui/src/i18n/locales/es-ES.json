@@ -240,8 +240,8 @@
     "7b145a5d": "Ayuda y atajos",
     "8e5ea509": "Pestañas",
     "92c29da0": {
-      "input-attr-aria-label": "Buscar llamadas y pantallas",
-      "input-attr-placeholder": "Buscar llamadas y pantallas"
+      "input-attr-aria-label": "Ir a una pantalla. Demo: solo llamadas inventadas.",
+      "input-attr-placeholder": "Ir a una pantalla · demo: solo llamadas inventadas"
     },
     "ac576a66": "Ir al contenido",
     "d47d7cb0": "Más",

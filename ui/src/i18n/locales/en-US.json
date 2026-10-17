@@ -240,8 +240,8 @@
     "7b145a5d": "Help and shortcuts",
     "8e5ea509": "Tabs",
     "92c29da0": {
-      "input-attr-aria-label": "Search calls and screens",
-      "input-attr-placeholder": "Search calls and screens"
+      "input-attr-aria-label": "Jump to a screen. Demo: invented calls only.",
+      "input-attr-placeholder": "Jump to a screen · demo: invented calls only"
     },
     "ac576a66": "Skip to content",
     "d47d7cb0": "More",
