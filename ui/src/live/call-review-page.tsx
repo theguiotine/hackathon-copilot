@@ -15,6 +15,9 @@ const CHOICES = [
   { label: 'Not a real flag', decision: 'DISMISSED_AS_FALSE_ALARMS', note: 'Marked as not a real flag.' },
 ] as const;
 
+const TIER_BORDER: Record<string, string> = { S1: 'border-l-red-500', S2: 'border-l-amber-500', S3: 'border-l-sky-500' };
+const TIER_WORD: Record<string, string> = { S1: 'S1 highest', S2: 'S2 medium', S3: 'S3 lower' };
+
 const TIER_CLASS: Record<string, string> = {
   S1: 'border-red-300 bg-red-50 text-red-900',
   S2: 'border-amber-300 bg-amber-50 text-amber-900',
@@ -33,6 +36,7 @@ export default function CallReviewPage() {
   const [loaded, setLoaded] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [highlight, setHighlight] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [c, l, f] = await Promise.all([repos.coachingCall.listAll(), repos.callLine.listAll(), repos.humanReviewFlag.listAll()]);
@@ -56,6 +60,13 @@ export default function CallReviewPage() {
   const callFlags = call ? flagsOfCall(call.id).sort((a, b) => (lineById.get(a.lineId)?.lineNumber ?? 0) - (lineById.get(b.lineId)?.lineNumber ?? 0)) : [];
   const decided = callFlags.filter((f) => f.decision).length;
   const nextCall = queue.find((c) => c.id !== call?.id && flagsOfCall(c.id).some((f) => !f.decision)) ?? queue.find((c) => c.id !== call?.id);
+
+  // Scroll to a flagged line and highlight it for two seconds.
+  function jumpTo(lineId: string) {
+    document.getElementById(`line-${lineId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setHighlight(lineId);
+    window.setTimeout(() => setHighlight((h) => (h === lineId ? null : h)), 2000);
+  }
 
   async function decide(flag: HumanReviewFlag, choice: (typeof CHOICES)[number]) {
     setError(null);
@@ -83,6 +94,17 @@ export default function CallReviewPage() {
         </p>
       </header>
 
+      {callFlags.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 text-sm" data-testid="flag-jump">
+          <span className="text-text-muted">Flagged lines:</span>
+          {callFlags.map((f) => (
+            <button key={f.id} type="button" onClick={() => jumpTo(f.lineId)} className={`rounded border px-2 py-1 ${TIER_CLASS[f.severity]}`}>
+              Line {lineById.get(f.lineId)?.lineNumber} · {TIER_WORD[f.severity]}
+            </button>
+          ))}
+        </div>
+      )}
+
       {message && <p role="status" className="rounded border border-green-300 bg-green-50 p-3 text-green-900">{message}</p>}
       {error && <p role="alert" className="rounded border border-red-300 bg-red-50 p-3 text-red-900">{error}</p>}
 
@@ -90,7 +112,12 @@ export default function CallReviewPage() {
         {callLines.map((l) => {
           const lineFlags = callFlags.filter((f) => f.lineId === l.id);
           return (
-            <li key={l.id} className={`rounded border p-3 ${lineFlags.length ? TIER_CLASS[lineFlags[0].severity] : 'border-border'}`}>
+            <li key={l.id} id={`line-${l.id}`}
+              className={`relative rounded border p-3 transition-shadow ${lineFlags.length ? `border-l-4 ${TIER_BORDER[lineFlags[0].severity]} ${TIER_CLASS[lineFlags[0].severity]}` : 'border-border'} ${highlight === l.id ? 'ring-4 ring-primary' : ''}`}>
+              {lineFlags.length > 0 && (
+                <button type="button" onClick={() => jumpTo(l.id)} aria-label={`${TIER_WORD[lineFlags[0].severity]} severity flag on this line`}
+                  className="absolute right-2 top-2 rounded border border-current px-2 py-0.5 text-xs font-semibold">{TIER_WORD[lineFlags[0].severity]}</button>
+              )}
               <p className="type-meta"><strong>{l.lineNumber}. {l.speaker === 'COACH' ? 'Coach' : 'Participant'}</strong></p>
               <p className="mt-1">{l.text}</p>
               {lineFlags.map((f) => {
