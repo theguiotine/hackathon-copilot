@@ -1,0 +1,10 @@
+*.csv
+*.json.gz
+*.key
+*.zip
+.DS_Store
+.env
+__pycache__/
+data/
+hackathon-data/
+node_modules/
