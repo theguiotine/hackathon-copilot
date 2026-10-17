@@ -1,7 +1,7 @@
 // Call review screen (hand-written, replaces the generated one): read the flagged line, pick one of three plain
 // decisions, see a confirmation and the "N of M flags decided" counter, then move to the next call.
 // Reads and writes through the same repositories as the rest of the app (in-memory fixtures in demo mode).
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import type { CallLine } from '../domain/entities/callLine';
 import type { CoachingCall } from '../domain/entities/coachingCall';
@@ -14,6 +14,8 @@ const CHOICES = [
   { label: 'Coach already handled it', decision: 'ANNOTATED_WITH_A_NOTE', note: 'Coach already handled it.' },
   { label: 'Not a real flag', decision: 'DISMISSED_AS_FALSE_ALARMS', note: 'Marked as not a real flag.' },
 ] as const;
+
+const REASONS = ['Past or other person', 'Already treated', 'Wrong meaning'];
 
 const TIER_BORDER: Record<string, string> = { S1: 'border-l-red-500', S2: 'border-l-amber-500', S3: 'border-l-sky-500' };
 const TIER_WORD: Record<string, string> = { S1: 'S1 highest', S2: 'S2 medium', S3: 'S3 lower' };
@@ -37,6 +39,7 @@ export default function CallReviewPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [highlight, setHighlight] = useState<string | null>(null);
+  const [reasonFor, setReasonFor] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [c, l, f] = await Promise.all([repos.coachingCall.listAll(), repos.callLine.listAll(), repos.humanReviewFlag.listAll()]);
@@ -74,8 +77,34 @@ export default function CallReviewPage() {
     if (res.ok === false) { setError('Could not save that decision. Try again.'); return; }
     const n = lineById.get(flag.lineId)?.lineNumber;
     setMessage(`Saved: "${choice.label}" for line ${n}.`);
+    setReasonFor(choice.decision === 'CONFIRMED' ? null : flag.id);
     await load();
   }
+
+  async function addReason(flag: HumanReviewFlag, reason: string) {
+    const choice = choiceFor(flag);
+    if (!choice) return;
+    const res = await repos.humanReviewFlag.update(flag.id, { decisionNote: `${choice.note} Reason: ${reason}.` });
+    if (res.ok === false) { setError('Could not save that reason. Try again.'); return; }
+    setReasonFor(null);
+    setMessage(`Reason saved: "${reason}".`);
+    await load();
+  }
+
+  // Keys 1, 2, 3 press the three decision buttons of the first flag still waiting for a decision.
+  const activeFlag = callFlags.find((f) => !f.decision);
+  const decideRef = useRef(decide);
+  decideRef.current = decide;
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.metaKey || e.ctrlKey || e.altKey) return;
+      const i = ['1', '2', '3'].indexOf(e.key);
+      if (i >= 0 && activeFlag) void decideRef.current(activeFlag, CHOICES[i]);
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activeFlag]);
 
   if (error && !loaded) return <p role="alert" className="p-6">{error}</p>;
   if (!loaded) return <p className="p-6 text-text-muted">Loading…</p>;
@@ -84,7 +113,7 @@ export default function CallReviewPage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-6" data-testid="call-review-page">
       {callFlags.length > 0 && (
-        <p className="rounded border border-border bg-muted p-3 text-sm"><strong>Step 1:</strong> read the flagged line. <strong>Step 2:</strong> pick a decision.</p>
+        <p className="rounded border border-border bg-muted p-3 text-sm"><strong>Step 1:</strong> read the flagged line. <strong>Step 2:</strong> pick a decision (or press 1, 2 or 3).</p>
       )}
       <header>
         <h1 className="type-page-title">{call.title}</h1>
@@ -127,13 +156,22 @@ export default function CallReviewPage() {
                     <p className="text-sm"><strong>{f.severity} needs a human.</strong> {f.reason}</p>
                     <p className="mt-2 text-sm font-medium">{chosen ? `Decision: ${chosen.label}` : 'Waiting for your decision:'}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {CHOICES.map((c) => (
+                      {CHOICES.map((c, i) => (
                         <button key={c.decision} type="button" onClick={() => void decide(f, c)} aria-pressed={chosen?.decision === c.decision}
                           className={`rounded-md border px-3 py-2 text-sm font-medium ${chosen?.decision === c.decision ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:bg-muted'}`}>
                           {c.label}
+                          {activeFlag?.id === f.id && <kbd className="ml-2 rounded border border-border px-1 text-xs text-text-muted opacity-60" aria-hidden="true">{i + 1}</kbd>}
                         </button>
                       ))}
                     </div>
+                    {reasonFor === f.id && chosen && chosen.decision !== 'CONFIRMED' && (
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-sm" data-testid="reasons">
+                        <span className="text-text-muted">Optional reason:</span>
+                        {REASONS.map((r) => (
+                          <button key={r} type="button" onClick={() => void addReason(f, r)} className="rounded-full border border-border px-3 py-1 hover:bg-muted">{r}</button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               })}
