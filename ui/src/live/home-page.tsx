@@ -24,6 +24,20 @@ export default function HomePage() {
           medical advice.
         </p>
       </header>
+      <section aria-labelledby="why-listener" className="flex max-w-3xl flex-col gap-3" data-testid="why-second-listener">
+        <h2 id="why-listener" className="text-xl font-semibold">Why a second listener</h2>
+        <p className="type-body">
+          A coach on a live call is listening to one person and cannot also re-read the call. Hear Me Out is a second
+          listener: it goes back over the call afterwards, in English or Spanish, and shows a person the exact sentences
+          that need a human today. It never decides anything and gives no medical advice.
+        </p>
+        <h3 className="text-lg font-semibold">Who it is for</h3>
+        <ul className="flex list-disc flex-col gap-1 pl-5 text-sm">
+          <li><strong>A coach:</strong> see your own calls scored against motivational-interviewing practice, with the lines that back every score.</li>
+          <li><strong>A supervisor:</strong> open the queue and see calls with an unhandled chest, breathing or distress line first, instead of reading every call.</li>
+          <li><strong>A program with English and Spanish callers:</strong> review both languages in one place, with the limits of the tool shown beside the results.</li>
+        </ul>
+      </section>
       <ol className="grid gap-4 md:grid-cols-3">
         {STEPS.map((s, i) => (
           <li key={s.href}>
