@@ -8,6 +8,7 @@ import type { CoachingCall } from '../domain/entities/coachingCall';
 import type { HumanReviewFlag } from '../domain/entities/humanReviewFlag';
 import { useRepositories } from '../presentation/app-context';
 import { LimitsLine } from './safety-net';
+import { FHIR_DEMO_LABEL, buildFhirFlag, decisionLogCsv, downloadText, type FlagForExport } from './fhir';
 
 const CHOICES = [
   { label: 'Escalate to nurse today', decision: 'CONFIRMED', note: 'Escalated to a nurse today.' },
@@ -62,6 +63,9 @@ export default function CallReviewPage() {
   const callLines = lines.filter((l) => l.callId === call?.id).sort((a, b) => a.lineNumber - b.lineNumber);
   const callFlags = call ? flagsOfCall(call.id).sort((a, b) => (lineById.get(a.lineId)?.lineNumber ?? 0) - (lineById.get(b.lineId)?.lineNumber ?? 0)) : [];
   const decided = callFlags.filter((f) => f.decision).length;
+  const exportable = (f: HumanReviewFlag): FlagForExport => ({
+    id: f.id, severity: f.severity, reason: f.reason, decision: f.decision, decisionNote: f.decisionNote, createdAt: f.createdAt,
+    decidedAt: f.decidedAt, lineNumber: lineById.get(f.lineId)?.lineNumber, callTitle: call?.title });
   const nextCall = queue.find((c) => c.id !== call?.id && flagsOfCall(c.id).some((f) => !f.decision)) ?? queue.find((c) => c.id !== call?.id);
 
   // Scroll to a flagged line and highlight it for two seconds.
@@ -123,6 +127,13 @@ export default function CallReviewPage() {
         </p>
       </header>
 
+      {decided > 0 && (
+        <div className="flex flex-wrap items-center gap-2 text-sm" data-testid="decision-log">
+          <button type="button" onClick={() => downloadText('decision-log.csv', decisionLogCsv(flags.filter((f) => f.decision).map(exportable)), 'text/csv')}
+            className="rounded-md border border-border px-3 py-1 hover:bg-muted">Download decision log (CSV)</button>
+          <span className="text-text-muted">All decisions made in this session, across calls.</span>
+        </div>
+      )}
       {callFlags.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 text-sm" data-testid="flag-jump">
           <span className="text-text-muted">Flagged lines:</span>
@@ -164,6 +175,13 @@ export default function CallReviewPage() {
                         </button>
                       ))}
                     </div>
+                    {chosen && (
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                        <button type="button" onClick={() => downloadText(`fhir-flag-${f.id}.json`, JSON.stringify(buildFhirFlag(exportable(f)), null, 2), 'application/fhir+json')}
+                          className="rounded-md border border-border px-3 py-1 hover:bg-muted" data-testid="fhir-download">Download as FHIR Flag (JSON)</button>
+                        <span className="text-text-muted">{FHIR_DEMO_LABEL}</span>
+                      </div>
+                    )}
                     {reasonFor === f.id && chosen && chosen.decision !== 'CONFIRMED' && (
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-sm" data-testid="reasons">
                         <span className="text-text-muted">Optional reason:</span>
