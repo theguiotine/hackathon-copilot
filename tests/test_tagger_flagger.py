@@ -186,3 +186,36 @@ class WidenedRules(unittest.TestCase):
 
     def test_article_el_is_not_another_person(self):
         self.assertIn("F-CHEST", self.flags("Siento el pecho oprimido.", "es"))
+
+
+class PostBlindPatch(unittest.TestCase):
+    """post-blind patch (found by stress test): added AFTER the blind set was measured at rules 1df793c.
+    These tests are separate on purpose; the blind figures were not re-run or re-tuned."""
+
+    def flags(self, text, lang):
+        return [(f.tier, f.rule_id) for f in flag_conversation(conv_of([("participant", text)], lang))]
+
+    def test_whitespace_runs_are_collapsed(self):
+        self.assertEqual(self.flags("I have had chest   pain since last night", "en"), [("S1", "F-CHEST")])
+        self.assertEqual(self.flags("chest\t\tpain", "en"), [("S1", "F-CHEST")])
+        self.assertEqual(self.flags("dolor   de pecho", "es"), [("S1", "F-CHEST")])
+
+    def test_full_width_text_is_normalized(self):
+        self.assertEqual(self.flags("Ｉ　ｈａｖｅ　ｃｈｅｓｔ　ｐａｉｎ", "en"), [("S1", "F-CHEST")])
+
+    def test_spanish_crisis_variants(self):
+        for t in ("quiero morirme", "me quiero morir", "no quiero vivir", "quiero matarme"):
+            self.assertEqual(self.flags(t, "es"), [("S1", "F-CRISIS")], t)
+
+    def test_spanish_bleeding_variants(self):
+        for t in ("estoy sangrando mucho", "sigo sangrando", "sangro mucho"):
+            self.assertEqual(self.flags(t, "es"), [("S2", "F-SYMPTOM")], t)
+
+    def test_guards_still_hold_for_the_new_phrases(self):
+        for t in ("No estoy sangrando", "Mi mamá estaba sangrando ayer", "El doctor dijo que no hay sangrado",
+                  "Ya no quiero morirme, gracias a Dios"):
+            self.assertEqual(self.flags(t, "es"), [], t)
+
+    def test_quote_keeps_the_original_text(self):
+        f = flag_conversation(conv_of([("participant", "chest   pain tonight")], "en"))
+        self.assertEqual(f[0].quote, "chest   pain tonight")

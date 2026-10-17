@@ -7,6 +7,7 @@ coach_responded is True only when one of the next RESPONSE_LOOKAHEAD coach lines
 concrete action (RESPONSE_CUES); unhandled flags (coach_responded False) sort first within a tier.
 """
 import re
+import unicodedata
 
 from ..config import (CLAUSE_BOUNDARY, CLAUSE_STARTERS, FLAG_RULES, LONG_AGO, NEGATION_WINDOW, NEGATIONS, OTHER_PERSON,
                       RESPONSE_CUES, RESPONSE_LOOKAHEAD)
@@ -79,15 +80,21 @@ def find_response(conv: Conversation, line_idx: int):
     return None
 
 
+def normalize(text: str) -> str:
+    """Match on NFKC-normalized text with whitespace runs collapsed (full-width letters, tabs, double spaces)."""
+    return re.sub(r"\s+", " ", unicodedata.normalize("NFKC", text)).strip()
+
+
 def flag_conversation(conv: Conversation) -> list:
     flags = []
     for line in conv.lines:
         if line.speaker != "participant":
             continue
+        norm = normalize(line.text)
         for rid, tier, pats in _FLAGS:
-            for m in pats[conv.language].finditer(line.text):
-                if (self_negating(m.group(0), conv.language) or not is_negated(line.text, m.start(), conv.language)) \
-                        and not not_about_now(line.text, m.start(), conv.language):
+            for m in pats[conv.language].finditer(norm):
+                if (self_negating(m.group(0), conv.language) or not is_negated(norm, m.start(), conv.language)) \
+                        and not not_about_now(norm, m.start(), conv.language):
                     responded = find_response(conv, line.idx) is not None
                     flags.append(Flag(conv.id, line.idx, tier, rid, line.text, True, responded))
                     break

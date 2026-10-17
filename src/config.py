@@ -57,7 +57,7 @@ TEXT_INTENT_RULES = [
 FLAG_RULES = [
     ("F-CRISIS", "S1", {
         "en": r"\b(want to die|kill myself|killing myself|end my life|end it all|hurt myself|harm myself|better off dead|(don'?t|do not) want to (live|be here|be alive)|suicid\w+)\b",
-        "es": r"\b(quiero morir|me quiero morir|quitarme la vida|matarme|hacerme da[ñn]o|acabar con todo|no quiero (vivir|seguir viviendo)|quiero desaparecer|ya no quiero estar aqu[ií]|suicid\w+)\b"}),
+        "es": r"\b(quiero morir|quiero morirme|me quiero morir|quiero matarme|quitarme la vida|matarme|hacerme da[ñn]o|acabar con todo|no quiero (vivir|seguir viviendo)|quiero desaparecer|ya no quiero estar aqu[ií]|suicid\w+)\b"}),
     ("F-CHEST", "S1", {
         "en": (r"\bchest (pain|pressure|tightness|is tight|feels? (really |very |so )?(tight|heavy|funny|squeezed|crushed))\b"
                r"|\b(tight|heavy|crushing|squeezing|pressure|pain) (in|on) (my )?chest\b|\bchest (hurts|aches|burns)\b"
@@ -73,7 +73,7 @@ FLAG_RULES = [
                r"|\b(throwing up|threw up|coughing up blood|blood in (my )?(stool|urine|cough)|can'?t (stop|keep) (bleeding|vomiting|food down|anything down))\b"
                r"|\b(pass(ing)? out|going to pass out|faint(ing|ed)?|black(ing)? out|dizzy and weak)\b|\bworst pain\b|\bcut that will not stop\b"),
         "es": (r"\b(fiebre|calentura|sangrado|v[oó]mitos?|bulto nuevo|un bulto|dolor (muy )?fuerte|escalofr[ií]os)\b"
-               r"|\b(me )?(estoy )?vomit\w+|\b(devuelvo|devolviendo)\b|\bsangre (en|al) (la orina|el excremento|las heces|toser)\b|\bme sale sangre\b|\btosiendo sangre\b"
+               r"|\b(me )?(estoy )?vomit\w+|\b(devuelvo|devolviendo)\b|\bsangre (en|al) (la orina|el excremento|las heces|toser)\b|\bme sale sangre\b|\btosiendo sangre\b|\b(estoy |sigo |sigue )?sangrando\b|\bsangro (mucho|bastante)\b"
                r"|\b(me voy a desmayar|me desmay[oóé]|desmay\w+|me desvanezco|mareo fuerte|muy maread[oa])\b|\bno puedo (comer|retener|aguantar) nada\b")}),
     ("F-DISTRESS", "S3", {
         "en": r"\b(hopeless|overwhelmed|can'?t cope|so alone|can'?t go on|can'?t take it any ?more|giving up|want to disappear|nothing matters|no point)\b",
