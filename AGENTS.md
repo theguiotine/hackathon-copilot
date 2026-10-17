@@ -1,6 +1,6 @@
 # AGENTS.md: rules for every AI tool in this repo (Claude Code, Codex, Devin, Archie)
 
-Project: Coach's Copilot, eMerge AI Hackathon 2026, Healthcare track, Challenge 5. One human owner (Esteban). Read SPEC.md, CONTRACT.md and TASKS.md first.
+Project: Hear Me Out (a second listener for health-coaching calls; eMerge Challenge 5, Coach's Copilot), eMerge AI Hackathon 2026, Healthcare track. One human owner (Esteban). Read SPEC.md, CONTRACT.md and TASKS.md first.
 
 ## Hard rules (the Participant Agreement binds the human; do not make him breach it)
 1. **Never read, open, print, summarize or upload anything in the local data folder or any file named in `COACH_DATA_DIR`.** That folder is challenge Data. Third-party AI tools may not receive Data or Derived Data (Agreement 2.3) unless the organizers approved the tool in writing. Until `APPROVED.md` exists in this repo root, work only from the schemas in CONTRACT.md and from fictional lines in `tests/fixtures/` that a human typed.
