@@ -11,6 +11,7 @@ import { useIdentity } from './presentation/app-context';
 import { RoleLandingRedirect } from './presentation/role-landing';
 import HomePage from './live/home-page';
 import { SafetyLine } from './live/safety-net';
+import { ReviewerCounter } from './live/reviewer-counter';
 import { LoadingFallback } from './components/LoadingFallback';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotFound } from './components/NotFound';
@@ -114,7 +115,7 @@ function Guarded_call_queue() {
         <p className="mx-auto max-w-6xl px-6 pt-4 text-sm" data-testid="queue-hint">
           <strong>Pick a call with a flag, then decide on the flagged line.</strong> Calls with the highest severity are listed first.
         </p>
-        <div className="mx-auto max-w-6xl px-6 pt-1"><SafetyLine /></div>
+        <div className="mx-auto flex max-w-6xl flex-col gap-1 px-6 pt-1"><ReviewerCounter /><SafetyLine /></div>
         <LazyScreen_call_queue />
       </Suspense>
     </AuthGuard>
