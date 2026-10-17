@@ -77,13 +77,21 @@ NEGATIONS = {
 NEGATION_WINDOW = 4
 COMPILED = re.compile  # alias so callers can precompile with flags
 
-# Negation scope ends at these boundaries (punctuation or contrast words).
+# Negation scope ends at these hard boundaries; a comma ends it only when a new clause starts after it
+# (see CLAUSE_STARTERS) or when the text before the comma is just a negation ("No, ...").
 CLAUSE_BOUNDARY = {
-    "en": r"[,;:.!?]|\b(but|however|yet|although|though)\b",
-    "es": r"[,;:.!?¿¡]|\b(pero|aunque|sin embargo)\b",
+    "en": r"[;:.!?]|\b(but|however|yet|although|though)\b",
+    "es": r"[;:.!?¿¡]|\b(pero|aunque|sin embargo)\b",
 }
-# A coach line counts as responding to a flag only if it shows acknowledgement or action.
+CLAUSE_STARTERS = {
+    "en": r"^\s*(i|i'm|i've|we|he|she|they|it|my|now|today|also|and then|then)\b",
+    "es": r"^\s*(yo|tengo|tuve|hoy|ahora|estoy|siento|me|mi|tambi[eé]n|luego|entonces)\b",
+}
+# A coach line counts as responding to a flag only if it shows acknowledgement or a concrete action.
+# Generic intent ("I will", "voy a", "let me") is NOT enough on its own.
 RESPONSE_CUES = {
-    "en": r"\b(thank|sorry|i hear|i'?m glad you told|call|nurse|team|doctor|911|emergency|follow up|let me|i('ll| will)|right now)\b",
-    "es": r"\b(gracias|lamento|siento|te escucho|llam|enfermer|equipo|m[eé]dic|911|emergencia|seguimiento|d[eé]jame|voy a|ahora mismo)\b",
+    "en": r"\b(thank(s| you) for (telling|sharing|letting)|i'?m (so )?sorry|i hear you|i'?m glad you told|call(ing)?|nurse|doctor|911|emergency|care team|(tell|notify|alert) (your|the) (team|nurse|doctor)|follow(ing)? up|check(ing)? on you|are you safe|go to the (er|hospital))\b",
+    "es": r"\b(gracias por (decirme|dec[ií]rmelo|contarme|cont[aá]rmelo|avisarme|compartir)|avis\\w* a (tu|el|su) equipo|lamento|siento (mucho )?que|te escucho|me alegra que me lo dijeras|llam\w*|enfermer\w*|m[eé]dic\w*|doctor\w*|911|emergencia|equipo de cuidado|seguimiento|est[aá]s a salvo|ve al hospital|urgencias)\b",
 }
+# Look this many coach lines after a flag for a response.
+RESPONSE_LOOKAHEAD = 3

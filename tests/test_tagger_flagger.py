@@ -129,3 +129,32 @@ class ReviewFixes(unittest.TestCase):
         self.assertFalse(f[0].coach_responded)
         f = flag_conversation(conv_of([("participant", "I have chest pain."), ("coach", "I'm sorry, I will call the nurse team now.")], "en"))
         self.assertTrue(f[0].coach_responded)
+
+
+class Round2(unittest.TestCase):
+    def resp(self, lines, lang="en"):
+        return [f.coach_responded for f in flag_conversation(conv_of(lines, lang))]
+
+    def test_generic_intent_is_not_a_response(self):
+        self.assertEqual(self.resp([("participant", "I have chest pain."), ("coach", "I will send your walking plan tomorrow.")]), [False])
+        self.assertEqual(self.resp([("participant", "Tengo dolor de pecho."), ("coach", "Voy a enviarte el plan de caminata.")], "es"), [False])
+
+    def test_spanish_stems_match_full_words(self):
+        self.assertEqual(self.resp([("participant", "No puedo respirar"), ("coach", "Llama al médico ahora")], "es"), [True])
+        self.assertEqual(self.resp([("participant", "No puedo respirar"), ("coach", "La enfermera te llamará")], "es"), [True])
+
+    def test_response_after_a_clarifying_question(self):
+        lines = [("participant", "I have chest pain."), ("coach", "How long has this been happening?"),
+                 ("participant", "Since this morning."), ("coach", "I will call the nurse now.")]
+        self.assertEqual(self.resp(lines), [True])
+        from src.score.card import score_conversation
+        ev = score_conversation(conv_of(lines, "en"))["checklist"]["safety_issue_handled"]
+        self.assertEqual(ev, {"value": "yes", "evidence_lines": [0, 3]})
+
+    def test_comma_separated_denials(self):
+        self.assertEqual([f.rule_id for f in flag_conversation(conv_of([("participant", "No tengo fiebre, vómitos ni sangrado")]))], [])
+        self.assertEqual([f.rule_id for f in flag_conversation(conv_of([("participant", "No fever, vomiting or bleeding")], "en"))], [])
+
+    def test_comma_then_new_clause_still_flags(self):
+        self.assertEqual([f.rule_id for f in flag_conversation(conv_of([("participant", "No tengo fiebre, tengo vómitos")]))], ["F-SYMPTOM"])
+        self.assertEqual([f.rule_id for f in flag_conversation(conv_of([("participant", "No fever, I have vomiting")], "en"))], ["F-SYMPTOM"])
