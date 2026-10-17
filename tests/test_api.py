@@ -24,6 +24,7 @@ class Api(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.srv.shutdown()
+        cls.srv.server_close()
 
     def req(self, path, data=None):
         r = urllib.request.Request(self.base + path, data=None if data is None else json.dumps(data).encode(),
@@ -32,7 +33,10 @@ class Api(unittest.TestCase):
             with urllib.request.urlopen(r) as resp:
                 return resp.status, json.loads(resp.read())
         except urllib.error.HTTPError as e:
-            return e.code, json.loads(e.read())
+            try:
+                return e.code, json.loads(e.read())
+            finally:
+                e.close()
 
     def test_queue_sorted_unhandled_first(self):
         code, q = self.req("/api/queue")
@@ -129,6 +133,20 @@ class StaticServing(unittest.TestCase):
                 del os.environ["COACH_STATIC_DIR"]
             self.assertIsNone(static_file("/"))
 
+    def test_favicon_ico_serves_the_svg_and_robots_is_a_plain_file(self):
+        from src.api import static_file
+        with tempfile.TemporaryDirectory() as d:
+            Path(d, "index.html").write_text("<html>app</html>")
+            Path(d, "favicon.svg").write_text("<svg/>")
+            Path(d, "robots.txt").write_text("User-agent: *\nAllow: /\n")
+            os.environ["COACH_STATIC_DIR"] = d
+            try:
+                self.assertEqual(static_file("/favicon.ico")[0].name, "favicon.svg")
+                self.assertIn("svg", static_file("/favicon.ico")[1])
+                self.assertEqual(static_file("/robots.txt")[1], "text/plain")
+            finally:
+                del os.environ["COACH_STATIC_DIR"]
+
 
 class Robustness(unittest.TestCase):
     req = Api.req
@@ -140,6 +158,7 @@ class Robustness(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.srv.shutdown()
+        cls.srv.server_close()
 
     def conn(self):
         import http.client
@@ -207,6 +226,7 @@ class Hardening(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.srv.shutdown()
+        cls.srv.server_close()
 
     def raw(self, path, headers=None):
         req = urllib.request.Request(self.base + path, headers=headers or {})
@@ -214,7 +234,18 @@ class Hardening(unittest.TestCase):
             with urllib.request.urlopen(req) as r:
                 return r.status, dict(r.headers), json.loads(r.read())
         except urllib.error.HTTPError as e:
-            return e.code, dict(e.headers), json.loads(e.read())
+            try:
+                return e.code, dict(e.headers), json.loads(e.read())
+            finally:
+                e.close()
+
+    def test_security_headers_on_every_response(self):
+        want = {"X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "X-Frame-Options": "SAMEORIGIN"}
+        for path in ("/api/limits", "/nope"):
+            _, headers, _ = self.raw(path)
+            for k, v in want.items():
+                self.assertEqual(headers.get(k), v, (path, k))
+        self.assertNotIn("Content-Security-Policy", headers)
 
     def test_cors_only_for_ui_origins(self):
         for good in ("http://localhost:3000", "http://127.0.0.1:3000"):

@@ -39,6 +39,9 @@ def host_ok(host):
     return name in ("127.0.0.1", "localhost", "::1") or name in extra
 
 
+SECURITY_HEADERS = (("X-Content-Type-Options", "nosniff"), ("Referrer-Policy", "no-referrer"), ("X-Frame-Options", "SAMEORIGIN"))
+
+
 def static_file(url_path):
     """For a single-service deployment: serve the built UI from $COACH_STATIC_DIR (never anything outside it).
     Unknown non-asset paths fall back to index.html so in-app routes work on reload. None if not configured."""
@@ -47,6 +50,8 @@ def static_file(url_path):
         return None
     base = Path(root).resolve()
     rel = url_path.lstrip("/") or "index.html"
+    if rel == "favicon.ico":
+        rel = "favicon.svg"  # browsers ask for /favicon.ico by default; we ship one SVG icon
     target = (base / rel).resolve()
     if base not in target.parents and target != base:
         return None
@@ -155,6 +160,11 @@ class App:
 def make_handler(app: App):
     class H(BaseHTTPRequestHandler):
         _head = False
+
+        def end_headers(self):
+            for k, v in SECURITY_HEADERS:
+                self.send_header(k, v)
+            super().end_headers()
 
         def _send(self, code, obj):
             body = json.dumps(obj, ensure_ascii=False).encode("utf-8")
