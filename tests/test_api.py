@@ -45,6 +45,8 @@ class Api(unittest.TestCase):
         code, r = self.req("/api/limits")
         self.assertEqual(code, 200)
         self.assertGreater(r["invented_conversations"], 28)
+        self.assertEqual(r["tuned_cases"], 28)
+        self.assertEqual(r["blind_cases"], 36)
         self.assertIsNone(r["held_out_sessions"])
         with tempfile.TemporaryDirectory() as d:
             Path(d, "eval_summary.json").write_text(json.dumps({"held_out_sessions": 21}))

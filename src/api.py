@@ -114,7 +114,8 @@ def limits(app):
     cases = safety_eval.run()["calls"]
     held = eval_summary().get("held_out_sessions")
     blind = blind_results()
-    return {"invented_conversations": cases + len(app.convs),
+    return {"tuned_cases": cases, "demo_conversations": len(app.convs),
+            "invented_conversations": cases + len(app.convs),
             "held_out_sessions": held if isinstance(held, int) else None,
             "blind_cases": blind["calls"] if blind else None}
 
