@@ -22,12 +22,22 @@ const TIER_CLASS: Record<string, string> = {
   S3: 'bg-sky-100 text-sky-900 border-sky-300',
 };
 
+// Plain labels for the fictional examples (confirmed from the fixture files); unknown ids keep the old label.
+const EXAMPLE_LABELS: Record<string, string> = {
+  'fx-en-1': 'English call: routine walking check-in',
+  'fx-es-1': 'Spanish text: routine check-in',
+  'fx-en-flag': 'English text: chest pain (needs a person)',
+  'fx-es-flag': 'Spanish text: dolor de pecho (needs a person)',
+  'fx-en-neg': 'English call: denies chest pain (stays quiet)',
+  'fx-es-neg': 'Spanish call: denies chest pain (stays quiet)',
+};
+
 export default function LiveAnalyzer() {
   const [metas, setMetas] = useState<Meta[]>([]);
   const [lines, setLines] = useState<Line[]>([]);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [lang, setLang] = useState<'en' | 'es'>('en');
+  const [lang, setLang] = useState<'en' | 'es'>('es'); // the box starts with a Spanish example
   const [waiting, setWaiting] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const [speaker, setSpeaker] = useState<'coach' | 'participant'>('participant');
@@ -35,7 +45,7 @@ export default function LiveAnalyzer() {
   const [ruleCount, setRuleCount] = useState<number | null>(null);
 
   // ?sample=es-chest runs the Spanish chest-pain example straight away; otherwise the box is pre-filled and waits
-  // for the Analyze button.
+  // for the "Check this conversation" button.
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get('sample') === 'es-chest') {
       const sample = [{ idx: 0, speaker: 'coach', text: '¿Cómo te sientes hoy?' }, { idx: 1, speaker: 'participant', text: 'No puedo respirar bien y tengo dolor de pecho.' }];
@@ -108,7 +118,7 @@ export default function LiveAnalyzer() {
         {metas.map((m) => (
           <button key={m.id} type="button" onClick={() => openFixture(m.id)}
             className="rounded border border-border bg-background px-3 py-1 text-sm hover:bg-muted">
-            {m.id} ({m.language}, {m.channel})
+            {EXAMPLE_LABELS[m.id] ?? `${m.id} (${m.language}, ${m.channel})`}
           </button>
         ))}
         <button type="button" onClick={() => { setLines([]); setAnalysis(null); }}
