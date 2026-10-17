@@ -55,3 +55,76 @@ The rules are our own heuristics, so accuracy on real calls is modest; the S1 to
 
 ## AI tools used
 Listed in `AI_TOOLS.md` (Claude Code, Claude, OpenAI Codex, Devin, Archie), as the participant agreement requires.
+
+## Open-source packages
+
+**Python (the engine, API, tests and eval scripts):** standard library only; no third-party Python package is installed or imported.
+
+**UI (`ui/`, production dependencies):** 60 direct packages are listed in full below; 151 further packages are pulled in by them (transitive). 562 more packages are development tooling only (build, lint, tests) and are not shipped. Versions and licenses are read from the packages' own metadata as recorded in `ui/package-lock.json` (npm lockfile v3, the `license` field copied from each package's `package.json`); regenerate with the same lockfile if dependencies change.
+
+| Name | Version | License |
+|---|---|---|
+| @archie/js-sdk | 0.7.0 | MIT |
+| @archie/react-sdk | 0.7.0 | MIT |
+| @base-ui/react | 1.8.0 | MIT |
+| @hookform/resolvers | 5.9.1 | MIT |
+| @radix-ui/react-accordion | 1.2.20 | MIT |
+| @radix-ui/react-alert-dialog | 1.1.23 | MIT |
+| @radix-ui/react-avatar | 1.2.6 | MIT |
+| @radix-ui/react-checkbox | 1.3.11 | MIT |
+| @radix-ui/react-context-menu | 2.3.7 | MIT |
+| @radix-ui/react-dialog | 1.1.23 | MIT |
+| @radix-ui/react-dropdown-menu | 2.1.24 | MIT |
+| @radix-ui/react-hover-card | 1.1.23 | MIT |
+| @radix-ui/react-label | 2.1.15 | MIT |
+| @radix-ui/react-navigation-menu | 1.2.22 | MIT |
+| @radix-ui/react-popover | 1.1.23 | MIT |
+| @radix-ui/react-progress | 1.1.16 | MIT |
+| @radix-ui/react-radio-group | 1.4.7 | MIT |
+| @radix-ui/react-scroll-area | 1.2.18 | MIT |
+| @radix-ui/react-select | 2.3.7 | MIT |
+| @radix-ui/react-separator | 1.1.15 | MIT |
+| @radix-ui/react-slider | 1.4.7 | MIT |
+| @radix-ui/react-slot | 1.3.3 | MIT |
+| @radix-ui/react-switch | 1.3.7 | MIT |
+| @radix-ui/react-tabs | 1.1.21 | MIT |
+| @radix-ui/react-tooltip | 1.2.16 | MIT |
+| @react-three/fiber | 9.8.1 | MIT |
+| @shadcn/react | 0.3.1 | MIT |
+| @tanstack/react-query | 5.104.1 | MIT |
+| @tanstack/react-table | 9.2.4 | MIT |
+| axios | 1.20.0 | MIT |
+| class-variance-authority | 0.7.1 | Apache-2.0 |
+| clsx | 2.1.1 | MIT |
+| cmdk | 1.1.1 | MIT |
+| date-fns | 4.4.0 | MIT |
+| embla-carousel-react | 8.6.0 | MIT |
+| i18next | 26.4.2 | MIT |
+| i18next-browser-languagedetector | 8.2.1 | MIT |
+| i18next-http-backend | 4.0.2 | MIT |
+| input-otp | 1.5.0 | MIT |
+| leaflet | 1.9.4 | BSD-2-Clause |
+| lucide-react | 1.50.0 | ISC |
+| motion | 14.0.0 | MIT |
+| next-themes | 0.4.6 | MIT |
+| radix-ui | 1.6.7 | MIT |
+| react | 19.3.0 | MIT |
+| react-day-picker | 10.0.2 | MIT |
+| react-dom | 19.3.0 | MIT |
+| react-hook-form | 7.89.0 | MIT |
+| react-i18next | 17.0.15 | MIT |
+| react-icons | 5.7.0 | MIT |
+| react-leaflet | 5.0.0 | Hippocratic-2.1 |
+| react-resizable-panels | 4.14.2 | MIT |
+| react-router | 8.4.0 | MIT |
+| recharts | 3.10.1 | MIT |
+| sonner | 2.0.8 | MIT |
+| tailwind-merge | 3.7.0 | MIT |
+| three | 0.186.1 | MIT |
+| vaul | 1.1.2 | MIT |
+| zod | 4.6.5 | MIT |
+| zustand | 5.0.15 | MIT |
+
+Transitive production packages by license: MIT (133), ISC (11), BSD-3-Clause (3), Hippocratic-2.1 (1), 0BSD (1), Apache-2.0 (1), MIT AND ISC (1). The full list is in `ui/package-lock.json`.
+
+**Licenses to note:** `react-leaflet` 5.0.0 and `@react-leaflet/core` 3.0.0 are under the **Hippocratic License 2.1**, an ethical-source license that is not an OSI-approved open-source license and is not permissive (it adds conditions about human-rights use). They come with the Archie UI export and are only loaded by an optional map module (`ui/src/lib/map.tsx`) that none of this app's pages uses. No GPL, AGPL or unknown license appears among the production dependencies. One package is licensed `MIT AND ISC` (both permissive).
