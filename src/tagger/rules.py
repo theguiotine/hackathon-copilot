@@ -1,20 +1,39 @@
-"""Rule tagger EN+ES: coach moves and participant talk, one Tag per matching rule per line."""
+"""Rule tagger EN+ES. One coach_move per coach line (first matching rule, else "other"),
+one participant_talk per participant line (default "neutral"), plus text_intent on text-channel lines."""
 import re
 
-from ..config import COACH_RULES, PARTICIPANT_RULES
+from ..config import COACH_RULES, PARTICIPANT_RULES, TEXT_INTENT_RULES
 from ..schema import Conversation, Tag
 
-_C = {
-    sp: {(kind, lang): re.compile(pat, re.IGNORECASE) for kind, langs in rules.items() for lang, pat in langs.items()}
-    for sp, rules in (("coach", COACH_RULES), ("participant", PARTICIPANT_RULES))
-}
+
+def _compile(rules):
+    return [(label, {l: re.compile(p, re.IGNORECASE) for l, p in pats.items()}) for label, pats in rules]
+
+
+_COACH, _PART, _INTENT = _compile(COACH_RULES), _compile(PARTICIPANT_RULES), _compile(TEXT_INTENT_RULES)
+
+
+def _first(rules, text, lang):
+    for label, pats in rules:
+        if pats[lang].search(text):
+            return label
+    return None
 
 
 def tag_conversation(conv: Conversation) -> list:
     tags = []
+    lang = conv.language
     for line in conv.lines:
-        for (label, lang), rx in _C[line.speaker].items():
-            if lang == conv.language and rx.search(line.text):
-                kind = "coach_move" if line.speaker == "coach" else "participant_talk"
-                tags.append(Tag(conv.id, line.idx, kind, label, "rule", f"T-{label}-{lang}"))
+        if line.speaker == "coach":
+            label = _first(_COACH, line.text, lang)
+            tags.append(Tag(conv.id, line.idx, "coach_move", label or "other", "rule",
+                            f"T-{label}-{lang}" if label else f"T-other-{lang}"))
+        else:
+            label = _first(_PART, line.text, lang)
+            tags.append(Tag(conv.id, line.idx, "participant_talk", label or "neutral", "rule",
+                            f"T-{label}-{lang}" if label else f"T-neutral-{lang}"))
+        if conv.channel == "text":
+            intent = _first(_INTENT, line.text, lang)
+            if intent:
+                tags.append(Tag(conv.id, line.idx, "text_intent", intent, "rule", f"I-{intent}-{lang}"))
     return tags

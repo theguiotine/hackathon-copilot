@@ -1,35 +1,57 @@
 """PLACEHOLDER label, rule and tier names. Replace with the organizers' exact names (single place to edit)."""
 import re
 
-# Tag.kind -> labels (placeholders; CONTRACT.md says exact names come from the organizers' brief)
-COACH_RULES = {
-    "open_question": {
-        "en": r"^\s*(what|how|tell me|help me understand)\b|\b(what|how) (do|did|would|could|has|have)\b",
-        "es": r"¿\s*(qué|cómo|cuándo|cuál)\b|^\s*(cuéntame|cuentame)\b",
-    },
-    "reflection": {
-        "en": r"\b(it sounds like|sounds like|you feel|you're feeling|so you)\b",
-        "es": r"\b(parece que|suena como|te sientes|entonces tú|entonces tu)\b",
-    },
-    "affirmation": {
-        "en": r"\b(real win|great job|well done|proud of you|that took)\b",
-        "es": r"\b(gran logro|buen trabajo|felicidades|orgullosa de ti|orgulloso de ti)\b",
-    },
-    "ask_permission": {
-        "en": r"\b(would you like|may i|is it ok if|can i share)\b",
-        "es": r"\b(te gustar[ií]a|puedo|est[aá] bien si)\b",
-    },
-}
-PARTICIPANT_RULES = {
-    "change_talk": {
-        "en": r"\b(i walked|i want to|i will|i can|i'll|i tried|maybe)\b",
-        "es": r"\b(camin[eé]|quiero|voy a|puedo|intent[eé]|quiz[aá]s?)\b",
-    },
-    "sustain_talk": {
-        "en": r"\b(can't|cannot|too tired|no time|skip(ped)?)\b",
-        "es": r"\b(no puedo|muy cansad[oa]|no tengo tiempo|no salgo)\b",
-    },
-}
+# Label names from the organizers' brief (names only). Patterns are our own heuristics.
+COACH_MOVES = ("open_question", "closed_question", "simple_reflection", "complex_reflection", "affirm",
+               "seek_collaboration", "emphasize_autonomy", "ask_permission", "give_information",
+               "persuade", "confront", "other")
+PARTICIPANT_TALK = ("change", "sustain", "neutral")
+TEXT_INTENTS = ("reminder", "check_in", "nudge", "progress_report", "barrier", "encouragement", "question",
+                "answer", "scheduling", "thanks", "minor_symptom", "concern", "escalation")
+CHECKLIST_ITEMS = ("set_agenda", "checked_feelings", "reviewed_last_goal", "set_new_goal",
+                   "planned_for_barriers", "summarized", "set_next_contact")
+SAFETY_ITEM = "safety_issue_handled"  # yes / no / n/a
+
+# Coach-move rules in PRIORITY order: first match wins, no match -> "other".
+COACH_RULES = [
+    ("confront", {"en": r"\b(you need to admit|that'?s not true|you always|you never|stop making excuses)\b",
+                  "es": r"\b(tienes que admitir|eso no es verdad|siempre haces|nunca haces|deja las excusas)\b"}),
+    ("persuade", {"en": r"\b(you should|you must|you have to|i('d| would) recommend you|why don'?t you just)\b",
+                  "es": r"\b(deber[ií]as|tienes que|debes|te recomiendo que|por qu[eé] no simplemente)\b"}),
+    ("emphasize_autonomy", {"en": r"\b(it'?s up to you|your (choice|decision)|you decide|you know best)\b",
+                            "es": r"\b(depende de ti|es tu decisi[oó]n|t[uú] decides|t[uú] sabes mejor)\b"}),
+    ("affirm", {"en": r"\b(real win|great job|well done|proud of you|that took (courage|effort)|good for you)\b",
+                "es": r"\b(gran logro|buen trabajo|felicidades|orgullos[oa] de ti|qu[eé] bien|muy bien)\b"}),
+    ("complex_reflection", {"en": r"\b(it sounds like|sounds like|you feel|you'?re feeling|so you)\b.*\b(because|which|while|but|and yet|means)\b",
+                            "es": r"\b(parece que|suena como|te sientes|entonces t[uú])\b.*\b(porque|mientras|pero|lo que|significa)\b"}),
+    ("simple_reflection", {"en": r"\b(it sounds like|sounds like|you feel|you'?re feeling|so you|you said)\b",
+                           "es": r"\b(parece que|suena como|te sientes|entonces t[uú]|dijiste)\b"}),
+    ("seek_collaboration", {"en": r"\b(let'?s|together|what do you think about|how about we|shall we)\b",
+                            "es": r"\b(vamos a|juntos|juntas|qu[eé] opinas|qu[eé] te parece si)\b"}),
+    ("ask_permission", {"en": r"\b(would you like|may i|is it ok if|can i share|do you mind if)\b",
+                        "es": r"\b(te gustar[ií]a|puedo|est[aá] bien si|te molesta si)\b"}),
+    ("open_question", {"en": r"\b(what|how|tell me|help me understand)\b[^?]*\?|^\s*tell me\b",
+                       "es": r"¿\s*(qu[eé]|c[oó]mo|cu[aá]ndo|cu[aá]l|por qu[eé])\b|^\s*cu[eé]ntame\b"}),
+    ("closed_question", {"en": r"\b(did|do|does|are|is|were|was|have|has|will|can|could)\b[^?]*\?",
+                         "es": r"¿\s*(has|ha|est[aá]s?|fuiste|tienes|puedes|pudiste|hiciste|vas|quieres)\b"}),
+    ("give_information", {"en": r"\b(it is recommended|studies show|one option is|the clinic|you can call|your next appointment)\b",
+                          "es": r"\b(se recomienda|los estudios|una opci[oó]n es|la cl[ií]nica|puedes llamar|tu pr[oó]xima cita)\b"}),
+]
+PARTICIPANT_RULES = [
+    ("sustain", {"en": r"\b(can'?t|cannot|too tired|no time|skipp?ed?|almost skipped|don'?t want to|won'?t)\b",
+                 "es": r"\b(no puedo|muy cansad[oa]|cansad[oa]|no tengo tiempo|no salgo|no quiero)\b"}),
+    ("change", {"en": r"\b(i walked|i want to|i will|i can|i'll|i tried|maybe|i'?m going to)\b",
+                "es": r"\b(camin[eé]|quiero|voy a|puedo|intent[eé]|quiz[aá]s?)\b"}),
+]
+# Text-channel intents (heuristic subset; unmatched lines get no intent tag).
+TEXT_INTENT_RULES = [
+    ("scheduling", {"en": r"\b(reschedule|schedule|appointment|tomorrow at|see you (on|at))\b",
+                    "es": r"\b(reprogramar|programar|cita|ma[ñn]ana a las|nos vemos)\b"}),
+    ("thanks", {"en": r"\b(thanks|thank you)\b", "es": r"\b(gracias)\b"}),
+    ("reminder", {"en": r"\b(reminder|don'?t forget|remember to)\b", "es": r"\b(recordatorio|no olvides|recuerda)\b"}),
+    ("encouragement", {"en": r"\b(you can do it|keep it up|great job)\b", "es": r"\b(t[uú] puedes|sigue as[ií]|buen trabajo)\b"}),
+    ("check_in", {"en": r"\b(how are you|checking in|how'?s your week)\b", "es": r"\b(c[oó]mo est[aá]s|quer[ií]a saber c[oó]mo|c[oó]mo va tu semana)\b"}),
+]
 
 # Needs-a-human flag rules: (rule_id, tier, pattern per language). Tiers are placeholders.
 FLAG_RULES = [
