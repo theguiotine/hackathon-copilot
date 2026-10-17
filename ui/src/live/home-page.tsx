@@ -1,5 +1,4 @@
 // Welcome page (hand-written): what this tool is, and three obvious first steps. Judges land here cold.
-import { TopNav } from './top-nav';
 
 const STEPS = [
   { href: '/live-analyzer?sample=es-chest', title: 'Try a sample call (Spanish, chest pain)',
@@ -23,7 +22,6 @@ export default function HomePage() {
           medical advice.
         </p>
       </header>
-      <TopNav current="/" />
       <ol className="grid gap-4 md:grid-cols-3">
         {STEPS.map((s, i) => (
           <li key={s.href}>

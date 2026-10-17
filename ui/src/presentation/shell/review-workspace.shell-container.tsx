@@ -44,27 +44,76 @@ const SURFACES: Readonly<Record<string, SurfaceData>> = {
     "nav": {
       "dbe3e9e6-c463-4a26-b89e-ba8bde66a30b": [
         {
-          "slug": "scorecards",
-          "href": "/scorecards",
-          "label": "Scorecards",
+          "slug": "home",
+          "href": "/",
+          "label": "Home",
           "order": 0,
-          "icon": "ChartColumn"
+          "icon": "LayoutDashboard"
+        },
+        {
+          "slug": "live-analyzer",
+          "href": "/live-analyzer",
+          "label": "Live analyzer",
+          "order": 1,
+          "icon": "ClipboardList"
         },
         {
           "slug": "call-queue",
           "href": "/call-queue",
-          "label": "Call Queue",
+          "label": "Safety queue",
           "order": 2,
           "icon": "Inbox"
+        },
+        {
+          "slug": "scorecards",
+          "href": "/scorecards",
+          "label": "Scorecards",
+          "order": 3,
+          "icon": "ChartColumn"
+        },
+        {
+          "slug": "evaluation",
+          "href": "/evaluation",
+          "label": "Accuracy",
+          "order": 4,
+          "icon": "ChartLine"
         }
       ],
       "e6c7182a-1bee-4f61-bbe5-9a8a9ebd1643": [
         {
+          "slug": "home",
+          "href": "/",
+          "label": "Home",
+          "order": 0,
+          "icon": "LayoutDashboard"
+        },
+        {
+          "slug": "live-analyzer",
+          "href": "/live-analyzer",
+          "label": "Live analyzer",
+          "order": 1,
+          "icon": "ClipboardList"
+        },
+        {
           "slug": "call-queue",
           "href": "/call-queue",
-          "label": "Call Queue",
+          "label": "Safety queue",
           "order": 2,
           "icon": "Inbox"
+        },
+        {
+          "slug": "scorecards",
+          "href": "/scorecards",
+          "label": "Scorecards",
+          "order": 3,
+          "icon": "ChartColumn"
+        },
+        {
+          "slug": "evaluation",
+          "href": "/evaluation",
+          "label": "Accuracy",
+          "order": 4,
+          "icon": "ChartLine"
         }
       ]
     },
@@ -156,6 +205,8 @@ const SURFACES: Readonly<Record<string, SurfaceData>> = {
   }
 };
 const ROUTES: readonly { readonly path: string; readonly slug: string; readonly surface: string }[] = [
+  { path: "/", slug: "home", surface: "review-workspace" },
+  { path: "/live-analyzer", slug: "live-analyzer", surface: "review-workspace" },
   {
     "path": "/scorecards",
     "slug": "scorecards",

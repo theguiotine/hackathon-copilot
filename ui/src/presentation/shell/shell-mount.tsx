@@ -85,7 +85,9 @@ const ROUTES: readonly { readonly path: string; readonly surface: string }[] = [
   {
     "path": "/help",
     "surface": "review-workspace"
-  }
+  },
+  { "path": "/", "surface": "review-workspace" },
+  { "path": "/live-analyzer", "surface": "review-workspace" }
 ];
 
 /** exact match first, then the path as a prefix (`<path>/*`); the longest pattern wins. */

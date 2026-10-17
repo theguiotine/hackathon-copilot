@@ -1,7 +1,6 @@
 // Live analyzer (hand-written, not generated): shows OUR engine (src/api.py) on fictional fixtures or on text the
 // user types. Needs the local API: `python3 -m src.api` (default http://127.0.0.1:8000, override VITE_ENGINE_URL).
 import { useEffect, useState } from 'react';
-import { TopNav } from './top-nav';
 
 const BASE = (import.meta.env.VITE_ENGINE_URL as string | undefined) ?? 'http://127.0.0.1:8000';
 
@@ -91,8 +90,6 @@ export default function LiveAnalyzer() {
           the sentence; it gives no medical advice.
         </p>
       </header>
-
-      <TopNav current="/live-analyzer" />
       <p className="type-body">Type a line (it starts with a Spanish example) and press <strong>Analyze</strong>, or pick a fictional call below.</p>
 
       {error && <p role="alert" className="rounded border border-red-300 bg-red-50 p-3 text-red-900">{error}</p>}

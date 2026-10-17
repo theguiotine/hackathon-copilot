@@ -7,7 +7,6 @@ import type { CallLine } from '../domain/entities/callLine';
 import type { CoachingCall } from '../domain/entities/coachingCall';
 import type { HumanReviewFlag } from '../domain/entities/humanReviewFlag';
 import { useRepositories } from '../presentation/app-context';
-import { TopNav } from './top-nav';
 
 const CHOICES = [
   { label: 'Escalate to nurse today', decision: 'CONFIRMED', note: 'Escalated to a nurse today.' },
@@ -68,11 +67,10 @@ export default function CallReviewPage() {
 
   if (error && !loaded) return <p role="alert" className="p-6">{error}</p>;
   if (!loaded) return <p className="p-6 text-text-muted">Loading…</p>;
-  if (!call) return <div className="p-6"><TopNav current="/call-queue" /><p className="mt-4">There are no calls yet.</p></div>;
+  if (!call) return <div className="p-6"><p className="mt-4">There are no calls yet.</p></div>;
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-6" data-testid="call-review-page">
-      <TopNav current="/call-queue" />
       {callFlags.length > 0 && (
         <p className="rounded border border-border bg-muted p-3 text-sm"><strong>Step 1:</strong> read the flagged line. <strong>Step 2:</strong> pick a decision.</p>
       )}
