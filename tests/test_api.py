@@ -40,6 +40,20 @@ class Api(unittest.TestCase):
         self.assertEqual([i["conv_id"] for i in q], ["fx-en-flag", "fx-es-flag"])
         self.assertTrue(q[0]["unhandled"] and not q[1]["unhandled"])
 
+    def test_limits_route(self):
+        os.environ.pop("COACH_CLASSIFIER_DIR", None)
+        code, r = self.req("/api/limits")
+        self.assertEqual(code, 200)
+        self.assertGreater(r["invented_conversations"], 28)
+        self.assertIsNone(r["held_out_sessions"])
+        with tempfile.TemporaryDirectory() as d:
+            Path(d, "eval_summary.json").write_text(json.dumps({"held_out_sessions": 21}))
+            os.environ["COACH_CLASSIFIER_DIR"] = d
+            try:
+                self.assertEqual(self.req("/api/limits")[1]["held_out_sessions"], 21)
+            finally:
+                del os.environ["COACH_CLASSIFIER_DIR"]
+
     def test_safety_route(self):
         code, r = self.req("/api/safety")
         self.assertEqual(code, 200)

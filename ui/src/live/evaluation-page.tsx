@@ -2,7 +2,7 @@
 // from a file kept OUTSIDE the repo. Without that file it states that accuracy is not published here. No numbers live in
 // this repo. The summary is rendered generically (any keys), so the page never depends on one exact file layout.
 import { useEffect, useState } from 'react';
-import { SafetyNet } from './safety-net';
+import { LimitsLine, SafetyNet } from './safety-net';
 
 const BASE = (import.meta.env.VITE_ENGINE_URL as string | undefined) ?? 'http://127.0.0.1:8000';
 type Json = string | number | boolean | null | Json[] | { [k: string]: Json };
@@ -60,6 +60,7 @@ export default function EvaluationPage() {
         <p className="type-eyebrow uppercase text-text-muted">Coach's Copilot</p>
         <h1 className="type-page-title">Evaluation</h1>
       </header>
+      <LimitsLine />
       <SafetyNet />
       <h2 className="type-section-title mt-4">Accuracy on the organizers' held-out sessions</h2>
       {data === undefined && <p className="text-text-muted">Loading…</p>}

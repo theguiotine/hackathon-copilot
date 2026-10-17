@@ -71,3 +71,19 @@ export function SafetyNet() {
     </section>
   );
 }
+
+/** The plain limits sentence; N comes from the engine (GET /api/limits). */
+export function LimitsLine({ className = '' }: { className?: string }) {
+  const [d, setD] = useState<{ invented_conversations: number; held_out_sessions: number | null } | null>(null);
+  useEffect(() => {
+    fetch(`${BASE}/api/limits`).then((r) => r.json()).then(setD).catch(() => setD(null));
+  }, []);
+  if (!d) return null;
+  const held = d.held_out_sessions === null ? '' : ` plus ${d.held_out_sessions} held-out sessions`;
+  return (
+    <p className={`text-sm text-text-muted ${className}`} data-testid="limits-line">
+      This tool flags sentences for a human to read today. It does not diagnose, rank patients or replace nurse judgment, it can miss things,
+      and it was tested only on {d.invented_conversations} invented sample conversations{held}.
+    </p>
+  );
+}

@@ -7,6 +7,7 @@ import type { CallLine } from '../domain/entities/callLine';
 import type { CoachingCall } from '../domain/entities/coachingCall';
 import type { HumanReviewFlag } from '../domain/entities/humanReviewFlag';
 import { useRepositories } from '../presentation/app-context';
+import { LimitsLine } from './safety-net';
 
 const CHOICES = [
   { label: 'Escalate to nurse today', decision: 'CONFIRMED', note: 'Escalated to a nurse today.' },
@@ -114,6 +115,7 @@ export default function CallReviewPage() {
         })}
       </ol>
 
+      <LimitsLine className="border-t border-border pt-3" />
       <div className="flex flex-wrap gap-2">
         {nextCall
           ? <button type="button" onClick={() => { setMessage(null); navigate(`/call-review/${nextCall.id}`); }} className="rounded-md bg-primary px-4 py-2 text-primary-foreground">Next call</button>

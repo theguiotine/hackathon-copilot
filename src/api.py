@@ -65,6 +65,15 @@ def analyze(conv: Conversation) -> dict:
             "flags": [_dump(f) for f in flag_conversation(conv)], "score": score_conversation(conv)}
 
 
+def limits(app):
+    """Counts for the plain limits line, computed here: invented conversations tested, and held-out sessions if the
+    owner's local summary names them."""
+    cases = safety_eval.run()["calls"]
+    held = eval_summary().get("held_out_sessions")
+    return {"invented_conversations": cases + len(app.convs),
+            "held_out_sessions": held if isinstance(held, int) else None}
+
+
 class App:
     def __init__(self, convs):
         self.convs = {c.id: c for c in convs}
@@ -121,6 +130,8 @@ def make_handler(app: App):
             if path == "/api/conversations":
                 return self._send(200, [{"id": c.id, "language": c.language, "channel": c.channel, "lines": len(c.lines)}
                                         for c in app.convs.values()])
+            if path == "/api/limits":
+                return self._send(200, limits(app))
             if path == "/api/safety":
                 return self._send(200, safety_eval.run())
             if path == "/api/queue":
