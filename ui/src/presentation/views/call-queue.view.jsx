@@ -80,6 +80,9 @@ export function CallQueueView(props) {
       (best, f) => (best === null || (tierRank[f.severity] ?? 9) < (tierRank[best] ?? 9) ? f.severity : best),
       null
     );
+    // Why this call is ranked where it is: the sentence of its highest-severity flag (hand-added).
+    const topFlag = [...flags].sort((a, b) => (tierRank[a.severity] ?? 9) - (tierRank[b.severity] ?? 9))[0];
+    const topQuote = topFlag ? (lineById[topFlag.lineId]?.text ?? "") : "";
     const waiting = enumIs(c.status, "Coaches review calls first", "CoachingCall.status");
     const priority = (waiting ? 0 : 1000) + (flags.length ? (tierRank[top] ?? 9) * 10 : 90);
     return {
@@ -87,6 +90,7 @@ export function CallQueueView(props) {
       participantName: participantById[c.participantId]?.name ?? "—",
       coachName: coachById[c.coachId]?.name ?? "—",
       flagTotal: flags.length,
+      topQuote,
       topTier: top,
       waiting,
       priority,
@@ -105,6 +109,9 @@ export function CallQueueView(props) {
         >
           <span data-vid="ce8613d5" className="type-row-title truncate text-foreground">{row.original.participantName}</span>
           <span data-vid="99ad4723" className="type-meta truncate text-text-muted">{row.original.title}</span>
+          {row.original.topQuote ? (
+            <span className="type-caption truncate text-text-muted" title={row.original.topQuote}>ranked because: “{row.original.topQuote}”</span>
+          ) : null}
         </a>
       ),
     },
@@ -142,8 +149,9 @@ export function CallQueueView(props) {
       filterFn: (row, id, v) => (v ? row.original.flagTotal > 0 : true),
       cell: ({ row }) =>
         row.original.flagTotal > 0 ? (
-          <span data-vid="e2b6d7e4" className="type-meta whitespace-nowrap text-status-danger-ink">
-            {row.original.flagTotal} {row.original.flagTotal === 1 ? "flag" : "flags"} · {row.original.topTier} highest
+          <span data-vid="e2b6d7e4" className={`type-meta inline-flex items-center gap-1 whitespace-nowrap rounded border px-2 py-0.5 ${
+            { S1: "border-red-300 bg-red-50 text-red-900", S2: "border-amber-300 bg-amber-50 text-amber-900", S3: "border-sky-300 bg-sky-50 text-sky-900" }[row.original.topTier] ?? ""}`}>
+            <strong>{row.original.topTier} {{ S1: "highest severity", S2: "medium severity", S3: "lower severity" }[row.original.topTier]}</strong> · {row.original.flagTotal} {row.original.flagTotal === 1 ? "flag" : "flags"}
           </span>
         ) : (
           <span data-vid="99290d17" className="type-meta whitespace-nowrap text-text-muted">No flags</span>
