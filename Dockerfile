@@ -1,8 +1,8 @@
 # One public service: the Python API serves the built UI from the same origin (no CORS, one URL).
-FROM node:20-slim AS ui
+FROM node:22-slim AS ui
 WORKDIR /ui
-COPY ui/package.json ./
-RUN npm install --no-audit --no-fund
+COPY ui/package.json ui/package-lock.json ./
+RUN npm ci --no-audit --no-fund
 COPY ui/ ./
 # Demo mode (in-memory fictional data, no sign-in); empty engine URL = same origin.
 RUN VITE_DEMO_MEMORY=1 VITE_ENGINE_URL= npx vite build

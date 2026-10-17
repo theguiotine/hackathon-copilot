@@ -14,4 +14,3 @@ ui/.env.*
 !ui/.env.example
 ui/node_modules/
 ui/dist/
-ui/package-lock.json
