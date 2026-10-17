@@ -1,6 +1,7 @@
 // "Caught vs missed" for the needs-a-human flagger, computed by the engine (GET /api/safety) on INVENTED fixtures.
 // Nothing here is typed in: every number comes from the API.
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
 
 const BASE = (import.meta.env.VITE_ENGINE_URL as string | undefined) ?? 'http://127.0.0.1:8000';
 
@@ -28,7 +29,7 @@ export function SafetyLine() {
   return (
     <p className="text-sm text-text-muted" data-testid="safety-line">
       <strong className="text-foreground">Safety net, on invented fixtures:</strong> caught {s.correct_catches} of {s.correct_catches + s.misses} cases that
-      needed a human ({pct(s.recall)}), missed {s.misses}, {s.false_alarms_per_10_calls} false alarms per 10 calls. <a className="underline" href="/evaluation">See the misses</a>
+      needed a human ({pct(s.recall)}), missed {s.misses}, {s.false_alarms_per_10_calls} false alarms per 10 calls. <Link className="underline" to="/evaluation">See the misses</Link>
     </p>
   );
 }

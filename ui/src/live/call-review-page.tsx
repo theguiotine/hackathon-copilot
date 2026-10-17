@@ -2,7 +2,7 @@
 // decisions, see a confirmation and the "N of M flags decided" counter, then move to the next call.
 // Reads and writes through the same repositories as the rest of the app (in-memory fixtures in demo mode).
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 import type { CallLine } from '../domain/entities/callLine';
 import type { CoachingCall } from '../domain/entities/coachingCall';
 import type { HumanReviewFlag } from '../domain/entities/humanReviewFlag';
@@ -184,8 +184,8 @@ export default function CallReviewPage() {
       <div className="flex flex-wrap gap-2">
         {nextCall
           ? <button type="button" onClick={() => { setMessage(null); navigate(`/call-review/${nextCall.id}`); }} className="rounded-md bg-primary px-4 py-2 text-primary-foreground">Next call</button>
-          : <a href="/call-queue" className="rounded-md bg-primary px-4 py-2 text-primary-foreground">Back to the safety queue</a>}
-        <a href="/call-queue" className="rounded-md border border-border px-4 py-2 hover:bg-muted">All calls</a>
+          : <Link to="/call-queue" className="rounded-md bg-primary px-4 py-2 text-primary-foreground">Back to the safety queue</Link>}
+        <Link to="/call-queue" className="rounded-md border border-border px-4 py-2 hover:bg-muted">All calls</Link>
       </div>
     </div>
   );

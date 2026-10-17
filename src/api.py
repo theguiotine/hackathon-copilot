@@ -29,8 +29,11 @@ def allowed_origins():
 
 
 def host_ok(host):
-    """Reject DNS-rebinding: only loopback host names are served."""
-    return (host or "").rsplit(":", 1)[0].strip("[]") in ("127.0.0.1", "localhost", "::1")
+    """Reject DNS-rebinding: only loopback host names are served, plus any named in COACH_ALLOWED_HOSTS (a deliberate
+    deployment setting, comma-separated host names without ports)."""
+    name = (host or "").rsplit(":", 1)[0].strip("[]")
+    extra = {h.strip() for h in os.environ.get("COACH_ALLOWED_HOSTS", "").split(",") if h.strip()}
+    return name in ("127.0.0.1", "localhost", "::1") or name in extra
 
 
 TIER_ORDER = {"S1": 0, "S2": 1, "S3": 2}
@@ -168,12 +171,14 @@ def make_handler(app: App):
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--port", type=int, default=8000)
+    ap.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8000")))
+    ap.add_argument("--host", default=os.environ.get("COACH_HOST", "127.0.0.1"),
+                    help="bind address; 127.0.0.1 locally, 0.0.0.0 only for a deliberate public deployment")
     ap.add_argument("--conversations", nargs="*", default=[str(p) for p in DEFAULT_FILES])
     args = ap.parse_args(argv)
     convs = [c for f in args.conversations for c in load_conversations(f)]
-    print(f"Serving {len(convs)} conversations on http://127.0.0.1:{args.port}")
-    ThreadingHTTPServer(("127.0.0.1", args.port), make_handler(App(convs))).serve_forever()
+    print(f"Serving {len(convs)} conversations on http://{args.host}:{args.port}")
+    ThreadingHTTPServer((args.host, args.port), make_handler(App(convs))).serve_forever()
 
 
 if __name__ == "__main__":

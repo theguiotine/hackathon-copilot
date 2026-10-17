@@ -140,6 +140,17 @@ class Hardening(unittest.TestCase):
         self.assertNotIn("Access-Control-Allow-Origin", h)
         self.assertNotEqual(h.get("Access-Control-Allow-Origin"), "*")
 
+    def test_allowed_hosts_env_is_opt_in(self):
+        from src.api import host_ok
+        self.assertFalse(host_ok("copilot.example.com"))
+        os.environ["COACH_ALLOWED_HOSTS"] = "copilot.example.com"
+        try:
+            self.assertTrue(host_ok("copilot.example.com"))
+            self.assertTrue(host_ok("copilot.example.com:443"))
+            self.assertFalse(host_ok("evil.example"))
+        finally:
+            del os.environ["COACH_ALLOWED_HOSTS"]
+
     def test_extra_origin_via_env(self):
         os.environ["COACH_UI_ORIGINS"] = "http://127.0.0.1:3001"
         try:

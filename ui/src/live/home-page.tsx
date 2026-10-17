@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 // Welcome page (hand-written): what this tool is, and three obvious first steps. Judges land here cold.
 
 const STEPS = [
@@ -25,11 +26,11 @@ export default function HomePage() {
       <ol className="grid gap-4 md:grid-cols-3">
         {STEPS.map((s, i) => (
           <li key={s.href}>
-            <a href={s.href} className="flex h-full flex-col gap-2 rounded-lg border border-border bg-background p-4 hover:bg-muted focus-visible:outline focus-visible:outline-2">
+            <Link to={s.href} className="flex h-full flex-col gap-2 rounded-lg border border-border bg-background p-4 hover:bg-muted focus-visible:outline focus-visible:outline-2">
               <span className="type-meta text-text-muted">Step {i + 1}</span>
               <span className="text-lg font-semibold">{s.title}</span>
               <span className="text-sm text-text-muted">{s.text}</span>
-            </a>
+            </Link>
           </li>
         ))}
       </ol>
