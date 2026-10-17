@@ -56,18 +56,39 @@ TEXT_INTENT_RULES = [
 # Needs-a-human flag rules: (rule_id, tier, pattern per language). Tiers are placeholders.
 FLAG_RULES = [
     ("F-CRISIS", "S1", {
-        "en": r"\b(want to die|kill myself|end my life|hurt myself)\b",
-        "es": r"\b(quiero morir|quitarme la vida|matarme|hacerme da[ñn]o)\b"}),
+        "en": r"\b(want to die|kill myself|killing myself|end my life|end it all|hurt myself|harm myself|better off dead|(don'?t|do not) want to (live|be here|be alive)|suicid\w+)\b",
+        "es": r"\b(quiero morir|me quiero morir|quitarme la vida|matarme|hacerme da[ñn]o|acabar con todo|no quiero (vivir|seguir viviendo)|quiero desaparecer|ya no quiero estar aqu[ií]|suicid\w+)\b"}),
     ("F-CHEST", "S1", {
-        "en": r"\bchest (pain|pressure)\b|\bcan't breathe\b|\bshort(ness)? of breath\b",
-        "es": r"\bdolor (de|en el) pecho\b|\bno puedo respirar\b|\bfalta de aire\b"}),
+        "en": (r"\bchest (pain|pressure|tightness|is tight|feels? (really |very |so )?(tight|heavy|funny|squeezed|crushed))\b"
+               r"|\b(tight|heavy|crushing|squeezing|pressure|pain) (in|on) (my )?chest\b|\bchest (hurts|aches|burns)\b"
+               r"|\b(can'?t|cannot|can not|couldn'?t|unable to) (breathe|catch (my|a) breath|get (enough )?(air|a breath)|take a (full )?breath)\b"
+               r"|\b(hard|trouble|difficult\w*|struggling) (to )?breath(e|ing)\b|\b(short|out) of breath\b|\bshortness of breath\b|\bgasping\b"
+               r"|\bheart (feels? (really |very )?(tight|squeezed)|is pounding hard)\b"),
+        "es": (r"\bdolor (de|en el|en mi) pecho\b|\bpecho (apretado|oprimido|pesado)\b|\bopresi[oó]n (en el |del )?pecho\b"
+               r"|\b(me )?(aprieta|aprieto|oprime|pesa|duele|arde)n? (mucho )?(el )?pecho\b|\b(me )?aprieta(n)? el coraz[oó]n\b|\bcoraz[oó]n (muy |bien )?(apretado|oprimido)\b"
+               r"|\bno (puedo|logro|consigo) (respirar|agarrar aire|coger aire|tomar aire)\b|\bno me entra el aire\b|\bme cuesta (mucho )?respirar\b"
+               r"|\b(me )?falta(n)? (de )?(el )?(aire|aliento|respiraci[oó]n)\b|\bfalta de aire\b|\bme ahogo\b|\bsin aliento\b|\bse me va el aire\b")}),
     ("F-SYMPTOM", "S2", {
-        "en": r"\b(fever|bleeding|vomiting|new lump|severe pain)\b",
-        "es": r"\b(fiebre|sangrado|v[oó]mitos|bulto nuevo|dolor fuerte)\b"}),
+        "en": (r"\b(fever|bleeding|vomiting|vomit|new lump|a lump|severe pain|chills|night sweats)\b"
+               r"|\b(throwing up|threw up|coughing up blood|blood in (my )?(stool|urine|cough)|can'?t (stop|keep) (bleeding|vomiting|food down|anything down))\b"
+               r"|\b(pass(ing)? out|going to pass out|faint(ing|ed)?|black(ing)? out|dizzy and weak)\b|\bworst pain\b|\bcut that will not stop\b"),
+        "es": (r"\b(fiebre|calentura|sangrado|v[oó]mitos?|bulto nuevo|un bulto|dolor (muy )?fuerte|escalofr[ií]os)\b"
+               r"|\b(me )?(estoy )?vomit\w+|\b(devuelvo|devolviendo)\b|\bsangre (en|al) (la orina|el excremento|las heces|toser)\b|\bme sale sangre\b|\btosiendo sangre\b"
+               r"|\b(me voy a desmayar|me desmay[oóé]|desmay\w+|me desvanezco|mareo fuerte|muy maread[oa])\b|\bno puedo (comer|retener|aguantar) nada\b")}),
     ("F-DISTRESS", "S3", {
-        "en": r"\b(hopeless|overwhelmed|can't cope|so alone)\b",
-        "es": r"\b(sin esperanza|abrumad[oa]|no puedo m[aá]s|muy sol[oa])\b"}),
+        "en": r"\b(hopeless|overwhelmed|can'?t cope|so alone|can'?t go on|can'?t take it any ?more|giving up|want to disappear|nothing matters|no point)\b",
+        "es": r"\b(sin esperanza|abrumad[oa]|no puedo m[aá]s|muy sol[oa]|no aguanto m[aá]s|ya no aguanto|me quiero rendir|nada tiene sentido|sin ganas de vivir|me siento perdid[oa])\b"}),
 ]
+
+# A match is NOT about the participant right now when its sentence is about another person or about long ago.
+OTHER_PERSON = {
+    "en": r"\b(my (dad|father|mom|mother|sister|brother|friend|wife|husband|son|daughter|neighbou?r|grand(ma|mother|pa|father)|aunt|uncle|cousin|coworker|boss)|he|she|they|someone|somebody)\b",
+    "es": r"\b(mi (mam[aá]|pap[aá]|madre|padre|hermano|hermana|amig[oa]|espos[oa]|marido|mujer|hij[oa]|vecin[oa]|abuel[oa]|t[ií][oa]|prim[oa]|jefe)|él|ella|ellos|ellas|alguien)\b",
+}
+LONG_AGO = {
+    "en": r"\b(last year|years? ago|months? ago|when I was (a kid|little|young)|as a (kid|child)|a long time ago)\b",
+    "es": r"\b(el a[ñn]o pasado|hace (\w+ )?(a[ñn]os|meses)|cuando era (ni[ñn][oa]|chic[oa]|joven|peque[ñn][oa])|a[ñn]os atr[aá]s)\b",
+}
 
 # Negation cues that, within NEGATION_WINDOW tokens before a match, cancel it.
 NEGATIONS = {

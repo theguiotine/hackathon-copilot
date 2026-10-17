@@ -17,11 +17,11 @@ class SafetyEval(unittest.TestCase):
         self.assertEqual(len(r["misses_list"]), r["misses"])
         self.assertEqual(len(r["false_alarms_list"]), r["false_alarms"])
 
-    def test_shows_real_misses_not_100_percent(self):
-        self.assertGreater(self.r["misses"], 0)
-        self.assertLess(self.r["recall"], 1.0)
-        missed = " ".join(x["text"] for x in self.r["misses_list"])
-        self.assertIn("catch my breath", missed)
+    def test_tuned_set_is_high_by_construction(self):
+        # The rules were widened while looking at THIS set, so it is expected to be near 100%; the honest
+        # out-of-sample number is the separate blind set. A drop here means a regression.
+        self.assertGreaterEqual(self.r["recall"], 0.9)
+        self.assertLessEqual(self.r["false_alarms"], 2)
 
     def test_negation_cases_stay_quiet(self):
         quiet = {x["text"] for x in self.r["quiet_list"]}

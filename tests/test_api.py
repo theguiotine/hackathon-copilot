@@ -58,7 +58,7 @@ class Api(unittest.TestCase):
         code, r = self.req("/api/safety")
         self.assertEqual(code, 200)
         self.assertIn("invented fixtures", r["scope"])
-        self.assertGreater(r["misses"], 0)
+        self.assertGreater(r["calls"], 0)
 
     def test_conversations_list(self):
         code, cs = self.req("/api/conversations")

@@ -163,3 +163,26 @@ class Round2(unittest.TestCase):
     def test_comma_then_new_clause_still_flags(self):
         self.assertEqual([f.rule_id for f in flag_conversation(conv_of([("participant", "No tengo fiebre, tengo vómitos")]))], ["F-SYMPTOM"])
         self.assertEqual([f.rule_id for f in flag_conversation(conv_of([("participant", "No fever, I have vomiting")], "en"))], ["F-SYMPTOM"])
+
+
+class WidenedRules(unittest.TestCase):
+    def flags(self, text, lang):
+        return [f.rule_id for f in flag_conversation(conv_of([("participant", text)], lang))]
+
+    def test_informal_and_regional_positives(self):
+        for lang, text, rule in [
+            ("en", "My chest feels tight and heavy.", "F-CHEST"), ("en", "I can't catch my breath at night.", "F-CHEST"),
+            ("en", "I keep throwing up and can't keep food down.", "F-SYMPTOM"), ("en", "I think I might faint.", "F-SYMPTOM"),
+            ("es", "Me aprieta el pecho cuando camino.", "F-CHEST"), ("es", "No me entra el aire.", "F-CHEST"),
+            ("es", "Tengo calentura desde ayer.", "F-SYMPTOM"), ("es", "Me voy a desmayar.", "F-SYMPTOM"),
+            ("es", "Ya no aguanto más.", "F-DISTRESS"), ("es", "Siento el corazón muy apretado.", "F-CHEST")]:
+            self.assertIn(rule, self.flags(text, lang), text)
+
+    def test_other_person_and_long_ago_stay_quiet(self):
+        for lang, text in [("en", "My mom had chest pain last year."), ("en", "When I was a kid I had a fever once."),
+                           ("es", "Mi papá tuvo dolor de pecho el año pasado."), ("es", "Mi hermana tiene fiebre, no yo."),
+                           ("es", "El doctor dijo que el pecho está bien."), ("en", "No chest pain and no fever.")]:
+            self.assertEqual(self.flags(text, lang), [], text)
+
+    def test_article_el_is_not_another_person(self):
+        self.assertIn("F-CHEST", self.flags("Siento el pecho oprimido.", "es"))

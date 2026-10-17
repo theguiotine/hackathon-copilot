@@ -8,14 +8,16 @@ concrete action (RESPONSE_CUES); unhandled flags (coach_responded False) sort fi
 """
 import re
 
-from ..config import (CLAUSE_BOUNDARY, CLAUSE_STARTERS, FLAG_RULES, NEGATION_WINDOW, NEGATIONS, RESPONSE_CUES,
-                      RESPONSE_LOOKAHEAD)
+from ..config import (CLAUSE_BOUNDARY, CLAUSE_STARTERS, FLAG_RULES, LONG_AGO, NEGATION_WINDOW, NEGATIONS, OTHER_PERSON,
+                      RESPONSE_CUES, RESPONSE_LOOKAHEAD)
 from ..schema import Conversation, Flag
 
 _FLAGS = [(rid, tier, {l: re.compile(p, re.IGNORECASE) for l, p in pats.items()}) for rid, tier, pats in FLAG_RULES]
 _NEG = {l: re.compile(p, re.IGNORECASE) for l, p in NEGATIONS.items()}
 _BOUND = {l: re.compile(p, re.IGNORECASE) for l, p in CLAUSE_BOUNDARY.items()}
 _START = {l: re.compile(p, re.IGNORECASE) for l, p in CLAUSE_STARTERS.items()}
+_OTHER = {l: re.compile(p, re.IGNORECASE) for l, p in OTHER_PERSON.items()}
+_AGO = {l: re.compile(p, re.IGNORECASE) for l, p in LONG_AGO.items()}
 _RESP = {l: re.compile(p, re.IGNORECASE) for l, p in RESPONSE_CUES.items()}
 _TOKEN = re.compile(r"[\w']+", re.UNICODE)
 
@@ -54,6 +56,16 @@ def self_negating(phrase: str, lang: str) -> bool:
     return bool(first) and _NEG[lang].fullmatch(first[0]) is not None
 
 
+def not_about_now(text: str, start: int, lang: str) -> bool:
+    """True if the sentence holding the match is about another person (my dad had...) or about long ago."""
+    left = max(text.rfind(c, 0, start) for c in ".!?;")
+    right = min([i for i in (text.find(c, start) for c in ".!?;") if i != -1] or [len(text)])
+    sentence = text[left + 1:right]
+    clause_start = start - (left + 1)
+    before = sentence[:clause_start]
+    return bool(_OTHER[lang].search(before)) or bool(_AGO[lang].search(sentence))
+
+
 def find_response(conv: Conversation, line_idx: int):
     """Index of the first of the next RESPONSE_LOOKAHEAD coach lines that responds to the flag, or None."""
     seen = 0
@@ -74,7 +86,8 @@ def flag_conversation(conv: Conversation) -> list:
             continue
         for rid, tier, pats in _FLAGS:
             for m in pats[conv.language].finditer(line.text):
-                if self_negating(m.group(0), conv.language) or not is_negated(line.text, m.start(), conv.language):
+                if (self_negating(m.group(0), conv.language) or not is_negated(line.text, m.start(), conv.language)) \
+                        and not not_about_now(line.text, m.start(), conv.language):
                     responded = find_response(conv, line.idx) is not None
                     flags.append(Flag(conv.id, line.idx, tier, rid, line.text, True, responded))
                     break
