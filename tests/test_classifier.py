@@ -121,3 +121,26 @@ class TaggerIntegration(unittest.TestCase):
         from src.flagger.rules import flag_conversation
         flags = flag_conversation(self.conv)
         self.assertEqual([f.rule_id for f in flags], ["F-CHEST"])
+
+
+class Context(unittest.TestCase):
+    def test_context_features_used_only_when_trained_with_context(self):
+        texts = ["mm", "mm", "mm", "mm"] * 3
+        ctx = [("how do you feel", "ok"), ("did you walk", "ok"), ("it sounds like", "yeah"), ("you feel", "yeah")] * 3
+        labels = ["answer_q", "answer_q", "after_refl", "after_refl"] * 3
+        with_ctx = NaiveBayes().fit(texts, labels, ctx)
+        self.assertEqual(with_ctx.predict("mm", ("it sounds like", "yeah")), "after_refl")
+        self.assertEqual(with_ctx.predict("mm", ("how do you feel", "ok")), "answer_q")
+        plain = NaiveBayes().fit(texts, labels)
+        self.assertFalse(plain.use_context)
+        plain.predict("mm", ("anything", "else"))  # context ignored, no error
+        with tempfile.TemporaryDirectory() as d:
+            with_ctx.save(Path(d) / "m.json")
+            self.assertTrue(NaiveBayes.load(Path(d) / "m.json").use_context)
+
+    def test_train_script_context_flag_selftest(self):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.assertEqual(ct.main(["--selftest", "--context"]), 0)
+        self.assertIn("neighbouring-line words", buf.getvalue())
+        self.assertNotIn("Monday", buf.getvalue())

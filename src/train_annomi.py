@@ -20,20 +20,34 @@ from . import eval_annomi as ea
 from .classifier import NaiveBayes, split_sessions
 
 
-def datasets(sessions):
-    """{task: [(session, line_number, text, gold, rules_pred, row)]} for coach moves and client talk."""
-    coach, talk, _ = ea.analyze(sessions)  # (sid, n, rules_pred, gold, row)
+def neighbours(sessions):
+    """{(session, line_number): (previous_text, next_text)} from the transcript order (texts only)."""
     out = {}
-    for name, pairs in (("coach", coach), ("talk", talk)):
-        out[name] = [(sid, n, (row["text"] or "").strip() or "(blank)", gold, pred, row) for sid, n, pred, gold, row in pairs]
+    for sid, rows in sessions.items():
+        for i, r in enumerate(rows):
+            prev = rows[i - 1]["text"] if i > 0 else ""
+            nxt = rows[i + 1]["text"] if i + 1 < len(rows) else ""
+            out[(sid, r["_n"])] = (prev or "", nxt or "")
     return out
 
 
-def evaluate(sessions, out_dir):
+def datasets(sessions):
+    """{task: [(session, line_number, text, gold, rules_pred, row, context)]} for coach moves and client talk."""
+    coach, talk, _ = ea.analyze(sessions)  # (sid, n, rules_pred, gold, row)
+    near = neighbours(sessions)
+    out = {}
+    for name, pairs in (("coach", coach), ("talk", talk)):
+        out[name] = [(sid, n, (row["text"] or "").strip() or "(blank)", gold, pred, row, near[(sid, n)])
+                     for sid, n, pred, gold, row in pairs]
+    return out
+
+
+def evaluate(sessions, out_dir, use_context=False):
     out = ea._safe_out(out_dir)
     train_ids, test_ids = split_sessions(sessions)
     assert not (train_ids & test_ids)
-    lines = [f"Sessions: {len(sessions)} (train {len(train_ids)}, held-out test {len(test_ids)}; split by session id hash, no overlap)", ""]
+    lines = [f"Classifier features: words and bigrams{' + neighbouring-line words (--context)' if use_context else ''}",
+             f"Sessions: {len(sessions)} (train {len(train_ids)}, held-out test {len(test_ids)}; split by session id hash, no overlap)", ""]
     for name, title in (("coach", "COACH MOVES (coarse AnnoMI set)"), ("talk", "CLIENT TALK")):
         rows = datasets(sessions)[name]
         train = [r for r in rows if r[0] in train_ids]
@@ -41,9 +55,10 @@ def evaluate(sessions, out_dir):
         if not train or not test:
             lines += [f"== {title}: not enough labeled lines on both sides of the split ==", ""]
             continue
-        model = NaiveBayes().fit([r[2] for r in train], [r[3] for r in train])
+        model = NaiveBayes().fit([r[2] for r in train], [r[3] for r in train],
+                                 [r[6] for r in train] if use_context else None)
         model.save(out / f"classifier_{name}.json")
-        clf_pairs = [(r[0], r[1], model.predict(r[2]), r[3], r[5]) for r in test]
+        clf_pairs = [(r[0], r[1], model.predict(r[2], r[6]), r[3], r[5]) for r in test]
         rules_pairs = [(r[0], r[1], r[4], r[3], r[5]) for r in test]
         full = [(a, b) for a, b in zip(rules_pairs, clf_pairs)
                 if str(a[4].get("expert_raters", "")).strip().split(".")[0] == ea.EXPERT_FULL]
@@ -99,17 +114,18 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="Train/evaluate the local classifier; aggregates only.")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--csv")
+    ap.add_argument("--context", action="store_true", help="add previous/next line words as features")
     args = ap.parse_args(argv)
     try:
         if args.selftest:
             with tempfile.TemporaryDirectory() as tmp:
                 p = Path(tmp) / "selftest.csv"
                 build_selftest_csv(p)
-                print(evaluate(ea.read_sessions(p), Path(tmp) / "out"))
+                print(evaluate(ea.read_sessions(p), Path(tmp) / "out", args.context))
             return 0
         base = Path(os.environ.get("COACH_DATA_DIR", str(ea.DEFAULT_DIR))).expanduser()
         path = Path(args.csv).expanduser() if args.csv else base / ea.CSV_NAME
-        print(evaluate(ea.read_sessions(path), os.environ.get("COACH_OUT_DIR", str(ea.DEFAULT_OUT))))
+        print(evaluate(ea.read_sessions(path), os.environ.get("COACH_OUT_DIR", str(ea.DEFAULT_OUT)), args.context))
         return 0
     except (ea.AdapterError, ea.SchemaError, ValueError, OSError) as e:
         print(f"error: {e.__class__.__name__}: {e if isinstance(e, ea.AdapterError) else 'no row content shown'}", file=sys.stderr)

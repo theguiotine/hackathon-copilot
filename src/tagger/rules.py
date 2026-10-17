@@ -71,17 +71,19 @@ def tag_conversation(conv: Conversation, models=_UNSET) -> list:
     tags = []
     lang = conv.language
     for line in conv.lines:
+        near = (conv.lines[line.idx - 1].text if line.idx > 0 else "",
+                conv.lines[line.idx + 1].text if line.idx + 1 < len(conv.lines) else "")
         if line.speaker == "coach":
             label = _first(_COACH, line.text, lang)
             if "coach" in models and label not in RULE_KEEPS:
-                tags.append(Tag(conv.id, line.idx, "coach_move", FROM_COARSE[models["coach"].predict(line.text)],
+                tags.append(Tag(conv.id, line.idx, "coach_move", FROM_COARSE[models["coach"].predict(line.text, near)],
                                 "classifier"))
             else:
                 tags.append(Tag(conv.id, line.idx, "coach_move", label or "other", "rule",
                                 f"T-{label}-{lang}" if label else f"T-other-{lang}"))
         else:
             if "talk" in models:
-                tags.append(Tag(conv.id, line.idx, "participant_talk", models["talk"].predict(line.text), "classifier"))
+                tags.append(Tag(conv.id, line.idx, "participant_talk", models["talk"].predict(line.text, near), "classifier"))
             else:
                 label = _first(_PART, line.text, lang)
                 tags.append(Tag(conv.id, line.idx, "participant_talk", label or "neutral", "rule",

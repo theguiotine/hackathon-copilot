@@ -17,10 +17,17 @@ _CUES = [(label, re.compile(p, re.IGNORECASE)) for rules in (COACH_RULES, PARTIC
          for label, pats in rules for p in pats.values()]
 
 
-def features(text: str) -> Counter:
-    """Unigrams, bigrams and two shape markers (question mark, short line) from lowercase text."""
+def features(text: str, context=None) -> Counter:
+    """Unigrams, bigrams and shape markers from lowercase text.
+
+    `context` is an optional (previous_line_text, next_line_text) pair; its words become extra "p:" / "n:"
+    features (a reflection is often followed by "yeah", a question by an answer). Texts only, never labels.
+    """
     toks = _TOKEN.findall(text.lower())
     feats = Counter(toks)
+    if context:
+        for prefix, other in zip(("p:", "n:"), context):
+            feats.update(prefix + t for t in _TOKEN.findall((other or "").lower()))
     feats.update(a + " " + b for a, b in zip(toks, toks[1:]))
     if "?" in text or "¿" in text:
         feats["__question__"] += 1
@@ -52,18 +59,22 @@ def split_sessions(session_ids, test_fraction_denominator=5):
 
 
 class NaiveBayes:
-    def __init__(self, alpha: float = 0.5):
+    def __init__(self, alpha: float = 0.5, use_context: bool = False):
         self.alpha = alpha
+        self.use_context = use_context
         self.labels = []
         self.log_prior = {}
         self.weights = {}     # label -> {feature: log P(feature | label)}
         self.default = {}     # label -> log P(unseen feature | label)
         self.idf = {}
 
-    def fit(self, texts, labels):
+    def fit(self, texts, labels, contexts=None):
         if len(texts) != len(labels) or not texts:
             raise ValueError("need the same non-zero number of texts and labels")
-        docs = [features(t) for t in texts]
+        if contexts is not None and len(contexts) != len(texts):
+            raise ValueError("contexts must match texts")
+        self.use_context = contexts is not None
+        docs = [features(t, contexts[i] if contexts is not None else None) for i, t in enumerate(texts)]
         df = Counter(f for d in docs for f in d)
         n = len(docs)
         self.idf = {f: math.log((1 + n) / (1 + c)) + 1.0 for f, c in df.items()}
@@ -81,8 +92,8 @@ class NaiveBayes:
             self.default[y] = math.log(self.alpha / total)
         return self
 
-    def predict(self, text: str) -> str:
-        feats = features(text)
+    def predict(self, text: str, context=None) -> str:
+        feats = features(text, context if self.use_context else None)
         best, best_score = None, -math.inf
         for y in self.labels:
             w, d = self.weights[y], self.default[y]
@@ -93,12 +104,12 @@ class NaiveBayes:
         return best
 
     def to_dict(self):
-        return {"alpha": self.alpha, "labels": self.labels, "log_prior": self.log_prior,
+        return {"alpha": self.alpha, "use_context": self.use_context, "labels": self.labels, "log_prior": self.log_prior,
                 "weights": self.weights, "default": self.default, "idf": self.idf}
 
     @classmethod
     def from_dict(cls, d):
-        m = cls(d["alpha"])
+        m = cls(d["alpha"], d.get("use_context", False))
         m.labels, m.log_prior, m.weights, m.default, m.idf = d["labels"], d["log_prior"], d["weights"], d["default"], d["idf"]
         return m
 
