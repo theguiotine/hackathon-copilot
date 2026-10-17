@@ -363,7 +363,7 @@ export const routes: AppRoute[] = [
     path: "/live-analyzer",
     handle: { surface: "review-workspace", frame: "desktop" },
     layoutType: "dashboard",
-    name: "Live analyzer",
+    name: "Try a conversation",
     icon: null,
     order: null,
     visibility: null,

@@ -1,4 +1,4 @@
-// Live analyzer (hand-written, not generated): shows OUR engine (src/api.py) on fictional fixtures or on text the
+// Try a conversation (route /live-analyzer; hand-written, not generated): shows OUR engine (src/api.py) on fictional fixtures or on text the
 // user types. Talks to the engine API (same origin when deployed; locally http://127.0.0.1:8000).
 import { useEffect, useState } from 'react';
 import { WAKING_MESSAGE, getJsonRetry } from './api-client';
@@ -87,13 +87,12 @@ export default function LiveAnalyzer() {
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6" data-testid="live-analyzer">
       <header>
         <p className="type-eyebrow uppercase text-text-muted">Hear Me Out</p>
-        <h1 className="type-page-title">Live analyzer</h1>
+        <h1 className="type-page-title">Try a conversation</h1>
         <p className="type-body text-text-muted">
-          Runs the real tagger, needs-a-human flagger and score card on fictional lines. It flags a person and quotes
-          the sentence; it gives no medical advice.
+          Type or paste a coaching conversation. We highlight any sentence a person should see. It gives no medical advice.
         </p>
       </header>
-      <p className="type-body">Type a line in English or Spanish (it starts with a Spanish example) and press <strong>Analyze</strong>, or pick a fictional call below.</p>
+      <p className="type-body">Type a line in English or Spanish (it starts with a Spanish example) and press <strong>Check this conversation</strong>, or pick a fictional call below.</p>
 
       {waiting && <p role="status" className="rounded border border-border bg-muted p-3 text-sm">{WAKING_MESSAGE}</p>}
       {note && <p role="status" className="rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900" data-testid="language-note">{note}</p>}
@@ -123,7 +122,7 @@ export default function LiveAnalyzer() {
             onKeyDown={(e) => { if (e.key === 'Enter') void analyzeTyped(); }}
             placeholder={lang === 'es' ? 'Escribe una línea, p. ej. No puedo respirar bien' : 'Type a line, e.g. I have had chest pain since last night'}
             className="min-w-64 flex-1 rounded border border-border p-1" />
-          <button type="button" onClick={() => void analyzeTyped()} className="rounded bg-primary px-3 py-1 text-primary-foreground">Analyze</button>
+          <button type="button" onClick={() => void analyzeTyped()} className="rounded bg-primary px-3 py-1 text-primary-foreground">Check this conversation</button>
         </div>
       </section>
 
