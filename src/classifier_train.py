@@ -1,0 +1,108 @@
+"""Train and evaluate the local classifier on the AnnoMI CSV; prints ONLY aggregates.
+
+Run locally by the owner (never in an AI tool):
+    python3 -m src.classifier_train             # needs $COACH_DATA_DIR/coaching_sessions_annomi.csv
+    python3 -m src.classifier_train --selftest  # fictional data only
+
+Session-level split (see classifier.split_sessions): no line of a test session is used for training.
+Reports the rules baseline and the classifier on the SAME held-out sessions. Weights go to the output folder
+OUTSIDE the repo (default ~/hackathon-data/out, COACH_OUT_DIR overrides); the repo is refused.
+"""
+import argparse
+import csv
+import os
+import random
+import sys
+import tempfile
+from pathlib import Path
+
+from . import eval_annomi as ea
+from .classifier import NaiveBayes, split_sessions
+
+
+def datasets(sessions):
+    """{task: [(session, line_number, text, gold, rules_pred, row)]} for coach moves and client talk."""
+    coach, talk, _ = ea.analyze(sessions)  # (sid, n, rules_pred, gold, row)
+    out = {}
+    for name, pairs in (("coach", coach), ("talk", talk)):
+        out[name] = [(sid, n, (row["text"] or "").strip() or "(blank)", gold, pred, row) for sid, n, pred, gold, row in pairs]
+    return out
+
+
+def evaluate(sessions, out_dir):
+    out = ea._safe_out(out_dir)
+    train_ids, test_ids = split_sessions(sessions)
+    assert not (train_ids & test_ids)
+    lines = [f"Sessions: {len(sessions)} (train {len(train_ids)}, held-out test {len(test_ids)}; split by session id hash, no overlap)", ""]
+    for name, title in (("coach", "COACH MOVES (coarse AnnoMI set)"), ("talk", "CLIENT TALK")):
+        rows = datasets(sessions)[name]
+        train = [r for r in rows if r[0] in train_ids]
+        test = [r for r in rows if r[0] in test_ids]
+        if not train or not test:
+            lines += [f"== {title}: not enough labeled lines on both sides of the split ==", ""]
+            continue
+        model = NaiveBayes().fit([r[2] for r in train], [r[3] for r in train])
+        model.save(out / f"classifier_{name}.json")
+        clf_pairs = [(r[0], r[1], model.predict(r[2]), r[3], r[5]) for r in test]
+        rules_pairs = [(r[0], r[1], r[4], r[3], r[5]) for r in test]
+        for label, pairs in (("RULES baseline", rules_pairs), ("CLASSIFIER", clf_pairs)):
+            lines += [f"######## {title}: {label} on {len(pairs)} held-out lines ########",
+                      ea.run_eval.format_report(*ea._write_pair(out, f"{name}_test_{label.split()[0].lower()}", pairs)), ""]
+    lines.append(f"Weights saved to {out} (outside the repo; never commit them). Not wired into the pipeline.")
+    return "\n".join(lines)
+
+
+def build_selftest_csv(path, n_sessions=40, seed=3):
+    """Invented, tiny AnnoMI-shaped CSV with enough sessions for a split (fictional lines only)."""
+    rng = random.Random(seed)
+    coach_lines = [
+        ("How have you been feeling about your walks?", "question", "open", ""),
+        ("What helped you get out the door?", "question", "open", ""),
+        ("Did you walk on Monday?", "question", "closed", ""),
+        ("Are you free on Sunday?", "question", "closed", ""),
+        ("It sounds like company matters to you.", "reflection", "", "simple"),
+        ("You feel tired but you still want to try.", "reflection", "", "complex"),
+        ("You should walk every day.", "information-or-advice", "", ""),
+        ("One option is a short walk after dinner.", "information-or-advice", "", ""),
+        ("Okay, thanks for sharing.", "other", "", ""),
+    ]
+    client_lines = [("I want to walk on Sunday.", "change"), ("I will try Tuesday.", "change"),
+                    ("I am too tired, I can't.", "sustain"), ("I have no time this week.", "sustain"),
+                    ("Okay.", "neutral"), ("It was fine.", "neutral")]
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(ea.REQUIRED)
+        for s in range(n_sessions):
+            n = 0
+            for _ in range(4):
+                n += 1
+                t, mv, qt, rt = rng.choice(coach_lines)
+                w.writerow([f"sess{s}", n, "counsellor", t, mv, qt, rt, "", "10", "90"])
+                n += 1
+                t, talk = rng.choice(client_lines)
+                w.writerow([f"sess{s}", n, "client", t, "", "", "", talk, "10", "90"])
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description="Train/evaluate the local classifier; aggregates only.")
+    ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--csv")
+    args = ap.parse_args(argv)
+    try:
+        if args.selftest:
+            with tempfile.TemporaryDirectory() as tmp:
+                p = Path(tmp) / "selftest.csv"
+                build_selftest_csv(p)
+                print(evaluate(ea.read_sessions(p), Path(tmp) / "out"))
+            return 0
+        base = Path(os.environ.get("COACH_DATA_DIR", str(ea.DEFAULT_DIR))).expanduser()
+        path = Path(args.csv).expanduser() if args.csv else base / ea.CSV_NAME
+        print(evaluate(ea.read_sessions(path), os.environ.get("COACH_OUT_DIR", str(ea.DEFAULT_OUT))))
+        return 0
+    except (ea.AdapterError, ea.SchemaError, ValueError, OSError) as e:
+        print(f"error: {e.__class__.__name__}: {e if isinstance(e, ea.AdapterError) else 'no row content shown'}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
