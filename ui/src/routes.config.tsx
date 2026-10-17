@@ -110,6 +110,9 @@ function Guarded_call_queue() {
   return (
     <AuthGuard loadingComponent={<LoadingFallback />} fallback={<Navigate to="/login" replace />}>
       <Suspense fallback={<LoadingFallback />}>
+        <p className="mx-auto max-w-6xl px-6 pt-4 text-sm" data-testid="queue-hint">
+          <strong>Pick a call with a flag, then decide on the flagged line.</strong> Calls with the highest severity are listed first.
+        </p>
         <LazyScreen_call_queue />
       </Suspense>
     </AuthGuard>
