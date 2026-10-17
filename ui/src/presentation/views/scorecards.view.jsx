@@ -14,6 +14,7 @@ import { Check, Minus, ArrowRight } from "lucide-react";
 import { MotionConfig, motion } from "@/vendor/motion";
 import { useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, getPaginationRowModel, flexRender } from "@/vendor/tanstack-react-table";
 import { useTranslation } from "react-i18next";
+import { MIN_LINES_FOR_RATIOS, useUtteranceCount } from "@/live/use-utterances";
 import { useMemo } from "react";
 
 const byDate = (a, b) => (a.createdAt < b.createdAt ? -1 : 1);
@@ -24,6 +25,8 @@ const chartConfig = { score: { label: "Score", color: "var(--chart-1)" } };
 export function ScorecardsView(props) {
   const { Scorecard, ChecklistItem, Coach, CoachingCall, href } = props;
   const { t } = useTranslation();
+  const [lineCountCallId, setLineCountCallId] = useState(undefined);
+  const lineCount = useUtteranceCount(lineCountCallId);
   const { checklistColumns } = useMemo(() => {
     const checklistColumns = [
     {
@@ -38,7 +41,7 @@ export function ScorecardsView(props) {
       cell: ({ row }) => (
         <Badge data-vid="be5bb5dc" variant="outline" className="whitespace-nowrap border-border-strong text-text-body">
           {row.original.observed ? <Check data-vid="3388fd4a" className="size-4" /> : <Minus data-vid="8ca38163" className="size-4" />}
-          {row.original.observed ? "Observed" : "Missing"}
+          {row.original.observed ? "Worked" : "Room to grow"}
         </Badge>
       ),
     },
@@ -108,6 +111,9 @@ export function ScorecardsView(props) {
   const totalW = items.reduce((a, i) => a + (i.weight ?? 0), 0);
   const obsW = items.filter((i) => i.observed).reduce((a, i) => a + (i.weight ?? 0), 0);
   const call = callOf(sc);
+  if (lineCountCallId !== call?.id) setLineCountCallId(call?.id);
+  const enoughLines = lineCount !== null && lineCount >= MIN_LINES_FOR_RATIOS;
+  const NOT_ENOUGH = "not enough lines yet";
   const data = coachCards.map((s) => ({ id: s.id, date: formatDate(s.createdAt), score: s.score }));
   const showLine = coachCards.length >= 6;
 
@@ -133,7 +139,7 @@ export function ScorecardsView(props) {
     { label: t('scorecards.755766f0'), value: `${formatNumber(sc?.score)} / 100`, meta: "Suggested by the formula below" },
     { label: t('scorecards.3224e60b'), value: `${obsW} of ${totalW}`, meta: "Observed weight over total weight" },
     { label: t('scorecards.941ba6dc'), value: `${items.filter((i) => i.observed).length} of ${items.length}`, meta: "Present on this call" },
-    { label: t('scorecards.bbbbed7f'), value: formatPercent(sc?.reflectionRatio), meta: "Reflections among coach moves" },
+    { label: t('scorecards.bbbbed7f'), value: enoughLines ? formatPercent(sc?.reflectionRatio) : NOT_ENOUGH, meta: enoughLines ? "Reflections among coach moves" : `Ratios need about ${MIN_LINES_FOR_RATIOS} lines; this call has ${lineCount ?? "…"}` },
   ];
 
   return (
@@ -217,8 +223,22 @@ export function ScorecardsView(props) {
             <span data-vid="2cecfca4" className="type-eyebrow text-text-muted">{t('scorecards.d00bd4ec')}</span>
             <p data-vid="ffa76edd" className="type-body text-text-body">{sc?.formula}</p>
             <p data-vid="01b19488" className="type-meta text-text-muted tabular-nums">
-              {t('scorecards.52e1ec49')} {obsW} {t('scorecards.28391d3b')} {totalW} ({totalW ? formatPercent(obsW / totalW) : "—"}{t('scorecards.1915447b')} {formatNumber(sc?.score)} {t('scorecards.f0b609f7')}
+              {t('scorecards.52e1ec49')} {obsW} {t('scorecards.28391d3b')} {totalW} ({totalW && enoughLines ? formatPercent(obsW / totalW) : NOT_ENOUGH}{t('scorecards.1915447b')} {formatNumber(sc?.score)} {t('scorecards.f0b609f7')}
             </p>
+          </div>
+          <div data-vid="grp0" className="grid gap-(--component-gap) md:grid-cols-3" data-testid="review-sections">
+            <div className="rounded-card border border-border p-(--card-padding)">
+              <h3 className="type-card-title">What worked</h3>
+              <ul className="type-meta mt-1 list-disc pl-5">{items.filter((i) => i.observed).map((i) => <li key={i.id}>{i.behavior}</li>)}{items.some((i) => i.observed) ? null : <li className="list-none text-text-muted">Nothing noted yet.</li>}</ul>
+            </div>
+            <div className="rounded-card border border-border p-(--card-padding)">
+              <h3 className="type-card-title">Room to grow</h3>
+              <ul className="type-meta mt-1 list-disc pl-5">{items.filter((i) => !i.observed).map((i) => <li key={i.id}>{i.behavior}</li>)}{items.some((i) => !i.observed) ? null : <li className="list-none text-text-muted">Nothing to add.</li>}</ul>
+            </div>
+            <div className="rounded-card border border-border p-(--card-padding)">
+              <h3 className="type-card-title">Moments to revisit</h3>
+              <p className="type-meta mt-1">{(call?.flagCount ?? 0) > 0 ? <a className="underline" href={href("call-review", { id: call.id })}>{call.flagCount} flagged {call.flagCount === 1 ? "moment" : "moments"}, open the call</a> : "No flagged moments on this call."}</p>
+            </div>
           </div>
           {items.length === 0 ? (
             <EmptyState data-vid="3748dede" title={t('scorecards.44da3cc3')} description={t('scorecards.f89dd8a2')} />
