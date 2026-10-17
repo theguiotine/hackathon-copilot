@@ -30,11 +30,25 @@ const GLYPHS = {
   "annotated with a note": MessageSquareText,
 };
 
+// Plain words for the status codes (hand-added): raw codes like COACHES_REVIEW_CALLS_FIRST never reach the screen.
+const PLAIN = {
+  COACHES_REVIEW_CALLS_FIRST: "Waiting for coach review",
+  "Coaches review calls first": "Waiting for coach review",
+  THEN_MANAGERS: "Needs manager follow-up",
+  "then managers": "Needs manager follow-up",
+  COMPLETED_COACHING_CALLS: "Completed",
+  "completed coaching calls": "Completed",
+  CONFIRMED: "Escalated",
+  ANNOTATED_WITH_A_NOTE: "Handled by coach",
+  DISMISSED_AS_FALSE_ALARMS: "Not a real flag",
+};
+
 function lookup(entity, status) {
   const enumName = entity === "HumanReviewFlag" ? "FlagDecisionStatus" : "CallReviewStatus";
-  const mapped = statusMap?.[enumName]?.[status] ?? null;
+  const codeEnum = entity === "HumanReviewFlag" ? "HumanReviewFlagStatus" : "CoachingCallStatus";
+  const mapped = statusMap?.[enumName]?.[status] ?? statusMap?.[codeEnum]?.[status] ?? null;
   const item = schema?.enums?.[enumName]?.find((e) => e.value === status) ?? null;
-  return { mapped, label: item?.label ?? (status == null ? "—" : String(status)) };
+  return { mapped, label: PLAIN[status] ?? item?.label ?? (status == null ? "—" : String(status)) };
 }
 
 export function StatusMark({ entity = "CoachingCall", status, size = "md", glyph = false, className, ...props }) {

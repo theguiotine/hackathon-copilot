@@ -73,7 +73,9 @@ export default function CallReviewPage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-6" data-testid="call-review-page">
       <TopNav current="/call-queue" />
-      <p className="rounded border border-border bg-muted p-3 text-sm"><strong>Step 1:</strong> read the flagged line. <strong>Step 2:</strong> pick a decision.</p>
+      {callFlags.length > 0 && (
+        <p className="rounded border border-border bg-muted p-3 text-sm"><strong>Step 1:</strong> read the flagged line. <strong>Step 2:</strong> pick a decision.</p>
+      )}
       <header>
         <h1 className="type-page-title">{call.title}</h1>
         <p className="type-meta text-text-muted">{call.language === 'ES' ? 'Spanish' : 'English'} · {call.duration} min</p>

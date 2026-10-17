@@ -42,9 +42,9 @@ const tierRank = withWireKeys({ S1: 1, S2: 2, S3: 3 }, "HumanReviewFlag.severity
 
 
 const statuses = [
-  { value: "COMPLETED_COACHING_CALLS", label: "Completed coaching calls" },
-  { value: "COACHES_REVIEW_CALLS_FIRST", label: "Coaches review calls first" },
-  { value: "THEN_MANAGERS", label: "Then managers" },
+  { value: "COMPLETED_COACHING_CALLS", label: "Completed" },
+  { value: "COACHES_REVIEW_CALLS_FIRST", label: "Waiting for coach review" },
+  { value: "THEN_MANAGERS", label: "Needs manager follow-up" },
 ];
 
 const SortHead = ({ header, children, numeric }) => {
