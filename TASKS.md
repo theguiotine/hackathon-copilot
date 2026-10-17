@@ -12,6 +12,6 @@
 | 7 | UI shell: coach view, manager view, eval tab, from CONTRACT.md | Archie | n/a (ui/ export) | ui/ | review | ui/ committed (Archie export, React+Vite, no key values; env var names only); click path not yet verified |
 | 8 | Eval harness script the human runs locally | Devin | devin | eval/ | done | PR #1 merged to main (28fcee6); 18 eval tests OK offline; only eval/ touched, no data, no network |
 | 9 | Wire ui/ to src/, deploy, insurance video | Claude Code | main | all | doing | demo mode works: `cd ui && VITE_DEMO_MEMORY=1 npx vite --port 3000` loads call queue + scorecards on Archie's fictional fixtures, no sign-in; local API src/api.py ready; NOT yet reading src/ engine; deploy not done |
-| 10 | README, limits slide, credits, AI_TOOLS.md, deck | Claude Code | main | README.md, AI_TOOLS.md | todo | repo opens logged out, no data inside |
+| 10 | README, limits slide, credits, AI_TOOLS.md, deck | Claude Code | main | README.md, AI_TOOLS.md | doing | README.md written (what/run/data policy/limits/credits/AI tools); limits slide, deck, public-repo check still open |
 
 Checkpoints: 12:20 gate (rows 1-4 green on fixtures) · 3:00 PM feature freeze · 4:40 PM submit target.
