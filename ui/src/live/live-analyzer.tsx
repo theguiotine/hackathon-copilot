@@ -156,8 +156,8 @@ export default function LiveAnalyzer() {
           <select aria-label="Language" value={lang} onChange={(e) => setLang(e.target.value as 'en' | 'es')} className="rounded border border-border p-1">
             <option value="en">English</option><option value="es">Español</option>
           </select>
-          <select aria-label="Speaker" value={speaker} onChange={(e) => setSpeaker(e.target.value as 'coach' | 'participant')} className="rounded border border-border p-1">
-            <option value="participant">Participant</option><option value="coach">Coach</option>
+          <select aria-label="Who said this line?" title="Who said this line?" value={speaker} onChange={(e) => setSpeaker(e.target.value as 'coach' | 'participant')} className="rounded border border-border p-1">
+            <option value="participant">Patient said it</option><option value="coach">Coach said it</option>
           </select>
           <input aria-label="Line text" value={text} onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') void analyzeTyped(); }}
@@ -196,8 +196,10 @@ export default function LiveAnalyzer() {
           <aside className="flex flex-col gap-4">
             <div>
               <h2 className="type-section-title">How the coach did</h2>
-              {Object.values(analysis.score.counts).every((v) => v.den === 0) ? (
-                <p className="type-meta text-text-muted">Not enough coach lines to score yet. Add a few coach lines (set Speaker to Coach) to see these measures.</p>
+              {!lines.some((l) => l.speaker === 'coach') ? (
+                <p className="type-meta text-text-muted">Coach scorecards need a coach on the call. Open a fictional example above to see a full call.</p>
+              ) : Object.values(analysis.score.counts).every((v) => v.den === 0) ? (
+                <p className="type-meta text-text-muted">Not enough coach lines to score yet. Add a few coach lines (choose "Coach said it") to see these measures.</p>
               ) : (
                 <ul className="type-meta flex flex-col gap-1">
                   {Object.entries(analysis.score.counts).filter(([, v]) => v.den > 0).map(([k, v]) => {

@@ -115,7 +115,7 @@ export function LimitsLine({ className = '' }: { className?: string }) {
   return (
     <p className={`text-sm text-text-muted ${className}`} data-testid="limits-line">
       This tool flags sentences for a human to read today. It does not diagnose, rank patients or replace nurse judgment, it can miss things,
-      and it was tested only on invented text: {d.tuned_cases} tuned cases{blind}{held}.{d.blind_cases === null ? '' : ' Blind figures were measured on the rules as frozen at 1df793c; three small patches were added afterwards (whitespace, full-width text, Spanish crisis and bleeding phrases) and are tested separately.'}
+      and it was tested only on invented text: {d.tuned_cases} tuned cases{blind}{held}.{d.blind_cases === null ? '' : ' Blind figures were measured on the rules as frozen at 1df793c; three small patches were added afterwards (whitespace, full-width text, Spanish crisis and bleeding phrases) and are tested separately. The blind-set figures were measured before the flagger patterns were expanded; they describe the earlier rules.'}
     </p>
   );
 }
