@@ -11,6 +11,7 @@ import { useIdentity } from './presentation/app-context';
 import { RoleLandingRedirect } from './presentation/role-landing';
 import HomePage from './live/home-page';
 import { SafetyQueueView } from './live/safety-queue-view';
+import './live/html-lang';
 import { LoadingFallback } from './components/LoadingFallback';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotFound } from './components/NotFound';
