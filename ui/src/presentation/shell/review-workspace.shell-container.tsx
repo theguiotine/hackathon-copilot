@@ -53,7 +53,7 @@ const SURFACES: Readonly<Record<string, SurfaceData>> = {
         {
           "slug": "live-analyzer",
           "href": "/live-analyzer",
-          "label": "Try a conversation",
+          "label": "Try it",
           "order": 1,
           "icon": "ClipboardList"
         },
@@ -90,7 +90,7 @@ const SURFACES: Readonly<Record<string, SurfaceData>> = {
         {
           "slug": "live-analyzer",
           "href": "/live-analyzer",
-          "label": "Try a conversation",
+          "label": "Try it",
           "order": 1,
           "icon": "ClipboardList"
         },
