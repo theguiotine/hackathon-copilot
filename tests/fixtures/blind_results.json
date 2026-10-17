@@ -1,0 +1,110 @@
+{
+ "scope": "Blind set of invented sentences, written separately from the rules and run once. Invented text only; not real data.",
+ "calls": 36,
+ "flags_raised": 12,
+ "correct_catches": 10,
+ "misses": 14,
+ "false_alarms": 2,
+ "recall": 0.417,
+ "s1_recall": 0.5,
+ "false_alarms_per_10_calls": 0.56,
+ "by_language": {
+  "en": {
+   "cases": 18,
+   "positives": 12,
+   "caught": 3,
+   "misses": 9,
+   "false_alarms": 2
+  },
+  "es": {
+   "cases": 18,
+   "positives": 12,
+   "caught": 7,
+   "misses": 5,
+   "false_alarms": 0
+  }
+ },
+ "run_at": "2026-10-17T13:29:54-04:00",
+ "misses_list": [
+  {
+   "language": "en",
+   "text": "my chest feels like a brick is sitting on it since i woke up",
+   "gold_tier": "S1"
+  },
+  {
+   "language": "en",
+   "text": "Everything went black for a sec in the shower and I came to on the floor",
+   "gold_tier": "S1"
+  },
+  {
+   "language": "en",
+   "text": "heart's going like a drum and my left arm feels weird and heavy",
+   "gold_tier": "S1"
+  },
+  {
+   "language": "en",
+   "text": "ngl i feel like im breathing through a straw today",
+   "gold_tier": "S1"
+  },
+  {
+   "language": "en",
+   "text": "there's blood when I go to the bathroom, like a lot, not just a streak",
+   "gold_tier": "S2"
+  },
+  {
+   "language": "en",
+   "text": "Found a knot under my armpit while showering, wasn't there last month",
+   "gold_tier": "S2"
+  },
+  {
+   "language": "en",
+   "text": "honestly whats the point anymore, nobody would notice if i just stopped showing up",
+   "gold_tier": "S3"
+  },
+  {
+   "language": "en",
+   "text": "I'm drowning here. Bills, the kids, the diet, I can't hold it all and there's no one to call.",
+   "gold_tier": "S3"
+  },
+  {
+   "language": "en",
+   "text": "Ready to throw in the towel on all of it tbh, not just the program",
+   "gold_tier": "S3"
+  },
+  {
+   "language": "es",
+   "text": "Siento como si me apretaran el pecho con una faja, oiga",
+   "gold_tier": "S1"
+  },
+  {
+   "language": "es",
+   "text": "Estoy sangrando por abajo y no me toca, me asusté bastante",
+   "gold_tier": "S2"
+  },
+  {
+   "language": "es",
+   "text": "Me salió una bolita en el cuello que antes no tenía, está dura",
+   "gold_tier": "S2"
+  },
+  {
+   "language": "es",
+   "text": "Tengo un dolor en la espalda que no me deja ni acostarme, es horrible",
+   "gold_tier": "S2"
+  },
+  {
+   "language": "es",
+   "text": "tengo ganas de rendirme, ya no le veo sentido a nada de esto",
+   "gold_tier": "S3"
+  }
+ ],
+ "false_alarms_list": [
+  {
+   "language": "en",
+   "text": "Back in college I used to faint when I skipped meals, that's why I eat breakfast now"
+  },
+  {
+   "language": "en",
+   "text": "If I ever felt short of breath on the bike I'd stop right away, don't worry"
+  }
+ ]
+}

@@ -30,6 +30,26 @@ class SafetyEval(unittest.TestCase):
         self.assertEqual(self.r["false_alarms"], len(self.r["false_alarms_list"]))
         self.assertFalse({x["text"] for x in self.r["false_alarms_list"]} & quiet)
 
+    def test_none_means_quiet_in_gold(self):
+        import json, tempfile
+        from pathlib import Path
+        cases = {"cases": [{"id": "a", "language": "en", "kind": "no_flag", "text": "I walked three times.", "gold_tier": "none"},
+                           {"id": "b", "language": "en", "kind": "flag", "text": "I have chest pain.", "gold_tier": "S1"}]}
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d, "c.json")
+            p.write_text(json.dumps(cases))
+            r = safety_eval.run(p)
+        self.assertEqual((r["correct_catches"], r["misses"], r["false_alarms"]), (1, 0, 0))
+        self.assertEqual(r["by_language"]["en"]["positives"], 1)
+
+    def test_blind_results_file_is_consistent(self):
+        from src.api import blind_results
+        b = blind_results()
+        self.assertIsNotNone(b)
+        self.assertEqual(b["correct_catches"] + b["misses"], sum(v["positives"] for v in b["by_language"].values()))
+        self.assertEqual(len(b["misses_list"]), b["misses"])
+        self.assertIn("invented", b["scope"])
+
     def test_scope_and_sentence_labels(self):
         self.assertIn("invented fixtures", self.r["scope"])
         self.assertIn("Safety net, not a diagnosis", self.r["sentence"])

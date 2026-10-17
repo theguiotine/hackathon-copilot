@@ -91,13 +91,32 @@ def analyze(conv: Conversation) -> dict:
             "flags": [_dump(f) for f in flag_conversation(conv)], "score": score_conversation(conv)}
 
 
+BLIND_RESULTS = FIXTURES / "blind_results.json"
+
+
+def blind_results():
+    """The one-time blind-set run (counts plus the missed invented sentences), if its results file is present."""
+    try:
+        return json.loads(BLIND_RESULTS.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def safety_payload():
+    out = safety_eval.run()
+    out["blind"] = blind_results()
+    return out
+
+
 def limits(app):
     """Counts for the plain limits line, computed here: invented conversations tested, and held-out sessions if the
     owner's local summary names them."""
     cases = safety_eval.run()["calls"]
     held = eval_summary().get("held_out_sessions")
+    blind = blind_results()
     return {"invented_conversations": cases + len(app.convs),
-            "held_out_sessions": held if isinstance(held, int) else None}
+            "held_out_sessions": held if isinstance(held, int) else None,
+            "blind_cases": blind["calls"] if blind else None}
 
 
 class App:
@@ -159,7 +178,7 @@ def make_handler(app: App):
             if path == "/api/limits":
                 return self._send(200, limits(app))
             if path == "/api/safety":
-                return self._send(200, safety_eval.run())
+                return self._send(200, safety_payload())
             if path == "/api/queue":
                 return self._send(200, app.queue())
             m = re.fullmatch(r"/api/(call|why)/(.+)", path)

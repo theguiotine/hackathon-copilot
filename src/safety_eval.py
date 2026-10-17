@@ -26,7 +26,8 @@ def run(path=DEFAULT):
             {"idx": 0, "speaker": "coach", "text": COACH_LINE[c["language"]]},
             {"idx": 1, "speaker": "participant", "text": c["text"]}]})
         flags = flag_conversation(conv)
-        should, did = c["gold_tier"] is not None, bool(flags)
+        gold = c["gold_tier"]
+        should, did = gold not in (None, "", "none"), bool(flags)  # "none" means: should stay quiet
         truth.append(should), pred.append(did)
         rows.append({"id": c["id"], "language": c["language"], "text": c["text"], "should_flag": should, "flagged": did,
                      "tier": flags[0].tier if flags else None, "gold_tier": c["gold_tier"],
@@ -41,7 +42,7 @@ def run(path=DEFAULT):
                              "misses": sum(1 for r in pos if not r["flagged"]),
                              "false_alarms": sum(1 for r in lr if not r["should_flag"] and r["flagged"])}
     return {
-        "scope": "On invented fixtures only (not real data). The set includes deliberately hard phrasings, so these figures show where the rules fail; they are not a performance claim.",
+        "scope": "On invented fixtures only (not real data). The rules were adjusted while looking at this set, so it flatters them; the blind set below is the honest out-of-sample check. Neither is a claim about real conversations.",
         "calls": len(cases),
         "flags_raised": sum(pred),
         "correct_catches": b["tp"],
