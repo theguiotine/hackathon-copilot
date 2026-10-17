@@ -42,7 +42,7 @@ export function CallReviewView(props) {
   const { CoachingCall, CallLine, HumanReviewFlag, Coach, Participant, href } = props;
   const { t } = useTranslation();
   const qid = (props.query["id"] ?? null);
-  const call = CoachingCall.find((c) => c.id === qid) ?? null;
+  const call = CoachingCall.find((c) => c.id === qid) ?? (qid ? null : CoachingCall[0] ?? null);
   const [sel, setSel] = useState(null);
   const [pending, setPending] = useState(null);
   const [note, setNote] = useState("");
