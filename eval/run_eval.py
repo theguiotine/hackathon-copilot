@@ -33,7 +33,10 @@ def read_rows(path, use_kind=False):
         for row in reader:
             key = (row["call_id"].strip(), row["line_number"].strip())
             if use_kind:
-                key += ((row["kind"] or "").strip(),)
+                kind = (row["kind"] or "").strip()
+                if not kind:
+                    raise ValueError("%s has a blank kind for %s line %s" % (path, *key))
+                key += (kind,)
             if key in rows:
                 raise ValueError("%s has duplicate row for %s" % (path, " / ".join(key)))
             rows[key] = row
@@ -57,7 +60,11 @@ def join(preds, labels):
 
 
 def format_report(pred_path, label_path):
-    use_kind = "kind" in read_header(pred_path) and "kind" in read_header(label_path)
+    pred_kind = "kind" in read_header(pred_path)
+    label_kind = "kind" in read_header(label_path)
+    if pred_kind != label_kind:
+        raise ValueError("kind column must be in both files or neither")
+    use_kind = pred_kind
     preds, pred_nh = read_rows(pred_path, use_kind)
     labels, label_nh = read_rows(label_path, use_kind)
     keys, only_labels, only_preds = join(preds, labels)

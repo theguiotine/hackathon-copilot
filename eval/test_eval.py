@@ -176,6 +176,23 @@ class TestMockAndCli(unittest.TestCase):
             out = run_eval.format_report(pp, lp)
         self.assertIn("Matched rows: 2", out)
 
+    def test_cli_kind_in_one_file_only_rejected(self):
+        with tempfile.TemporaryDirectory() as d:
+            lp = self._write(d, "l.csv", "call_id,line_number,language,kind,label\nc1,4,en,move,affirm\n")
+            pp = self._write(d, "p.csv", "call_id,line_number,language,label\nc1,4,en,affirm\n")
+            with self.assertRaises(ValueError):
+                run_eval.format_report(pp, lp)
+
+    def test_cli_blank_kind_rejected(self):
+        header = "call_id,line_number,language,label,kind\n"
+        with tempfile.TemporaryDirectory() as d:
+            ok = self._write(d, "ok.csv", header + "c1,4,en,affirm,move\n")
+            blank = self._write(d, "blank.csv", header + "c1,4,en,affirm,\n")
+            short = self._write(d, "short.csv", header + "c1,4,en,affirm\n")
+            for bad in (blank, short):
+                with self.assertRaises(ValueError):
+                    run_eval.format_report(ok, bad)
+
     def test_cli_duplicate_without_kind_rejected(self):
         header = "call_id,line_number,language,label\n"
         with tempfile.TemporaryDirectory() as d:
