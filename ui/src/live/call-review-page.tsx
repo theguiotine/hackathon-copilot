@@ -8,6 +8,7 @@ import type { CoachingCall } from '../domain/entities/coachingCall';
 import type { HumanReviewFlag } from '../domain/entities/humanReviewFlag';
 import { useRepositories } from '../presentation/app-context';
 import { LimitsLine } from './safety-net';
+import { buildHandoff, reasonOf } from './handoff';
 import { FHIR_DEMO_LABEL, buildFhirFlag, decisionLogCsv, downloadText, type FlagForExport } from './fhir';
 
 const CHOICES = [
@@ -41,6 +42,7 @@ export default function CallReviewPage() {
   const [error, setError] = useState<string | null>(null);
   const [highlight, setHighlight] = useState<string | null>(null);
   const [reasonFor, setReasonFor] = useState<string | null>(null);
+  const [handoff, setHandoff] = useState<{ id: string; text: string; copied: boolean } | null>(null);
 
   const load = useCallback(async () => {
     const [c, l, f] = await Promise.all([repos.coachingCall.listAll(), repos.callLine.listAll(), repos.humanReviewFlag.listAll()]);
@@ -83,6 +85,25 @@ export default function CallReviewPage() {
     setMessage(`Saved: "${choice.label}" for line ${n}.`);
     setReasonFor(choice.decision === 'CONFIRMED' ? null : flag.id);
     await load();
+  }
+
+
+  async function copyHandoff(f: HumanReviewFlag, choice: (typeof CHOICES)[number]) {
+    const line = lineById.get(f.lineId);
+    const after = callLines.filter((l) => (line ? l.lineNumber > line.lineNumber : false)).slice(0, 3).find((l) => l.speaker === 'COACH');
+    const replied = !/No coach reply/i.test(f.reason);
+    const text = buildHandoff({ severity: f.severity, quote: line?.text ?? '', coachReply: replied && after ? after.text : null,
+      decision: choice.decision, decisionLabel: choice.label, reason: reasonOf(f.decisionNote) });
+    let copied = false;
+    try { await navigator.clipboard.writeText(text); copied = true; } catch {
+      // Older browsers and embedded panes: select a hidden textarea and use the legacy copy command.
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { copied = document.execCommand('copy'); } catch { copied = false; }
+      document.body.removeChild(ta);
+    }
+    setHandoff({ id: f.id, text, copied });
   }
 
   async function addReason(flag: HumanReviewFlag, reason: string) {
@@ -179,9 +200,17 @@ export default function CallReviewPage() {
                     </div>
                     {chosen && (
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                        <button type="button" onClick={() => void copyHandoff(f, chosen)}
+                          className="rounded-md border border-border px-3 py-1 hover:bg-muted" data-testid="handoff-copy">Copy hand-off note</button>
                         <button type="button" onClick={() => downloadText(`fhir-flag-${f.id}.json`, JSON.stringify(buildFhirFlag(exportable(f)), null, 2), 'application/fhir+json')}
                           className="rounded-md border border-border px-3 py-1 hover:bg-muted" data-testid="fhir-download">Download as FHIR Flag (JSON)</button>
                         <span className="text-text-muted">{FHIR_DEMO_LABEL}</span>
+                      </div>
+                    )}
+                    {handoff?.id === f.id && (
+                      <div className="mt-2 text-sm" data-testid="handoff-preview">
+                        <p role="status" className="font-medium">{handoff.copied ? 'Copied' : 'Could not copy automatically; select the text below.'}</p>
+                        <pre className="mt-1 max-w-full overflow-x-auto whitespace-pre-wrap rounded border border-border bg-muted p-2 text-xs">{handoff.text}</pre>
                       </div>
                     )}
                     {reasonFor === f.id && chosen && chosen.decision !== 'CONFIRMED' && (
