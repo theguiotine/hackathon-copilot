@@ -32,6 +32,7 @@ export default function LiveAnalyzer() {
   const [note, setNote] = useState<string | null>(null);
   const [speaker, setSpeaker] = useState<'coach' | 'participant'>('participant');
   const [text, setText] = useState('No puedo respirar');
+  const [ruleCount, setRuleCount] = useState<number | null>(null);
 
   // ?sample=es-chest runs the Spanish chest-pain example straight away; otherwise the box is pre-filled and waits
   // for the Analyze button.
@@ -42,6 +43,10 @@ export default function LiveAnalyzer() {
         .then((a) => { setLines(sample as Line[]); setAnalysis(a); })
         .catch(() => setError('The server did not answer. Reload this page in a minute.'));
     }
+  }, []);
+
+  useEffect(() => {
+    getJsonRetry<{ flag_rules?: number }>('/api/limits').then((l) => setRuleCount(l.flag_rules ?? null)).catch(() => setRuleCount(null));
   }, []);
 
   useEffect(() => {
@@ -125,6 +130,12 @@ export default function LiveAnalyzer() {
           <button type="button" onClick={() => void analyzeTyped()} className="rounded bg-primary px-3 py-1 text-primary-foreground">Check this conversation</button>
         </div>
       </section>
+
+      {analysis && analysis.flags.length === 0 && lines.length > 0 && (
+        <p role="status" className="rounded border border-border bg-muted p-3 text-sm" data-testid="no-flag-found">
+          <strong>No flag found.</strong> {ruleCount !== null ? `Rules checked: ${ruleCount}. ` : ''}This is not a medical clearance.
+        </p>
+      )}
 
       {analysis && (
         <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">

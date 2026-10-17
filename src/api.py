@@ -11,6 +11,7 @@ import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+from .config import FLAG_RULES
 from .flagger.rules import flag_conversation
 from .loader import load_conversations
 from .schema import Conversation, SchemaError
@@ -123,7 +124,8 @@ def limits(app):
     return {"tuned_cases": cases, "demo_conversations": len(app.convs),
             "invented_conversations": cases + len(app.convs),
             "held_out_sessions": held if isinstance(held, int) else None,
-            "blind_cases": blind["calls"] if blind else None}
+            "blind_cases": blind["calls"] if blind else None,
+            "flag_rules": len(FLAG_RULES)}
 
 
 class App:
