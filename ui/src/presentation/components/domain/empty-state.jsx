@@ -39,6 +39,15 @@ export function EmptyState({
           </EmptyDescription>
         ) : null}
       </EmptyHeader>
+      {!action ? (
+        <EmptyContent data-vid="cbf34dd0">
+          {/* Hand-added: an empty screen is never a dead end; point to the two places that always have something. */}
+          <div className="flex flex-wrap justify-center gap-2">
+            <a href="/call-queue" className="rounded-md border border-border bg-background px-3 py-2 text-sm font-medium hover:bg-muted">Open the safety queue</a>
+            <a href="/live-analyzer" className="rounded-md border border-border bg-background px-3 py-2 text-sm font-medium hover:bg-muted">Try a sample call</a>
+          </div>
+        </EmptyContent>
+      ) : null}
       {action ? (
         <EmptyContent data-vid="cbf34dcd">
           <Button data-vid="e624045f" type="button" variant="outline" onClick={action.onClick}>

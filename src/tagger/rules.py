@@ -1,7 +1,7 @@
 """Rule tagger EN+ES. One coach_move per coach line (first matching rule, else "other"),
 one participant_talk per participant line (default "neutral"), plus text_intent on text-channel lines.
 
-Optional classifier layer: if trained weights exist (directory in $COACH_CLASSIFIER_DIR, files
+Optional classifier layer (English conversations only): if trained weights exist (directory in $COACH_CLASSIFIER_DIR, files
 classifier_coach.json / classifier_talk.json) it labels coach moves and client talk, with method "classifier".
 Rules still win for the specific moves a coarse classifier cannot see (RULE_KEEPS), and with no weights the
 tagger is exactly the rule tagger. The needs-a-human flagger never uses the classifier.
@@ -67,7 +67,8 @@ def _first(rules, text, lang):
 def tag_conversation(conv: Conversation, models=_UNSET) -> list:
     if models is _UNSET:
         models = load_models()
-    models = models or {}
+    # The classifier was trained on English (AnnoMI); on any other language the rules are the better tool.
+    models = (models or {}) if conv.language == "en" else {}
     tags = []
     lang = conv.language
     for line in conv.lines:

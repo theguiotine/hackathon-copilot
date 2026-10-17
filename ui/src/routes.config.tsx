@@ -9,6 +9,7 @@ import { AuthGuard } from './app/auth-guard';
 import { Navigate } from 'react-router';
 import { useIdentity } from './presentation/app-context';
 import { RoleLandingRedirect } from './presentation/role-landing';
+import HomePage from './live/home-page';
 import { LoadingFallback } from './components/LoadingFallback';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotFound } from './components/NotFound';
@@ -34,7 +35,8 @@ export const defaultRoute = "call-review";
 
 /** Ruta índice: '/' redirige a la defaultRoute — la raíz NUNCA renderiza un outlet vacío. */
 function RootRedirect() {
-  return <RoleLandingRedirect />;
+  // The root is a welcome page with three obvious first steps, not a redirect into an empty review screen.
+  return <HomePage />;
 }
 
 const LazyScreen_live_analyzer = lazy(() => import('./live/live-analyzer'));

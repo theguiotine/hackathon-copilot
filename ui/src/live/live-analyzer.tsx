@@ -1,6 +1,7 @@
 // Live analyzer (hand-written, not generated): shows OUR engine (src/api.py) on fictional fixtures or on text the
 // user types. Needs the local API: `python3 -m src.api` (default http://127.0.0.1:8000, override VITE_ENGINE_URL).
 import { useEffect, useState } from 'react';
+import { TopNav } from './top-nav';
 
 const BASE = (import.meta.env.VITE_ENGINE_URL as string | undefined) ?? 'http://127.0.0.1:8000';
 
@@ -39,7 +40,18 @@ export default function LiveAnalyzer() {
   const [error, setError] = useState<string | null>(null);
   const [lang, setLang] = useState<'en' | 'es'>('es');
   const [speaker, setSpeaker] = useState<'coach' | 'participant'>('participant');
-  const [text, setText] = useState('');
+  const [text, setText] = useState('No puedo respirar');
+
+  // ?sample=es-chest runs the Spanish chest-pain example straight away; otherwise the box is pre-filled and waits
+  // for the Analyze button.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('sample') === 'es-chest') {
+      const sample = [{ idx: 0, speaker: 'coach', text: '¿Cómo te sientes hoy?' }, { idx: 1, speaker: 'participant', text: 'No puedo respirar bien y tengo dolor de pecho.' }];
+      getJson<Analysis>('/api/analyze', { id: 'sample', channel: 'text', language: 'es', lines: sample })
+        .then((a) => { setLines(sample as Line[]); setAnalysis(a); })
+        .catch((e: Error) => setError(`Engine not reachable at ${BASE}: ${e.message}. Start it with: python3 -m src.api`));
+    }
+  }, []);
 
   useEffect(() => {
     getJson<Meta[]>('/api/conversations').then(setMetas).catch((e: Error) =>
@@ -80,6 +92,9 @@ export default function LiveAnalyzer() {
         </p>
       </header>
 
+      <TopNav current="/live-analyzer" />
+      <p className="type-body">Type a line (it starts with a Spanish example) and press <strong>Analyze</strong>, or pick a fictional call below.</p>
+
       {error && <p role="alert" className="rounded border border-red-300 bg-red-50 p-3 text-red-900">{error}</p>}
 
       <section className="flex flex-wrap items-center gap-2">
@@ -106,7 +121,7 @@ export default function LiveAnalyzer() {
             onKeyDown={(e) => { if (e.key === 'Enter') void analyzeTyped(); }}
             placeholder={lang === 'es' ? 'Escribe una línea, p. ej. No puedo respirar bien' : 'Type a line, e.g. I have had chest pain since last night'}
             className="min-w-64 flex-1 rounded border border-border p-1" />
-          <button type="button" onClick={() => void analyzeTyped()} className="rounded bg-primary px-3 py-1 text-primary-foreground">Add line and analyze</button>
+          <button type="button" onClick={() => void analyzeTyped()} className="rounded bg-primary px-3 py-1 text-primary-foreground">Analyze</button>
         </div>
       </section>
 

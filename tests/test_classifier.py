@@ -175,3 +175,16 @@ class OutputSymlinks(unittest.TestCase):
             link.symlink_to(ea.REPO)
             with self.assertRaises(ea.AdapterError):
                 ea._safe_out(link)
+
+
+class LanguageGate(unittest.TestCase):
+    def test_classifier_not_used_on_spanish(self):
+        from src.schema import Conversation
+        from src.tagger.rules import tag_conversation
+        conv = Conversation.from_dict({"id": "es", "channel": "call", "language": "es", "lines": [
+            {"idx": 0, "speaker": "coach", "text": "¿Cómo te sientes hoy?"},
+            {"idx": 1, "speaker": "participant", "text": "Bien."}]})
+        m = NaiveBayes().fit(["how are you", "did you walk"] * 3, ["question_closed", "question_closed"] * 3)
+        tags = tag_conversation(conv, models={"coach": m, "talk": m})
+        self.assertTrue(all(t.method == "rule" for t in tags))
+        self.assertEqual(tags[0].label, "open_question")
