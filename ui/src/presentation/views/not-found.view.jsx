@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export default function Screen() {
   const _title = "Page not found";
   const _generate = "Generate Page not found";
-  const _eyebrow = "Coach's Copilot";
+  const _eyebrow = "Hear Me Out";
   const _purpose = "Tell the visitor the page they asked for does not exist and give them a way back.";
   const _j0 = "return to the home page or the main place the app starts";
   return (

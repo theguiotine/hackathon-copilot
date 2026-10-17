@@ -57,7 +57,7 @@ export default function EvaluationPage() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 p-6" data-testid="evaluation-page">
       <header>
-        <p className="type-eyebrow uppercase text-text-muted">Coach's Copilot</p>
+        <p className="type-eyebrow uppercase text-text-muted">Hear Me Out</p>
         <h1 className="type-page-title">Evaluation</h1>
       </header>
       <LimitsLine />

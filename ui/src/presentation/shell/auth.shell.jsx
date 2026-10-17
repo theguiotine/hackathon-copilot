@@ -2,7 +2,7 @@
 import { useTranslation } from "react-i18next";
 // @ts-check
 // archie-template-shell v1: written by src/steps/06b-skeleton.ts for a surface with no bespoke screen (no LLM); rewritten every run.
-const BRAND = "Coach's Copilot";
+const BRAND = "Hear Me Out";
 
 /** @param {import("@/application/view-models/shell.vm").ShellProps} props */
 export function AuthShell({ vm, children }) {

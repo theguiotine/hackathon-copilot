@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 export default function Screen() {
   const _title = "Task";
   const _generate = "Generate Task";
-  const _eyebrow = "Coach's Copilot";
-  const _purpose = "Let a coach or manager open a single review task in Coach's Copilot, see its full context and where it sits in the review ladder, and act on the call or flag it covers.";
+  const _eyebrow = "Hear Me Out";
+  const _purpose = "Let a coach or manager open a single review task in Hear Me Out, see its full context and where it sits in the review ladder, and act on the call or flag it covers.";
   const _j0 = "take the primary review action on the task (confirm a flagged line or finish call review) or its send-back secondary";
   const _j1 = "hand the call review to another coach or manager";
   const _j2 = "confirm or dismiss a flag decision as a false alarm, with an optional note";

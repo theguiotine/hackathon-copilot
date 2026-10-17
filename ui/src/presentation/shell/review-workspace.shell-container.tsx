@@ -21,7 +21,7 @@ interface SurfaceData {
 }
 
 const BRAND: ShellViewModel['brand'] = {
-  "name": "Coach's Copilot"
+  "name": "Hear Me Out"
 };
 const GATING = true;
 const ROLES: ShellViewModel['roles'] = [
@@ -153,7 +153,7 @@ const SURFACES: Readonly<Record<string, SurfaceData>> = {
         "records": [],
         "create": [],
         "about": {
-          "name": "Coach's Copilot",
+          "name": "Hear Me Out",
           "description": "Coach’s Copilot is a responsive web app that helps health coaches and managers review completed motivational-interviewing calls and support consistent coaching quality. Coaches work through a call queue, inspect speaker-by-speaker transcripts tagged for open questions, reflections, affirmations, and advice, and examine S1–S3 “needs a human” flags with explanations. Coaches review calls first, then managers; flag decisions can be confirmed, dismissed as false alarms, or annotated with a note. The manager view summarizes coach counts and transparent scorecards with behavioral checklists, while an evaluation tab displays placeholder tagger and flagger accuracy. The app works in English and Spanish and uses only fictional mock coaches, participants, and transcripts."
         },
         "profile": {
@@ -177,7 +177,7 @@ const SURFACES: Readonly<Record<string, SurfaceData>> = {
         "records": [],
         "create": [],
         "about": {
-          "name": "Coach's Copilot",
+          "name": "Hear Me Out",
           "description": "Coach’s Copilot is a responsive web app that helps health coaches and managers review completed motivational-interviewing calls and support consistent coaching quality. Coaches work through a call queue, inspect speaker-by-speaker transcripts tagged for open questions, reflections, affirmations, and advice, and examine S1–S3 “needs a human” flags with explanations. Coaches review calls first, then managers; flag decisions can be confirmed, dismissed as false alarms, or annotated with a note. The manager view summarizes coach counts and transparent scorecards with behavioral checklists, while an evaluation tab displays placeholder tagger and flagger accuracy. The app works in English and Spanish and uses only fictional mock coaches, participants, and transcripts."
         },
         "profile": {

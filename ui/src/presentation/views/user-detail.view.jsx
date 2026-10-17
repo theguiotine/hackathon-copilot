@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 export default function Screen() {
   const _title = "Member";
   const _generate = "Generate Member";
-  const _eyebrow = "Coach's Copilot";
-  const _purpose = "Review and manage a single coach or manager's account in Coach's Copilot, including their role, access, and security state, so oversight stays transparent and accountable.";
+  const _eyebrow = "Hear Me Out";
+  const _purpose = "Review and manage a single coach or manager's account in Hear Me Out, including their role, access, and security state, so oversight stays transparent and accountable.";
   const _j0 = "edit a team member's name, contact details and profile, and check when the record last changed";
   const _j1 = "change this member's role between coach and manager, after confirming the effect on what they can review";
   const _j2 = "send this member a password reset email so they can regain access to their coaching account";

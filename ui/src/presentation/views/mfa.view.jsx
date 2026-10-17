@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 export default function Screen() {
   const _title = "Two-factor";
   const _generate = "Generate Two-factor";
-  const _eyebrow = "Coach's Copilot";
+  const _eyebrow = "Hear Me Out";
   const _purpose = "Confirm the coach's identity with a one-time code so they can securely reach their call reviews and flagged transcript lines.";
-  const _j0 = "enter the six-digit code sent to your email to finish signing in to Coach's Copilot";
+  const _j0 = "enter the six-digit code sent to your email to finish signing in to Hear Me Out";
   const _j1 = "request a new verification code if the first one did not arrive or has expired";
   const _j2 = "switch to a backup verification method when the coach cannot access their usual device";
   return (

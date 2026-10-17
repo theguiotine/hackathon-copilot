@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export default function Screen() {
   const _title = "Help";
   const _generate = "Generate Help";
-  const _eyebrow = "Coach's Copilot";
+  const _eyebrow = "Hear Me Out";
   const _purpose = "Help a visitor or user find an answer or reach someone who can give one.";
   const _j0 = "find an answer to a common question";
   const _j1 = "reach support when the answer is not there";

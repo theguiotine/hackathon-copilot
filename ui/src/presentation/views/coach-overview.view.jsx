@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export default function Screen() {
   const _title = "Coach Overview";
   const _generate = "Generate Coach Overview";
-  const _eyebrow = "Coach's Copilot";
+  const _eyebrow = "Hear Me Out";
   const _purpose = "Give a coach a daily at-a-glance view of their own coaching calls and review workload, so they know what needs their review first and where to begin.";
   const _j0 = "See how many of my completed calls still await my review, and how many have been reviewed, to plan my day";
   const _j1 = "Jump into the next call that needs my review";

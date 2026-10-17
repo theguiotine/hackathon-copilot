@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 export default function Screen() {
   const _title = "Users";
   const _generate = "Generate Users";
-  const _eyebrow = "Coach's Copilot";
-  const _purpose = "Manage who can access Coach's Copilot, their roles, and any pending invitations, so that only the right coaches and managers can review calls and see scorecards.";
+  const _eyebrow = "Hear Me Out";
+  const _purpose = "Manage who can access Hear Me Out, their roles, and any pending invitations, so that only the right coaches and managers can review calls and see scorecards.";
   const _j0 = "invite a coach or manager to join the review workspace by email and assign their role";
   const _j1 = "open a coach or manager to check their role, contact details, and review access";
   const _j2 = "resend an invitation to a coach or manager who has not yet accepted it";

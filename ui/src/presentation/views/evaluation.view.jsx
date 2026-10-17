@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export default function Screen() {
   const _title = "Evaluation";
   const _generate = "Generate Evaluation";
-  const _eyebrow = "Coach's Copilot";
+  const _eyebrow = "Hear Me Out";
   const _purpose = "Show, transparently and clearly marked as placeholders, the measured-looking accuracy figures for the system's coach-move tagging and its human-review flagging, so reviewers understand the tool's reliability context without mistaking placeholders for real results.";
   const _j0 = "read the placeholder accuracy figure for coach-move tagging";
   const _j1 = "read the placeholder accuracy figure for identifying lines that need a human";

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export default function Screen() {
   const _title = "My profile";
   const _generate = "Generate My profile";
-  const _eyebrow = "Coach's Copilot";
+  const _eyebrow = "Hear Me Out";
   const _purpose = "Manage the signed-in user's own profile and preferences in one sectioned settings page — Profile, Security, Appearance, and Activity.";
   const _j0 = "view and edit my profile";
   const _j1 = "manage how I sign in and protect my account";

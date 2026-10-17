@@ -14,10 +14,11 @@ export default function HomePage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-6" data-testid="home-page">
       <header className="flex flex-col gap-2">
-        <p className="type-eyebrow uppercase text-text-muted">Coach's Copilot</p>
+        <p className="type-eyebrow uppercase text-text-muted">Hear Me Out</p>
         <h1 className="type-page-title">Never miss the sentence a person needs to see</h1>
+        <p className="type-body font-medium">A second listener for health-coaching calls (eMerge Challenge 5, Coach's Copilot)</p>
         <p className="type-body max-w-2xl text-text-muted">
-          Coaches talk with cancer survivors every day, in English and Spanish. Coach's Copilot reads those
+          Coaches talk with cancer survivors every day, in English and Spanish. Hear Me Out reads those
           conversations, tags what the coach is doing, scores the call against motivational-interviewing practice, and
           flags anything a person should follow up on today by quoting the exact sentence. It gives no diagnosis and no
           medical advice.

@@ -22,7 +22,7 @@ import { routes } from '@/presentation/navigation';
 export function LoginView(props: AuthViewModel) {
   return (
     <main className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-4">
-      <p className="text-lg font-semibold tracking-tight text-foreground">{"Coach's Copilot"}</p>
+      <p className="text-lg font-semibold tracking-tight text-foreground">{"Hear Me Out"}</p>
       <Card className="w-full max-w-sm" data-archie-auth-template="signIn">
         <CardHeader>
           <CardTitle>{"Sign in"}</CardTitle>

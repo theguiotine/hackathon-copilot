@@ -2,7 +2,7 @@
 
 Written Sat Oct 17, 2026 for the human owner. No data, no code, plain prose. Everything below was built and tested only on invented, fictional lines. Nothing here has been measured against the organizers' real data, so never quote an accuracy number you have not run yourself.
 
-The one-line pitch: Coach's Copilot reads a health-coaching conversation in English or Spanish, tags what the coach is doing, scores the call against motivational-interviewing practice, and flags any sentence a person should see today by quoting it. It does not diagnose and gives no medical advice.
+The one-line pitch: Hear Me Out reads a health-coaching conversation in English or Spanish, tags what the coach is doing, scores the call against motivational-interviewing practice, and flags any sentence a person should see today by quoting it. It does not diagnose and gives no medical advice.
 
 ## 1. Loader and schema check
 

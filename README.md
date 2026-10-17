@@ -1,4 +1,6 @@
-# Coach's Copilot (eMerge AI Hackathon 2026, Healthcare, Challenge 5)
+# Hear Me Out
+
+A second listener for health-coaching calls (eMerge Challenge 5, Coach's Copilot). eMerge AI Hackathon 2026, Healthcare track.
 
 Bilingual (English/Spanish) tool for health-coaching conversations. It tags what the coach is doing, scores the call against motivational-interviewing practice, and flags any sentence a person should see today by quoting it. It gives no diagnosis and no medical advice: it points a human to the sentence and shows why.
 

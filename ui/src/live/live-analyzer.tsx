@@ -83,7 +83,7 @@ export default function LiveAnalyzer() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6" data-testid="live-analyzer">
       <header>
-        <p className="type-eyebrow uppercase text-text-muted">Coach's Copilot</p>
+        <p className="type-eyebrow uppercase text-text-muted">Hear Me Out</p>
         <h1 className="type-page-title">Live analyzer</h1>
         <p className="type-body text-text-muted">
           Runs the real tagger, needs-a-human flagger and score card on fictional lines. It flags a person and quotes

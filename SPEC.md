@@ -1,4 +1,4 @@
-# SPEC: Coach's Copilot (eMerge AI Hackathon 2026, Healthcare, Challenge 5), solo build
+# SPEC: Hear Me Out (eMerge AI Hackathon 2026, Healthcare, Challenge 5), solo build
 
 Status: track locked (Challenge 5), one human owner. Read AGENTS.md, CONTRACT.md and TASKS.md first.
 
