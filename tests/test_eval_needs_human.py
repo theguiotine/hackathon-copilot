@@ -55,7 +55,7 @@ class NeedsHuman(unittest.TestCase):
     def test_coach_lines_are_never_scored(self):
         res, _ = self.results([("c1", 1, "counsellor", "I have chest pain.", "yes", "en"),
                                ("c1", 2, "client", "Fine.", "no", "en")])
-        self.assertEqual([r[1] for r in res], [2])
+        self.assertEqual([r[1] for r in res], ["2"])
 
     def test_unknown_or_blank_labels_are_left_out_and_counted(self):
         res, stats = self.results([("c1", 1, "client", "I have chest pain.", "", "en"),
@@ -108,7 +108,7 @@ class NeedsHuman(unittest.TestCase):
             nh.report([p], repo / "tmp_out_should_not_exist")
         self.assertFalse((repo / "tmp_out_should_not_exist").exists())
         nh.report([p], self.dir / "out")
-        self.assertTrue((self.dir / "out" / "needs_human_file1_predictions.csv").is_file())
+        self.assertTrue((self.dir / "out" / "needs_human_file_1_1_predictions.csv").is_file())
 
     def test_no_out_folder_means_no_files(self):
         p = self.dir / "x.csv"
@@ -125,14 +125,120 @@ class NeedsHuman(unittest.TestCase):
         err = io.StringIO()
         with contextlib.redirect_stderr(err):
             import os
-            saved = {k: os.environ.pop(k, None) for k in (ea.ENV_CSV, nh.ENV_TEXT_CSV)}
+            saved = {k: os.environ.pop(k, None) for k in (ea.ENV_CSV, nh.ENV_CALL_LINES, nh.ENV_CALLS, nh.ENV_TEXTS)}
             try:
                 self.assertEqual(nh.main([]), 1)
             finally:
                 for k, v in saved.items():
                     if v is not None:
                         os.environ[k] = v
-        self.assertIn(ea.ENV_CSV, err.getvalue())
+        self.assertIn(nh.ENV_CALL_LINES, err.getvalue())
+
+
+class SyntheticFiles(unittest.TestCase):
+    """The organizers' synthetic layout (invented here): call lines + calls file for language, and text messages."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.dir = Path(self.tmp.name)
+        nh.build_selftest_synthetic(self.dir)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_language_is_joined_from_the_calls_file_by_call_id(self):
+        langs = nh.read_call_languages(self.dir / "calls.csv")
+        self.assertEqual(langs, {"k1": "en", "k2": "es"})
+        sessions, stats = nh.read_labelled(self.dir / "lines.csv", "en", langs)
+        res = nh.score(sessions)
+        self.assertEqual({(r[0], r[2]) for r in res}, {("k1", "en"), ("k2", "es")})
+        # the Spanish call is only flagged because it was run under Spanish rules
+        spanish = [r for r in res if r[0] == "k2" and r[3]]
+        self.assertEqual([r[4] for r in spanish], ["S1"])
+        self.assertEqual(stats["rows_without_calls_language"], 0)
+
+    def test_call_missing_from_the_calls_file_falls_back_to_lang_and_is_counted(self):
+        sessions, stats = nh.read_labelled(self.dir / "lines.csv", "en", {"k1": "en"})
+        self.assertEqual(stats["rows_without_calls_language"], 3)
+        spanish = [r for r in nh.score(sessions) if r[0] == "k2" and r[3]]
+        self.assertEqual([r[4] for r in spanish], [None])  # run under English rules, so the Spanish line is missed
+
+    def test_calls_file_without_language_column_is_a_clear_error(self):
+        bad = self.dir / "bad_calls.csv"
+        write_csv(bad, ["call_id"], [("k1",)])
+        with self.assertRaises(AdapterError) as cm:
+            nh.read_call_languages(bad)
+        self.assertIn("language", str(cm.exception))
+
+    def test_texts_use_sender_as_speaker_and_message_id_as_key(self):
+        sessions, stats = nh.read_labelled(self.dir / "texts.csv", "en")
+        self.assertEqual(list(sessions), ["p1"])  # grouped per participant_id
+        res = nh.score(sessions)
+        self.assertEqual([r[1] for r in res], ["m002", "m004"])  # only sender == participant, keyed by message_id
+        self.assertEqual({r[2] for r in res}, {"en"})  # --lang default, the file has none
+        self.assertEqual([r[3] for r in res], [True, False])
+        self.assertEqual(stats["unlabelled_participant_lines"], 0)
+
+    def test_automatic_and_coach_senders_are_never_scored_even_if_labelled(self):
+        p = self.dir / "t2.csv"
+        write_csv(p, ["participant_id", "message_id", "sender", "text", "needs_human"],
+                  [("p", "m1", "automatic", "I have chest pain.", "yes"), ("p", "m2", "coach", "I have chest pain.", "yes"),
+                   ("p", "m3", "participant", "Okay.", "no")])
+        sessions, _ = nh.read_labelled(p)
+        self.assertEqual([r[1] for r in nh.score(sessions)], ["m3"])
+
+    def test_texts_lang_flag_changes_the_rules_used(self):
+        p = self.dir / "t3.csv"
+        write_csv(p, ["participant_id", "message_id", "sender", "text", "needs_human"],
+                  [("p", "m1", "participant", "No puedo respirar bien.", "yes")])
+        en = nh.score(nh.read_labelled(p, "en")[0])
+        es = nh.score(nh.read_labelled(p, "es")[0])
+        self.assertEqual((en[0][4], es[0][4]), (None, "S1"))
+
+    def test_unlabelled_text_rows_are_excluded_and_counted(self):
+        p = self.dir / "t4.csv"
+        write_csv(p, ["participant_id", "message_id", "sender", "text", "needs_human"],
+                  [("p", "m1", "participant", "I have chest pain.", ""), ("p", "m2", "participant", "Okay.", "no")])
+        sessions, stats = nh.read_labelled(p)
+        self.assertEqual([r[1] for r in nh.score(sessions)], ["m2"])
+        self.assertEqual(stats["unlabelled_participant_lines"], 1)
+
+    def test_report_for_synthetic_sources_prints_no_text_and_no_paths(self):
+        srcs = [("calls file", "calls", self.dir / "lines.csv", self.dir / "calls.csv"),
+                ("texts file", "texts", self.dir / "texts.csv", None)]
+        out = nh.report(srcs)
+        for forbidden in ("chest pain", "respirar", "Reminder", "lines.csv", "texts.csv", str(self.dir)):
+            self.assertNotIn(forbidden, out)
+        self.assertIn("calls file: language es", out)
+        self.assertIn("texts file: all languages", out)
+        self.assertIn("comes from --lang", out)
+
+    def test_sources_from_flags_requires_the_calls_file_with_call_lines(self):
+        import argparse
+        import os
+        saved = {k: os.environ.pop(k, None) for k in (ea.ENV_CSV, nh.ENV_CALL_LINES, nh.ENV_CALLS, nh.ENV_TEXTS)}
+        try:
+            ns = argparse.Namespace(call_lines=str(self.dir / "lines.csv"), calls=None, texts=None, csv=None)
+            with self.assertRaises(AdapterError):
+                nh.sources_from(ns)
+            ns.calls = str(self.dir / "calls.csv")
+            ns.texts = str(self.dir / "texts.csv")
+            self.assertEqual([s[0] for s in nh.sources_from(ns)], ["calls file", "texts file"])
+            os.environ[nh.ENV_TEXTS] = str(self.dir / "texts.csv")
+            ns2 = argparse.Namespace(call_lines=None, calls=None, texts=None, csv=None)
+            self.assertEqual([s[0] for s in nh.sources_from(ns2)], ["texts file"])
+        finally:
+            os.environ.pop(nh.ENV_TEXTS, None)
+            for k, v in saved.items():
+                if v is not None:
+                    os.environ[k] = v
+
+    def test_selftest_covers_all_three_sources(self):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.assertEqual(nh.main(["--selftest"]), 0)
+        for label in ("calls file", "texts file", "file 1"):
+            self.assertIn(label, buf.getvalue())
 
 
 class CrossValidation(unittest.TestCase):

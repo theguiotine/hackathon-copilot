@@ -25,8 +25,10 @@ Then open http://127.0.0.1:3000/live-analyzer and pick a fictional call or type 
 A person runs these on their own machine; they print aggregates only (never a line of text) and the output folder must be outside the repo. Nothing here calls a network or a model. Run the `--selftest` forms first (fictional data).
 ```bash
 cd ~/hackathon-copilot
-export COACH_ANNOMI_CSV=/path/to/labelled_calls.csv   # a file you hold locally; never inside the repo
-export COACH_TEXT_CSV=/path/to/second_file.csv        # optional second labelled file
+export COACH_ANNOMI_CSV=/path/to/annomi.csv                  # coach-move and client-talk labels (never inside the repo)
+export COACH_CALL_LINES_CSV=/path/to/synthetic_call_transcripts.csv   # synthetic call lines with needs_human
+export COACH_CALLS_CSV=/path/to/synthetic_calls.csv                   # call_id and language, joined onto the lines
+export COACH_TEXTS_CSV=/path/to/synthetic_text_messages.csv           # synthetic text messages with needs_human
 export COACH_OUT_DIR=/path/outside/the/repo           # predictions and weights go here, never committed
 
 python3 -m src.eval_needs_human --selftest            # fictional fixtures
@@ -34,7 +36,7 @@ python3 -m src.eval_needs_human                       # flagger vs the needs_hum
 python3 -m src.train_annomi --selftest --cv           # fictional fixtures
 python3 -m src.train_annomi --cv                      # 5-fold cross-validation of the coach-move and client-talk classifier
 ```
-- `src/eval_needs_human.py` compares "the rule flagger flagged this participant line" with the `needs_human` yes/no column and prints lines, positives, precision, recall, F1, false alarms per 100 lines, and recall counting only S1 flags, split by language when the file has a `language` column. A file with no `needs_human` column is reported as skipped. Expected columns: `session_id` or `call_id`, `line_number`, `speaker`, `text`, `needs_human`, optional `language`.
+- `src/eval_needs_human.py` compares "the rule flagger flagged this participant line" with the `needs_human` yes/no column and prints lines, positives, precision, recall, F1, false alarms per 100 lines, and recall counting only S1 flags, split by language when more than one is present. Sources (use any subset): the call lines file plus the calls file (language is joined from the calls file by `call_id`; the lines file has none), the text messages file (`sender` is the speaker and only `participant` is scored, `message_id` is the line key, messages are grouped per `participant_id`, and language comes from `--lang`, default `en`, because that file has none), and optionally a generic file (`session_id` or `call_id`, `line_number`, `speaker`, `text`, `needs_human`, optional `language`). A file without `needs_human` is reported as skipped; blank labels are left out and counted. It prints sources as "calls file", "texts file", "file 1", never a path.
 - `src/train_annomi.py --cv` splits whole sessions into 5 folds by `sha1(session_id) mod 5`, trains on four, tests on the held-out one, repeats for all five, and prints mean and range of accuracy, macro F1 and kappa (with the rules baseline on the same folds). It saves no weights.
 
 ## Data and privacy (kept OUT of this repo, by the hackathon terms)
