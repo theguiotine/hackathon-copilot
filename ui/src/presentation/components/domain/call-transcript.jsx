@@ -2,6 +2,7 @@
 // @ts-check
 import { useState } from 'react'
 import {
+  MessageScrollerProvider,
   MessageScroller,
   MessageScrollerViewport,
   MessageScrollerContent,
@@ -193,6 +194,8 @@ export function CallTranscript({
 
   return (
     <div data-vid="4fd93f24" data-slot="call-transcript" className={cn('w-full min-w-0', className)} {...props}>
+      {/* Hand-fixed: the primitive Root needs a Provider ancestor or it throws "useMessageScroller must be used within a MessageScroller". */}
+      <MessageScrollerProvider>
       <MessageScroller data-vid="4217e2ca">
         <MessageScrollerViewport data-vid="8b07a40a">
           <MessageScrollerContent data-vid="7645157c" className="flex flex-col gap-(--component-gap)">
@@ -271,6 +274,7 @@ export function CallTranscript({
           </MessageScrollerContent>
         </MessageScrollerViewport>
       </MessageScroller>
+      </MessageScrollerProvider>
     </div>
   )
 }
