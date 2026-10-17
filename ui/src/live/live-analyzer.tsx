@@ -32,6 +32,32 @@ const EXAMPLE_LABELS: Record<string, string> = {
   'fx-es-neg': 'Spanish call: denies chest pain (stays quiet)',
 };
 
+const MOVE_LABELS: Record<string, string> = {
+  open_question: 'Open question', closed_question: 'Closed question', simple_reflection: 'Simple reflection',
+  complex_reflection: 'Deeper reflection', affirm: 'Affirmation', seek_collaboration: 'Seeks collaboration',
+  emphasize_autonomy: 'Respects their choice', ask_permission: 'Asks permission', give_information: 'Gives information',
+  persuade: 'Persuading', confront: 'Confronting', other: 'Other',
+  change: 'Change talk', sustain: 'Sustain talk', neutral: 'Neutral',
+};
+const humanize = (k: string) => MOVE_LABELS[k] ?? k.replace(/_/g, ' ');
+
+const COUNT_LABELS: Record<string, [string, string]> = {
+  open_question_share: ['Open questions', 'of the coach\'s questions invited a longer answer'],
+  reflection_to_question: ['Reflections per question', 'how often the coach reflected back instead of asking'],
+  complex_reflection_share: ['Deeper reflections', 'of the coach\'s reflections added meaning, not just repeated'],
+  mi_consistent_share: ['Moves that support change', 'of the coach\'s moves fit motivational interviewing'],
+  mi_inconsistent: ['Moves that work against change', 'such as persuading or confronting'],
+};
+const CHECK_LABELS: Record<string, string> = {
+  set_agenda: 'Set the agenda for the call', checked_feelings: 'Checked in on feelings', reviewed_last_goal: 'Reviewed the last goal',
+  set_new_goal: 'Set a new goal', planned_for_barriers: 'Planned for barriers', summarized: 'Summarized the call',
+  set_next_contact: 'Set the next contact', safety_issue_handled: 'Coach responded to a safety line',
+};
+const WHY_RULE: Record<string, string> = {
+  'F-CRISIS': 'mentions thoughts of ending their life', 'F-CHEST': 'mentions chest pain or trouble breathing',
+  'F-SYMPTOM': 'mentions a symptom (fever, bleeding, vomiting, a new lump or severe pain)', 'F-DISTRESS': 'sounds overwhelmed, hopeless or alone',
+};
+
 export default function LiveAnalyzer() {
   const [metas, setMetas] = useState<Meta[]>([]);
   const [lines, setLines] = useState<Line[]>([]);
@@ -157,32 +183,43 @@ export default function LiveAnalyzer() {
                   <div className="type-meta flex flex-wrap items-center gap-2">
                     <strong>{l.idx + 1}. {l.speaker}</strong>
                     {tagsFor(l.idx).map((t) => (
-                      <span key={t.kind + t.label} className="rounded bg-muted px-2 py-0.5" title={t.rule_id ?? ''}>{t.label}</span>
+                      <span key={t.kind + t.label} className="rounded bg-muted px-2 py-0.5" title={t.rule_id ?? ''}>{humanize(t.label)}</span>
                     ))}
-                    {f && <span className="rounded border px-2 py-0.5 font-semibold">{f.tier} needs a human · {f.coach_responded ? 'coach responded' : 'unhandled'}</span>}
+                    {f && <span className="rounded border px-2 py-0.5 font-semibold" title={`${f.tier}: ${f.rule_id}`}>{f.tier === 'S1' ? 'Needs a person now' : f.tier === 'S2' ? 'Review today' : 'Check when time allows'} · {f.coach_responded ? 'coach replied' : 'no coach reply yet'}</span>}
                   </div>
                   <p className="mt-1">{l.text}</p>
-                  {f && <p className="type-meta mt-1">Why: rule {f.rule_id} matched, negation checked. Quote: “{f.quote}”</p>}
+                  {f && <p className="type-meta mt-1">Flagged because the participant {WHY_RULE[f.rule_id] ?? 'said something a person should read'}. <span className="text-text-muted">(rule {f.rule_id}, denials checked)</span></p>}
                 </li>
               );
             })}
           </ol>
           <aside className="flex flex-col gap-4">
             <div>
-              <h2 className="type-section-title">Counts (num / den)</h2>
-              <ul className="type-meta">
-                {Object.entries(analysis.score.counts).map(([k, v]) => (
-                  <li key={k}>{k}: {v.num} / {v.den}{v.lines.length ? ` (lines ${v.lines.map((n) => n + 1).join(', ')})` : ''}</li>
-                ))}
-              </ul>
+              <h2 className="type-section-title">How the coach did</h2>
+              {Object.values(analysis.score.counts).every((v) => v.den === 0) ? (
+                <p className="type-meta text-text-muted">Not enough coach lines to score yet. Add a few coach lines (set Speaker to Coach) to see these measures.</p>
+              ) : (
+                <ul className="type-meta flex flex-col gap-1">
+                  {Object.entries(analysis.score.counts).filter(([, v]) => v.den > 0).map(([k, v]) => {
+                    const [name, meaning] = COUNT_LABELS[k] ?? [humanize(k), ''];
+                    return <li key={k}><strong>{name}:</strong> {v.num} of {v.den} <span className="text-text-muted">{meaning}</span></li>;
+                  })}
+                </ul>
+              )}
             </div>
             <div>
-              <h2 className="type-section-title">Checklist</h2>
-              <ul className="type-meta">
+              <h2 className="type-section-title">Call checklist</h2>
+              <ul className="type-meta flex flex-col gap-1">
                 {Object.entries(analysis.score.checklist).map(([k, v]) => (
-                  <li key={k}>{k}: <strong>{v.value}</strong>{v.evidence_lines.length ? ` (lines ${v.evidence_lines.map((n) => n + 1).join(', ')})` : ''}</li>
+                  <li key={k}>
+                    <span aria-hidden="true">{v.value === 'yes' ? '✓' : v.value === 'n/a' ? '–' : '○'}</span>{' '}
+                    {CHECK_LABELS[k] ?? humanize(k)}:{' '}
+                    <strong>{v.value === 'yes' ? 'seen' : v.value === 'n/a' ? 'not needed' : 'not seen'}</strong>
+                    {v.evidence_lines.length ? ` (line ${v.evidence_lines.map((n) => n + 1).join(', ')})` : ''}
+                  </li>
                 ))}
               </ul>
+              <p className="type-meta mt-1 text-text-muted">A coaching aid, not for HR action. Short examples will show most items as "not seen".</p>
             </div>
           </aside>
         </div>
