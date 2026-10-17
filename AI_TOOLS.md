@@ -1,4 +1,4 @@
-- Claude Code (Anthropic, desktop session, Sonnet 5.5): wrote code and tests in src/ and tests/ (row 1 onward).
+- Claude Code (Anthropic, desktop session, Sonnet 5.5 per commit trailers, other Claude models possible): wrote code and tests in src/ and tests/ (row 1 onward).
 - Devin (Cognition): wrote eval/ (offline eval harness, row 8, PR #1; synthetic data only).
 - Archie (Archie Labs): generated the React/Vite UI in ui/ (row 7); model not shown in the tool.
 - OpenAI Codex (model not recorded): created src/i18n/labels.py (~10:06 AM Sat Oct 17, on the owner's request) and wrote the read-only code reviews in reviews/.

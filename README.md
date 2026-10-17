@@ -16,6 +16,7 @@ Bilingual (English/Spanish) tool for health-coaching conversations. It tags what
 ## Run it (no data needed)
 ```bash
 python3 -m unittest discover -s tests -t .      # tests (Python 3, no packages to install)
+(cd eval && python3 -m unittest test_eval)         # evaluation harness tests (24 tests at the time of writing)
 python3 -m src.api --port 8000                  # local API on fictional fixtures
 cd ui && npm install && VITE_DEMO_MEMORY=1 npx vite --port 3000   # UI in demo mode, no account
 ```
