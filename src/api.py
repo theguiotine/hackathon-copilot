@@ -18,22 +18,41 @@ from .tagger.rules import tag_conversation
 
 FIXTURES = Path(__file__).resolve().parent.parent / "tests" / "fixtures"
 DEFAULT_FILES = [FIXTURES / "conversations.json", FIXTURES / "flag_cases.json"]
+# Only the local UI may call this API from a browser; extra origins via COACH_UI_ORIGINS (comma-separated).
+DEFAULT_ORIGINS = ("http://127.0.0.1:3000", "http://localhost:3000")
+
+
+def allowed_origins():
+    extra = [o.strip() for o in os.environ.get("COACH_UI_ORIGINS", "").split(",") if o.strip()]
+    return set(DEFAULT_ORIGINS) | set(extra)
+
+
+def host_ok(host):
+    """Reject DNS-rebinding: only loopback host names are served."""
+    return (host or "").rsplit(":", 1)[0].strip("[]") in ("127.0.0.1", "localhost", "::1")
+
+
 TIER_ORDER = {"S1": 0, "S2": 1, "S3": 2}
 
 
 def eval_summary():
-    """Aggregates the owner computed locally, from $COACH_CLASSIFIER_DIR/eval_summary.json; never stored in the repo."""
+    """Aggregates the owner computed locally, from $COACH_CLASSIFIER_DIR/eval_summary.json; never stored in the repo.
+
+    The file must be a regular file directly inside that folder: symlinks are refused and the resolved path must stay
+    inside the resolved folder, so this route can never read anything else.
+    """
     directory = os.environ.get("COACH_CLASSIFIER_DIR")
-    if directory:
-        path = Path(directory).expanduser() / "eval_summary.json"
-        if path.is_file():
-            try:
-                data = json.loads(path.read_text(encoding="utf-8"))
-            except ValueError:
-                return {"available": False, "error": "eval_summary.json is not valid JSON"}
-            if isinstance(data, dict):
-                return {"available": True, **data}
-    return {"available": False}
+    if not directory:
+        return {"available": False}
+    base = Path(directory).expanduser().resolve()
+    path = base / "eval_summary.json"
+    if path.is_symlink() or not path.is_file() or path.resolve().parent != base:
+        return {"available": False}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError:
+        return {"available": False, "error": "eval_summary.json is not valid JSON"}
+    return {"available": True, **data} if isinstance(data, dict) else {"available": False}
 
 
 def _dump(o):
@@ -82,8 +101,11 @@ def make_handler(app: App):
             body = json.dumps(obj, ensure_ascii=False).encode("utf-8")
             self.send_response(code)
             self.send_header("Content-Type", "application/json; charset=utf-8")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.send_header("Access-Control-Allow-Headers", "content-type")
+            origin = self.headers.get("Origin")
+            self.send_header("Vary", "Origin")
+            if origin and origin in allowed_origins():
+                self.send_header("Access-Control-Allow-Origin", origin)
+                self.send_header("Access-Control-Allow-Headers", "content-type")
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
@@ -92,6 +114,8 @@ def make_handler(app: App):
             self._send(204, {})
 
         def do_GET(self):
+            if not host_ok(self.headers.get("Host")):
+                return self._send(421, {"error": "unexpected host"})
             path = self.path.split("?")[0]
             if path == "/api/conversations":
                 return self._send(200, [{"id": c.id, "language": c.language, "channel": c.channel, "lines": len(c.lines)}
@@ -107,6 +131,8 @@ def make_handler(app: App):
             self._send(404, {"error": "not found"})
 
         def do_POST(self):
+            if not host_ok(self.headers.get("Host")):
+                return self._send(421, {"error": "unexpected host"})
             path = self.path.split("?")[0]
             if path == "/api/explain":
                 if os.environ.get("LLM_APPROVED") != "1":

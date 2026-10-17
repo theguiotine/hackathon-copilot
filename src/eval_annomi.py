@@ -42,8 +42,7 @@ COARSE = {
 }
 
 
-class AdapterError(Exception):
-    """A problem described without echoing any cell content."""
+from .safe_paths import AdapterError, safe_dest, safe_dir  # noqa: E402
 
 
 def _norm(value):
@@ -137,17 +136,14 @@ def analyze(sessions):
 
 
 def _safe_out(out_dir):
-    out = Path(out_dir).expanduser().resolve()
-    if out == REPO or REPO in out.parents:
-        raise AdapterError("refusing to write predictions inside the repo; set COACH_OUT_DIR outside it")
-    out.mkdir(parents=True, exist_ok=True)
-    return out
+    return safe_dir(out_dir)
 
 
 def _write_pair(out, name, pairs):
     fields = ["call_id", "line_number", "language", "label"]
     pp, lp = out / f"{name}_predictions.csv", out / f"{name}_labels.csv"
     for path, idx in ((pp, 2), (lp, 3)):
+        safe_dest(path)
         with open(path, "w", newline="", encoding="utf-8") as f:
             w = csv.DictWriter(f, fieldnames=fields)
             w.writeheader()

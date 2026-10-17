@@ -144,3 +144,34 @@ class Context(unittest.TestCase):
             self.assertEqual(ct.main(["--selftest", "--context"]), 0)
         self.assertIn("neighbouring-line words", buf.getvalue())
         self.assertNotIn("Monday", buf.getvalue())
+
+
+class OutputSymlinks(unittest.TestCase):
+    def test_save_refuses_symlink_and_repo_paths(self):
+        from src.safe_paths import AdapterError, REPO
+        m = NaiveBayes().fit(["a b", "c d"], ["x", "y"])
+        with tempfile.TemporaryDirectory() as d:
+            target = REPO / "tmp_weights_should_not_exist.json"
+            link = Path(d) / "classifier_coach.json"
+            link.symlink_to(target)
+            with self.assertRaises(AdapterError):
+                m.save(link)
+            self.assertFalse(target.exists())
+            with self.assertRaises(AdapterError):
+                m.save(REPO / "x.json")
+
+    def test_prediction_writers_refuse_symlinks(self):
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d)
+            target = ea.REPO / "tmp_pred_should_not_exist.csv"
+            (out / "coach_all_predictions.csv").symlink_to(target)
+            with self.assertRaises(ea.AdapterError):
+                ea._write_pair(out, "coach_all", [("s", 1, "a", "b", {})])
+            self.assertFalse(target.exists())
+
+    def test_symlinked_output_folder_into_repo_is_refused(self):
+        with tempfile.TemporaryDirectory() as d:
+            link = Path(d) / "out"
+            link.symlink_to(ea.REPO)
+            with self.assertRaises(ea.AdapterError):
+                ea._safe_out(link)

@@ -90,3 +90,68 @@ class Api(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Hardening(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        Api.setUpClass.__func__(cls)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.srv.shutdown()
+
+    def raw(self, path, headers=None):
+        req = urllib.request.Request(self.base + path, headers=headers or {})
+        try:
+            with urllib.request.urlopen(req) as r:
+                return r.status, dict(r.headers), json.loads(r.read())
+        except urllib.error.HTTPError as e:
+            return e.code, dict(e.headers), json.loads(e.read())
+
+    def test_cors_only_for_ui_origins(self):
+        for good in ("http://localhost:3000", "http://127.0.0.1:3000"):
+            _, h, _ = self.raw("/api/queue", {"Origin": good})
+            self.assertEqual(h.get("Access-Control-Allow-Origin"), good)
+        for bad in ("http://evil.example", "http://localhost:3001", "null"):
+            _, h, _ = self.raw("/api/queue", {"Origin": bad})
+            self.assertNotIn("Access-Control-Allow-Origin", h)
+        _, h, _ = self.raw("/api/queue")
+        self.assertNotIn("Access-Control-Allow-Origin", h)
+        self.assertNotEqual(h.get("Access-Control-Allow-Origin"), "*")
+
+    def test_extra_origin_via_env(self):
+        os.environ["COACH_UI_ORIGINS"] = "http://127.0.0.1:3001"
+        try:
+            _, h, _ = self.raw("/api/queue", {"Origin": "http://127.0.0.1:3001"})
+        finally:
+            del os.environ["COACH_UI_ORIGINS"]
+        self.assertEqual(h.get("Access-Control-Allow-Origin"), "http://127.0.0.1:3001")
+
+    def test_rebinding_host_is_refused(self):
+        code, _, _ = self.raw("/api/queue", {"Host": "evil.example:8000"})
+        self.assertEqual(code, 421)
+
+    def test_eval_refuses_symlink_out_of_the_folder(self):
+        with tempfile.TemporaryDirectory() as outside, tempfile.TemporaryDirectory() as d:
+            Path(outside, "secret.json").write_text(json.dumps({"leak": 1}))
+            os.symlink(Path(outside, "secret.json"), Path(d, "eval_summary.json"))
+            os.environ["COACH_CLASSIFIER_DIR"] = d
+            try:
+                _, _, body = self.raw("/api/eval")
+            finally:
+                del os.environ["COACH_CLASSIFIER_DIR"]
+        self.assertEqual(body, {"available": False})
+
+    def test_eval_refuses_symlinked_folder_pointing_elsewhere(self):
+        with tempfile.TemporaryDirectory() as real, tempfile.TemporaryDirectory() as parent:
+            Path(real, "eval_summary.json").write_text(json.dumps({"ok": 1}))
+            link = Path(parent, "link")
+            os.symlink(real, link)
+            os.environ["COACH_CLASSIFIER_DIR"] = str(link)
+            try:
+                _, _, body = self.raw("/api/eval")
+            finally:
+                del os.environ["COACH_CLASSIFIER_DIR"]
+        # a symlinked folder resolves to its real folder, where a regular file lives: allowed, and contained there
+        self.assertTrue(body["available"])

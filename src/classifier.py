@@ -10,6 +10,7 @@ import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
+from .safe_paths import safe_dest
 from .config import COACH_RULES, PARTICIPANT_RULES
 
 _TOKEN = re.compile(r"[\w']+", re.UNICODE)
@@ -114,7 +115,7 @@ class NaiveBayes:
         return m
 
     def save(self, path):
-        Path(path).write_text(json.dumps(self.to_dict()), encoding="utf-8")
+        Path(safe_dest(path)).write_text(json.dumps(self.to_dict()), encoding="utf-8")
 
     @classmethod
     def load(cls, path):
